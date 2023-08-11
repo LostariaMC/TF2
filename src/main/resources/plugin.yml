@@ -1,0 +1,6 @@
+name: TeamFortress2
+version: '${project.version}'
+main: fr.lumin0u.teamfortress2.TF
+api-version: 1.20
+depend: [ Cosmox ]
+authors: [ lumin0u ]
