@@ -2,8 +2,6 @@ package fr.lumin0u.teamfortress2.util;
 
 import com.comphenix.protocol.utility.MinecraftReflection;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.chunk.Chunk;
-import net.minecraft.world.level.chunk.ChunkSection;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -13,25 +11,6 @@ import java.util.Arrays;
 public class NMSUtils
 {
 	public NMSUtils() {
-	}
-	
-	public static ChunkSection[] Chunk_getChunkSections(@NotNull Chunk obj) {
-		try
-		{
-			for(Method method : Chunk.class.getMethods())
-			{
-				if(method.getReturnType().equals(ChunkSection[].class) && method.getParameterCount() == 0)
-				{
-					return (ChunkSection[]) method.invoke(obj);
-				}
-			}
-			
-			throw new RuntimeException("Method not found");
-			
-		} catch(ReflectiveOperationException e)
-		{
-			throw new RuntimeException(e);
-		}
 	}
 	
 	public static <T> T getHandle(Object obj, Object... params) {

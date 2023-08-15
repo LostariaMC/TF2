@@ -7,6 +7,7 @@ import fr.lumin0u.teamfortress2.util.ExpValues;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.worsewarn.cosmox.API;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
+import fr.worsewarn.cosmox.api.scoreboard.CosmoxScoreboard;
 import fr.worsewarn.cosmox.game.GameVariables;
 import fr.worsewarn.cosmox.game.Phase;
 import fr.worsewarn.cosmox.game.teams.Team;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TDMManager extends GameManager
 {
@@ -42,7 +44,22 @@ public class TDMManager extends GameManager
 	}
 	
 	@Override
-	public void updateScoreboard(TFPlayer player) {}
+	public void updateScoreboard(TFPlayer player) {
+		CosmoxScoreboard scoreboard = player.toCosmox().getScoreboard();
+		AtomicInteger line = new AtomicInteger();
+		
+		scoreboard.updateLine(line.getAndIncrement(), "§6Timer§7: " + getFormattedTimer());
+		scoreboard.updateLine(line.getAndIncrement(), "§7Mode: §fTEAM DEATHMATCH");
+		scoreboard.updateLine(line.getAndIncrement(), "§6Kit§7: §a" + player.getKit().getName());
+		scoreboard.updateLine(line.getAndIncrement(), "§2");
+		getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.killCount(), t2.killCount())).forEach(team -> {
+			scoreboard.updateLine(line.getAndIncrement(),
+					"§7Equipe " + team.getPrefix() + (player.getTeam().equals(team) ? "§l" : "") + team.getName(true)
+							+ "§7: §a" + team.killCount() + " §2/40");
+		});
+		scoreboard.updateLine(line.getAndIncrement(), "§e");
+		scoreboard.updateLine(line.getAndIncrement(), "§f");
+	}
 	
 	@Override
 	public void preStartGame() {
@@ -50,22 +67,7 @@ public class TDMManager extends GameManager
 		
 		teams.forEach(team -> {
 			team.getOnlinePlayers().forEach(player -> {
-				player.toBukkit().teleport(team.getSpawnpoint());
-				
-				PlayerInventory inv = player.toBukkit().getInventory();
-				inv.clear();
-				inv.setBoots(team.getBoots());
-				inv.setLeggings(team.getLeggings());
-				inv.setChestplate(team.getChestplate());
-				
-				WeaponType[] weapons = player.getKit().getWeapons();
-				for(int i = 0; i < weapons.length; i++) {
-					WeaponType type = weapons[i];
-					type.createWeapon(player, i).giveItem();
-				}
-				
-				inv.setItem(7, TF.LOCKED_ULT_ITEM);
-				inv.setItem(8, TF.MENU_ITEM);
+				player.respawn(team.getSpawnpoint());
 			});
 		});
 	}
@@ -108,6 +110,6 @@ public class TDMManager extends GameManager
 	}
 	
 	public void onSingleKill(TFPlayer damager, TFPlayer victim) {
-	
+		updateScoreboard();
 	}
 }

@@ -5,13 +5,18 @@ import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
-public class Weapon<T extends WeaponType>
+import java.util.List;
+
+public class Weapon
 {
 	public static final int ULTIMATE_RELOAD_TICKS = 25 * 20;
 	public static final int ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS = 5 * 20;
 	
-	protected final T type;
+	protected List<BukkitTask> bukkitTasks;
+	
+	protected final WeaponType type;
 	protected final int slot;
 	
 	protected int ammo;
@@ -25,7 +30,7 @@ public class Weapon<T extends WeaponType>
 	protected boolean unlocked;
 	protected int ultiReloadTicksRem;
 	
-	public Weapon(T type, TFPlayer owner, int slot) {
+	public Weapon(WeaponType type, TFPlayer owner, int slot) {
 		this.type = type;
 		this.ammo = type.getMaxAmmo();
 		this.owner = owner;
@@ -33,12 +38,15 @@ public class Weapon<T extends WeaponType>
 		this.unlocked = false;
 	}
 	
-	public T getType() {
+	public WeaponType getType() {
 		return type;
 	}
 	
 	public final void giveItem() {
 		owner.toBukkit().getInventory().setItem(slot, type.buildItem(this).build());
+	}
+	
+	public final void remove() {
 	}
 	
 	public void updateItem() {
@@ -78,6 +86,10 @@ public class Weapon<T extends WeaponType>
 		reloading = true;
 		
 		Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
+			if(!owner.hasWeapon(Weapon.this)) {
+				return;
+			}
+			
 			ammo = type.getMaxAmmo();
 			reloading = false;
 			updateItem();
@@ -93,6 +105,11 @@ public class Weapon<T extends WeaponType>
 		new BukkitRunnable() {
 			@Override
 			public void run() {
+				if(!owner.hasWeapon(Weapon.this)) {
+					cancel();
+					return;
+				}
+				
 				ultiReloadTicksRem--;
 				
 				if(ultiReloadTicksRem == 0) {
@@ -131,5 +148,13 @@ public class Weapon<T extends WeaponType>
 	
 	public boolean isReloading() {
 		return reloading;
+	}
+	
+	public int getSlot() {
+		return slot;
+	}
+	
+	public void destroy() {
+		bukkitTasks.forEach(BukkitTask::cancel);
 	}
 }

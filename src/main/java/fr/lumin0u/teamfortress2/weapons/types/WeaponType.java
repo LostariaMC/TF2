@@ -39,18 +39,18 @@ public abstract class WeaponType
 		this.ultimate = ultimate;
 	}
 	
-	public Weapon<?> createWeapon(TFPlayer owner, int slot) {
+	public Weapon createWeapon(TFPlayer owner, int slot) {
 		return new Weapon<>(this, owner, slot);
 	}
 	
-	public abstract void rightClickAction(TFPlayer player, Weapon<?> weapon, RayTraceResult info);
+	public abstract void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info);
 	
 	/**
 	 * if info is null : it's a simple left click (not hitting another entity) <br />
 	 * if info is not null, the owner is hitting an entity <br />
 	 * this can be called twice for the same left click with one info at null and one info not-null
 	 * */
-	public abstract void leftClickAction(TFPlayer player, Weapon<?> weapon, RayTraceResult info);
+	public abstract void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info);
 	
 	public boolean isUltimate() {
 		return ultimate;
@@ -64,7 +64,7 @@ public abstract class WeaponType
 		return maxAmmo;
 	}
 	
-	public ItemBuilder buildItem(Weapon<?> weapon) {
+	public ItemBuilder buildItem(Weapon weapon) {
 		return new ItemBuilder(material)
 				.setAmount(weapon.getAmmo())
 				.setDisplayName((isUltimate() ? ChatColor.LIGHT_PURPLE : ChatColor.BLUE) + name)

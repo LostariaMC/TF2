@@ -7,39 +7,41 @@ import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.game.teams.Team;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static fr.lumin0u.teamfortress2.Kit.*;
+
 public class TFPlayer extends WrappedPlayer implements TFEntity
 {
 	protected FireCause fireCause;
 	private TFPlayer poisonSource;
 	
-	private boolean randomKit;
 	private Kit kit;
 	private Kit nextKit;
 	private TFTeam team;
 	
-	private List<Weapon<?>> weapons;
+	private List<Weapon> weapons;
 	
 	private boolean inScope;
 	private boolean heavyRage;
 	private final AtomicInteger heavyBulletNb;
 	
-	private Location c4Location;
+	/*private Location c4Location;
 	private TurretInfo turretInfo;
 	private Location trampoLocation;
-	private final List<Location> mineLocations;
+	private final List<Location> mineLocations;*/
 	
 	private boolean spyInvisible;
 	private WrappedPlayer disguise;
@@ -62,9 +64,8 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		/*rClickingTask = new RClickingPlayerTask(this);
 		rClickingTask.runTaskTimer(TF.getInstance(), 1, 1);*/
 		
-		this.kit = Kit.getRealRandomKit(new Random());
-		this.randomKit = true;
-		this.nextKit = Kit.NOKIT;
+		this.nextKit = TF.getInstance().getKitFromRedis(this);
+		setKit(nextKit);
 		weapons = new ArrayList<>();
 		
 		this.lastDamagers = new HashMap<>();
@@ -73,7 +74,6 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		this.inScope = false;
 		
 		this.engiInvicible = false;
-		this.mineLocations = new ArrayList<>();
 		
 		this.disguise = this;
 		this.spyInvisible = false;
@@ -110,12 +110,34 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	 * @return the weapon of the given type the player has. <br />
 	 * if the player has not a weapon of this type, returns null
 	 * */
-	public <T extends WeaponType, E extends Weapon<T>> E getWeapon(T type) {
+	public <T extends WeaponType, E extends Weapon> E getWeapon(T type) {
 		return (E) weapons.stream().filter(w -> w.getType().equals(type)).findAny().orElse(null);
 	}
 	
-	public <T extends WeaponType, E extends Weapon<? extends T>> Optional<E> getWeaponInHand() {
+	public <T extends WeaponType, E extends Weapon> Optional<E> getWeaponInHand() {
 		return (Optional<E>) weapons.stream().filter(w -> w.getType().isItem(toBukkit().getInventory().getItemInMainHand())).findAny();
+	}
+	
+	public void giveWeapon(Weapon weapon) {
+		weapon.giveItem();
+		weapons.add(weapon);
+	}
+	
+	public void removeWeapon(Weapon weapon) {
+		weapon.giveItem();
+		weapons.remove(weapon);
+	}
+	
+	public void removeWeapon(WeaponType weaponType) {
+		weapons.removeIf(w -> w.getType().equals(weaponType));
+	}
+	
+	public boolean hasWeapon(Weapon weapon) {
+		return weapons.contains(weapon);
+	}
+	
+	public List<Weapon> getWeapons() {
+		return new ArrayList<>(weapons);
 	}
 	
 	@Override
@@ -124,7 +146,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	}
 	
 	public boolean isRandomKit() {
-		return randomKit;
+		return nextKit == Kit.RANDOM;
 	}
 	
 	public boolean isInScope() {
@@ -180,7 +202,10 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	}
 	
 	public void setKit(Kit kit) {
-		this.kit = kit;
+		if(kit == Kit.RANDOM)
+			this.kit = Kit.getRealRandomKit(new Random());
+		else
+			this.kit = kit;
 	}
 	
 	public Kit getNextKit() {
@@ -191,7 +216,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		this.nextKit = nextKit;
 	}
 	
-	public Location getC4Location() {
+	/*public Location getC4Location() {
 		return c4Location;
 	}
 	
@@ -217,7 +242,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	
 	public List<Location> getMineLocations() {
 		return mineLocations;
-	}
+	}*/
 	
 	public HashMap<TFPlayer, Integer> getLastDamagers() {
 		return lastDamagers;
@@ -239,12 +264,8 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		return heavyBulletNb;
 	}
 	
-	public boolean hasRandomKit() {
-		return randomKit;
-	}
-	
 	public void setRandomKit(boolean randomKit) {
-		this.randomKit = randomKit;
+		this.nextKit = Kit.RANDOM;
 	}
 	
 	public boolean isEnergized() {
@@ -315,60 +336,40 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		if(!isOnline())
 			return;
 		
-		if(isEngiInvicible())
+		if(isEngiInvicible() || getTeam().getSafeZone().contains(getLocation().toVector()))
 			return;
 		
 		addDamager(damager, amount);
 		
 		if(toBukkit().getHealth() <= amount) {
-			//toBukkit()
-		}
-		else {
+			toBukkit().setGameMode(GameMode.SPECTATOR);
+			new ArrayList<>(weapons).forEach(this::removeWeapon);
+		} else {
 			toBukkit().damage(amount);
-			
-			toBukkit().setVelocity(toBukkit().getVelocity().multiply(0.5).add(knockback));
 		}
+		
+		toBukkit().setVelocity(toBukkit().getVelocity().multiply(0.5).add(knockback));
 	}
 	
-	public Inventory openKitMenu() {
-		GameManager gm = GameManager.getInstance();
-		Inventory inv = Bukkit.createInventory(null, 6 * 9, "Choisissez une classe");
+	public void respawn(Location location) {
+		toBukkit().teleport(location);
+		toBukkit().setGameMode(GameMode.ADVENTURE);
 		
-		for(int i = 0; i < Kit.values().length; i++) {
-			if(!Kit.values()[i].isReal()) {
-				continue;
-			}
-			
-			Kit k = Kit.values()[i];
-			inv.setItem(8 + k.placeInInventory(), k.getRepItem());
+		setKit(nextKit);
+		
+		PlayerInventory inv = toBukkit().getInventory();
+		inv.clear();
+		inv.setBoots(team.getBoots());
+		inv.setLeggings(team.getLeggings());
+		inv.setChestplate(team.getChestplate());
+		
+		WeaponType[] weapons = getKit().getWeapons();
+		for(int i = 0; i < weapons.length; i++) {
+			WeaponType type = weapons[i];
+			type.createWeapon(this, i).giveItem();
 		}
 		
-		ItemStack attackTip = new ItemBuilder(Material.RED_DYE)
-				.setDisplayName("§cATTAQUE")
-				.addLore("§7Classes efficaces en attaque")
-				.build();
-		
-		ItemStack defenceTip = new ItemBuilder(Material.BLUE_DYE)
-				.setDisplayName("§2DEFENSE")
-				.addLore("§7Classes efficaces en défense")
-				.build();
-		
-		ItemStack supportTip = new ItemBuilder(Material.LIME_DYE)
-				.setDisplayName("§aSUPPORT")
-				.addLore("§7Classes efficaces en support")
-				.build();
-		
-		
-		ItemStack randomKitItem = new ItemBuilder(Material.PUFFERFISH)
-				.setDisplayName("§c§kmm§r §fClasse Aléatoire §c§kmm")
-				.addLore("§bBien plus fun comme ca !", "§7C'est peut-être une mauvaise idée...")
-				.build();
-		
-		inv.setItem(27 + 4, randomKitItem);
-		inv.setItem(1, attackTip);
-		inv.setItem(4, defenceTip);
-		inv.setItem(7, supportTip);
-		
-		return inv;
+		inv.setItem(7, TF.LOCKED_ULT_ITEM);
+		inv.setItem(8, TF.MENU_ITEM);
 	}
 }

@@ -30,12 +30,12 @@ public class MeleeWeaponType extends WeaponType
 	}
 	
 	@Override
-	public void rightClickAction(TFPlayer player, Weapon<?> weapon, RayTraceResult info) {
+	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 	
 	}
 	
 	@Override
-	public void leftClickAction(TFPlayer player, Weapon<?> weapon, RayTraceResult info) {
+	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		if(info == null || !(info.getHitEntity() instanceof Player)) {
 			return;
 		}

@@ -20,32 +20,32 @@ public class GunType extends WeaponType
 {
 	protected final double damage;
 	protected final double range; // blocks
-	protected final double accuracy; // std variation in radians
+	protected final double inaccuracy; // std variation in radians
 	protected final double knockback; // blocks/tick
 	
-	public GunType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks, int actionDelay, double damage, double range, double accuracy, double knockback) {
+	public GunType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks, int actionDelay, double damage, double range, double inaccuracy, double knockback) {
 		super(ultimate, material, name, maxAmmo, reloadTicks, actionDelay);
 		this.damage = damage;
 		this.range = range;
-		this.accuracy = accuracy;
+		this.inaccuracy = inaccuracy;
 		this.knockback = knockback;
 	}
 	
 	@Override
-	public Weapon<?> createWeapon(TFPlayer owner, int slot) {
-		return new Gun<>(this, owner, slot);
+	public Weapon createWeapon(TFPlayer owner, int slot) {
+		return new Gun(this, owner, slot);
 	}
 	
 	@Override
-	public void rightClickAction(TFPlayer player, Weapon<?> weapon, RayTraceResult info) {
-		shoot(true, player, player.getEyeLocation(), player.getEyeLocation().getDirection(), (Gun<?>) weapon,
+	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+		shoot(true, player, player.getEyeLocation(), player.getEyeLocation().getDirection(), (Gun) weapon,
 				l -> l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, new DustOptions(Color.BLACK, 1)), GameManager.getInstance().getEntities());
 		
 		weapon.useAmmo();
 	}
 	
 	@Override
-	public void leftClickAction(TFPlayer player, Weapon<?> weapon, RayTraceResult info) {
+	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 	
 	}
 	
@@ -71,7 +71,7 @@ public class GunType extends WeaponType
 		hit.hitEntity.damage(hit.player, hit.weapon.getType().damage, kb);
 	}
 	
-	public static void shoot(boolean flame, TFPlayer player, Location source, Vector direction, Gun<?> weapon, Consumer<Location> particle, Collection<? extends TFEntity> entities)
+	public static void shoot(boolean flame, TFPlayer player, Location source, Vector direction, Gun weapon, Consumer<Location> particle, Collection<? extends TFEntity> entities)
 	{
 		/*if(this instanceof LaTornade)
 		{
@@ -91,7 +91,7 @@ public class GunType extends WeaponType
 		}*/
 		
 		direction.normalize();
-		direction = addSpread(direction, weapon.getType().accuracy);
+		direction = addSpread(direction, weapon.getType().inaccuracy);
 		
 		double range = weapon.getType().range;
 		
@@ -215,5 +215,5 @@ public class GunType extends WeaponType
 				Utils.playSound(((TFPlayer) ent).getPlayer(), nearestPoint.get(ent), "guns.FIEEW", 5, (float) Math.random() * 0.2F + 0.9F);*/
 	}
 	
-	public static record Hit(TFPlayer player, Gun<?> weapon, TFEntity hitEntity, Location hitPoint, boolean headshot, Vector direction) {}
+	public static record Hit(TFPlayer player, Gun weapon, TFEntity hitEntity, Location hitPoint, boolean headshot, Vector direction) {}
 }

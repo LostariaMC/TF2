@@ -4,11 +4,14 @@ import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.GameManager.GamePhase;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.weapons.PlaceableWeapon;
+import fr.lumin0u.teamfortress2.weapons.types.PlaceableWeaponType;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 public class MoveListener implements Listener
@@ -38,11 +41,11 @@ public class MoveListener implements Listener
 		
 		if(gm.getPhase().isInGame() && event.hasChangedBlock()) {
 			tf.getPlayers().stream().filter(player::canDamage).forEach(ennemy -> {
-				for(Location mine : ennemy.getMineLocations()) {
-					if(mine.getBlock().getBoundingBox().overlaps(player.getBodyBox())) {
-						// TODO EXPLODE
-					}
-				}
+				ennemy.getWeapons().stream()
+						.filter(w -> w.getType() instanceof PlaceableWeaponType)
+						.flatMap(w -> ((PlaceableWeapon)w).getBlocks().stream())
+						.filter(block -> BoundingBox.of(block.getBlock()).overlaps(player.getBodyBox()))
+						.forEach(block -> block.onWalkOn(player));
 			});
 		}
 	}

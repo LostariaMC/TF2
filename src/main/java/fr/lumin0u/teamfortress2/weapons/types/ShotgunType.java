@@ -21,7 +21,7 @@ public class ShotgunType extends GunType
 	}
 	
 	@Override
-	public void rightClickAction(TFPlayer player, Weapon<?> weapon, RayTraceResult info) {
+	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		for(int i = 0; i < shots; i++) {
 			shoot(true, player, player.getEyeLocation(), player.getEyeLocation().getDirection(), (Gun<?>) weapon,
 					l -> l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, new DustOptions(Color.BLACK, 1)), GameManager.getInstance().getEntities());

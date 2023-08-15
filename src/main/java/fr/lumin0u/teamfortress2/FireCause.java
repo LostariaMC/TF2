@@ -2,7 +2,7 @@ package fr.lumin0u.teamfortress2;
 
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 
-public class FireCause//▒
+public class FireCause
 {
 	private boolean unknown;
 	private TFPlayer damager;

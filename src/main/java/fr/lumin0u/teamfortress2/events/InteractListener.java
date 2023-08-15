@@ -1,5 +1,6 @@
 package fr.lumin0u.teamfortress2.events;
 
+import fr.lumin0u.teamfortress2.Kit;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
@@ -35,7 +36,7 @@ public class InteractListener implements Listener
 		event.setCancelled(true);
 		
 		if(event.getAction().isRightClick() && event.getItem() != null && event.getItem().isSimilar(TF.MENU_ITEM)) {
-			player.openKitMenu();
+			player.toBukkit().openInventory(Kit.getKitMenuInventory());
 		}
 		
 		if(event.getAction().isRightClick()) {

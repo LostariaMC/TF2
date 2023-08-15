@@ -2,10 +2,16 @@ package fr.lumin0u.teamfortress2.weapons;
 
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.types.GunType;
+import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 
-public class Gun<T extends GunType> extends Weapon<T>
+public class Gun extends Weapon
 {
-	public Gun(T type, TFPlayer owner, int slot) {
+	public Gun(GunType type, TFPlayer owner, int slot) {
 		super(type, owner, slot);
+	}
+
+	@Override
+	public GunType getType() {
+		return (GunType) super.getType();
 	}
 }
