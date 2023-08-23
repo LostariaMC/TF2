@@ -21,6 +21,14 @@ public abstract class PlacedBlockWeapon {
 		return block;
 	}
 	
+	public PlaceableWeapon getWeapon() {
+		return weapon;
+	}
+	
+	public TFPlayer getOwner() {
+		return owner;
+	}
+	
 	public abstract void place();
 	
 	public abstract void destroy();

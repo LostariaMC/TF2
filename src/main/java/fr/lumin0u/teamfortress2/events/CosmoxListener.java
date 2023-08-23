@@ -4,15 +4,13 @@ import fr.lumin0u.teamfortress2.Kit;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.GameType;
-import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.Items;
 import fr.worsewarn.cosmox.API;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
+import fr.worsewarn.cosmox.game.Phase;
 import fr.worsewarn.cosmox.game.events.GameStartEvent;
 import fr.worsewarn.cosmox.game.events.GameStopEvent;
-import fr.worsewarn.cosmox.game.events.PlayerJoinGameEvent;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -24,37 +22,26 @@ public class CosmoxListener implements Listener
 	private boolean gameStarted;
 	
 	@EventHandler
-	public void onPlayerJoin(PlayerJoinGameEvent event) {
-		if(API.instance().getManager().getPhase().getState() == 0)
-			return;
-		
-		Player player = event.getPlayer();
-		player.setGameMode(GameMode.SPECTATOR);
-		if(Bukkit.getOnlinePlayers().size() > 1)
-			player.teleport(Bukkit.getOnlinePlayers().stream().filter(all -> all != player).toList().get(0));
-		
-		TF.getInstance().loadTFPlayer(WrappedPlayer.of(player));
-		
-		//if(GameManager.getInstance() != null)
-		//	GameManager.getInstance().resetScoreboard(WrappedPlayer.of(player));
-	}
-	
-	@EventHandler
 	public void onGameStart(GameStartEvent event) {
 		if(event.getGame().equals(TF.getInstance().getCosmoxGame())) {
 			gameStarted = true;
 			
 			TF tf = TF.getInstance();
 			
-			GameManager gm = GameType.TEAM_DEATHMATCH.createManager(event.getMap());
+			GameManager gm = tf.createGameManager(GameType.TEAM_DEATHMATCH, event.getMap());
 			
 			gm.preStartGame();
-			Bukkit.getScheduler().runTaskLater(TF.getInstance(), gm::startGame, 20L * TF.getInstance().getCosmoxGame().getPreparationTime());
+			Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
+				gm.startGame();
+				API.instance().getManager().setPhase(Phase.GAME);
+			}, 20L * TF.getInstance().getCosmoxGame().getPreparationTime());
 			
-			tf.registerListener(new MoveListener(gm, tf));
+			tf.registerListener(new PlayerMovementListener(gm, tf));
 			tf.registerListener(new InteractListener(gm, tf));
 			tf.registerListener(new DamageListener(gm, tf));
 			tf.registerListener(new InventoryListener(gm, tf));
+			tf.registerListener(new ConnexionListener(gm, tf));
+			tf.registerListener(new EntityMovementListener(gm, tf));
 		}
 	}
 	
@@ -76,16 +63,24 @@ public class CosmoxListener implements Listener
 	
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
-		if(event.getInventory().equals(Kit.getWRInventory())) {
+		if(!gameStarted && event.getInventory().equals(Kit.getWRInventory())) {
 			event.setCancelled(true);
 			
-			InventoryListener.onClickInChoseKitInventory(event);
+			Kit clickedKit = Kit.byRepItem(event.getCurrentItem());
+			if(clickedKit != null) {
+				TF.getInstance().setKitInRedis(WrappedPlayer.of(event.getWhoClicked()), clickedKit);
+				event.getWhoClicked().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "Vous choisissez la classe §e" + clickedKit.getName());
+			}
+			else if(Items.randomKitItem.isSimilar(event.getCurrentItem())) {
+				TF.getInstance().setKitInRedis(WrappedPlayer.of(event.getWhoClicked()), Kit.RANDOM);
+				event.getWhoClicked().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "Vous laissez le choix de votre classe au §ehasard");
+			}
 		}
 	}
 	
 	@EventHandler
 	public void onInteract(PlayerInteractEvent event) {
-		if(event.getAction().isRightClick() && event.getItem() != null && event.getItem().isSimilar(TF.WR_KIT_ITEM)) {
+		if(!gameStarted && event.getAction().isRightClick() && event.getItem() != null && Items.WR_KIT_ITEM.getType().equals(event.getItem().getType())) {
 			event.getPlayer().openInventory(Kit.getWRInventory());
 		}
 	}

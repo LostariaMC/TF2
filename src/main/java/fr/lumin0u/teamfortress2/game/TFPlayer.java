@@ -1,32 +1,37 @@
 package fr.lumin0u.teamfortress2.game;
 
-import fr.lumin0u.teamfortress2.*;
+import com.comphenix.protocol.PacketType.Play.Server;
+import com.comphenix.protocol.events.PacketContainer;
+import fr.lumin0u.teamfortress2.FireCause;
+import fr.lumin0u.teamfortress2.Kit;
+import fr.lumin0u.teamfortress2.TF;
+import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
+import fr.lumin0u.teamfortress2.util.Items;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.game.teams.Team;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import fr.worsewarn.cosmox.tools.chat.Messages;
+import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
+import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
+import net.minecraft.network.protocol.game.PacketPlayOutUpdateHealth;
+import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static fr.lumin0u.teamfortress2.Kit.*;
+import java.util.stream.Collectors;
 
 public class TFPlayer extends WrappedPlayer implements TFEntity
 {
 	protected FireCause fireCause;
 	private TFPlayer poisonSource;
+	private boolean leftSafeZone;
 	
 	private Kit kit;
 	private Kit nextKit;
@@ -38,11 +43,6 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	private boolean heavyRage;
 	private final AtomicInteger heavyBulletNb;
 	
-	/*private Location c4Location;
-	private TurretInfo turretInfo;
-	private Location trampoLocation;
-	private final List<Location> mineLocations;*/
-	
 	private boolean spyInvisible;
 	private WrappedPlayer disguise;
 	
@@ -51,12 +51,13 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	private boolean energized;
 	private boolean canDoubleJump;
 	
-	private final HashMap<TFPlayer, Integer> lastDamagers;
-	private long lastHitDate;
+	private final Map<TFPlayer, Long> lastDamagers;
+	private long lastMeleeHitDate;
 	private int killCount;
 	
 	//private RClickingPlayerTask rClickingTask;
 	private boolean dead;
+	private boolean hasJoinedGameBefore;
 	
 	public TFPlayer(UUID uuid) {
 		super(uuid);
@@ -69,7 +70,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		weapons = new ArrayList<>();
 		
 		this.lastDamagers = new HashMap<>();
-		this.lastHitDate = 0;
+		this.lastMeleeHitDate = 0;
 		
 		this.inScope = false;
 		
@@ -96,14 +97,12 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		return toCosmox().isTeam(Team.SPEC);
 	}
 	
-	public boolean canDamage(TFEntity entity) {
-		return team != null && !team.equals(entity.getTeam());
+	public boolean isEnemy(TFEntity entity) {
+		return (team != null && !team.equals(entity.getTeam())) || GameManager.getInstance().isFriendlyFire();
 	}
 	
 	public void setTeam(TFTeam team) {
 		this.team = team;
-		
-		// TODO update scoreboard ?
 	}
 	
 	/**
@@ -114,8 +113,16 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		return (E) weapons.stream().filter(w -> w.getType().equals(type)).findAny().orElse(null);
 	}
 	
+	public <T extends WeaponType, E extends Weapon> Optional<E> getOptWeapon(T type) {
+		return (Optional<E>) weapons.stream().filter(w -> w.getType().equals(type)).findAny();
+	}
+	
 	public <T extends WeaponType, E extends Weapon> Optional<E> getWeaponInHand() {
 		return (Optional<E>) weapons.stream().filter(w -> w.getType().isItem(toBukkit().getInventory().getItemInMainHand())).findAny();
+	}
+	
+	public <T extends WeaponType, E extends Weapon> Optional<E> getWeaponInSlot(int slot) {
+		return (Optional<E>) weapons.stream().filter(w -> w.getType().isItem(toBukkit().getInventory().getItem(slot))).findAny();
 	}
 	
 	public void giveWeapon(Weapon weapon) {
@@ -124,7 +131,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	}
 	
 	public void removeWeapon(Weapon weapon) {
-		weapon.giveItem();
+		weapon.remove();
 		weapons.remove(weapon);
 	}
 	
@@ -136,11 +143,16 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		return weapons.contains(weapon);
 	}
 	
+	public Weapon getUltimate() {
+		return getWeapon(getKit().getSpecial());
+	}
+	
 	public List<Weapon> getWeapons() {
 		return new ArrayList<>(weapons);
 	}
 	
 	@Override
+	@Nullable
 	public TFTeam getTeam() {
 		return team;
 	}
@@ -201,7 +213,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		return kit;
 	}
 	
-	public void setKit(Kit kit) {
+	private void setKit(Kit kit) {
 		if(kit == Kit.RANDOM)
 			this.kit = Kit.getRealRandomKit(new Random());
 		else
@@ -212,60 +224,30 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		return nextKit;
 	}
 	
-	public void setNextKit(Kit nextKit) {
+	public void setNextKit(Kit nextKit, boolean redis) {
+		if(redis)
+			TF.getInstance().setKitInRedis(this, nextKit);
 		this.nextKit = nextKit;
 	}
 	
-	/*public Location getC4Location() {
-		return c4Location;
-	}
-	
-	public void setC4Location(Location c4Location) {
-		this.c4Location = c4Location;
-	}
-	
-	public TurretInfo getTurretInfo() {
-		return turretInfo;
-	}
-	
-	public void setTurretInfo(TurretInfo turretInfo) {
-		this.turretInfo = turretInfo;
-	}
-	
-	public Location getTrampoLocation() {
-		return trampoLocation;
-	}
-	
-	public void setTrampoLocation(Location trampoLocation) {
-		this.trampoLocation = trampoLocation;
-	}
-	
-	public List<Location> getMineLocations() {
-		return mineLocations;
-	}*/
-	
-	public HashMap<TFPlayer, Integer> getLastDamagers() {
-		return lastDamagers;
-	}
-	
 	public void addDamager(TFPlayer damager, double damage) {
-		lastDamagers.put(damager, (lastDamagers.get(damager) != null ? lastDamagers.get(damager) : 0) + (int) (damage * 70));
+		lastDamagers.put(damager, TF.currentTick() + lastDamagers.getOrDefault(damager, 0L) + (long) (damage * 60));
 	}
 	
-	public long getLastHitDate() {
-		return lastHitDate;
+	public boolean lifeBeenImpactedRecentlyBy(TFPlayer damager) {
+		return lastDamagers.getOrDefault(damager, 0L) > TF.currentTick();
 	}
 	
-	public void setLastHitDate(long lastHitDate) {
-		this.lastHitDate = lastHitDate;
+	public boolean canBeMeleeHit() {
+		return TF.currentTick() > lastMeleeHitDate + 10;
+	}
+	
+	public void setLastMeleeHitDate(long lastMeleeHitDate) {
+		this.lastMeleeHitDate = lastMeleeHitDate;
 	}
 	
 	public AtomicInteger heavyBulletNb() {
 		return heavyBulletNb;
-	}
-	
-	public void setRandomKit(boolean randomKit) {
-		this.nextKit = Kit.RANDOM;
 	}
 	
 	public boolean isEnergized() {
@@ -274,6 +256,18 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	
 	public void setEnergized(boolean energized) {
 		this.energized = energized;
+	}
+	
+	public boolean isInSafeZone() {
+		return getTeam() != null && getTeam().getSafeZone().contains(getLocation().toVector());
+	}
+	
+	public boolean hasLeftSafeZone() {
+		return leftSafeZone;
+	}
+	
+	public void setHasLeftSafeZone(boolean leftSafeZone) {
+		this.leftSafeZone = leftSafeZone;
 	}
 	
 	/*public RClickingPlayerTask getrClickingTask() {
@@ -290,13 +284,21 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	}
 	
 	@Override
+	public Location getEyeLocation() {
+		return toBukkit().getEyeLocation();
+	}
+	
+	@Override
 	public LivingEntity getEntity() {
 		return toBukkit();
 	}
 	
+	/**
+	 * @return true if the player is dead or if the player is not playing (is a spectator)
+	 * */
 	@Override
 	public boolean isDead() {
-		return dead;
+		return dead || isSpectator() || !isOnline();
 	}
 	
 	public String getListName() {
@@ -309,6 +311,14 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	
 	public int getKillCount() {
 		return killCount;
+	}
+	
+	public boolean hasJoinedBefore() {
+		return hasJoinedGameBefore;
+	}
+	
+	public void setHasJoinedGameBefore(boolean hasJoinedGameBefore) {
+		this.hasJoinedGameBefore = hasJoinedGameBefore;
 	}
 	
 	@Override
@@ -332,30 +342,105 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	}
 	
 	@Override
-	public void damage(TFPlayer damager, double amount, Vector knockback) {
+	public boolean damage(TFPlayer damager, double amount, Vector knockback) {
 		if(!isOnline())
-			return;
+			return false;
 		
-		if(isEngiInvicible() || getTeam().getSafeZone().contains(getLocation().toVector()))
-			return;
+		if(isEngiInvicible() || isInSafeZone())
+			return false;
 		
-		addDamager(damager, amount);
+		amount = Math.min(amount, toBukkit().getHealth());
+		
+		if(damager != null)
+			addDamager(damager, amount);
 		
 		if(toBukkit().getHealth() <= amount) {
-			toBukkit().setGameMode(GameMode.SPECTATOR);
-			new ArrayList<>(weapons).forEach(this::removeWeapon);
+			die(damager);
 		} else {
-			toBukkit().damage(amount);
+			toBukkit().setHealth(toBukkit().getHealth() - amount);
+			
+			//toBukkit().damage(0);
+			
+			PacketContainer packetDamageEvent = new PacketContainer(Server.DAMAGE_EVENT,
+					new ClientboundDamageEventPacket(toBukkit().getEntityId(), 0, 0, 0, Optional.empty()));
+			
+			PacketContainer packetHurtAnimation = new PacketContainer(Server.HURT_ANIMATION, new ClientboundHurtAnimationPacket(toBukkit().getEntityId(), 0f));
+			PacketContainer packetUpdateHealth = new PacketContainer(Server.UPDATE_HEALTH, new PacketPlayOutUpdateHealth((float) toBukkit().getHealth() / (float) getKit().getMaxHealth() * 20f, 20, 0f));
+			
+			for(WrappedPlayer watcher : WrappedPlayer.of(Bukkit.getOnlinePlayers())) {
+				watcher.sendPacket(packetDamageEvent);
+			}
+			
+			this.sendPacket(packetHurtAnimation);
+			this.sendPacket(packetUpdateHealth);
+			
+			toBukkit().getWorld().playSound(getLocation(), Sound.ENTITY_PLAYER_HURT, 1, 1);
 		}
 		
 		toBukkit().setVelocity(toBukkit().getVelocity().multiply(0.5).add(knockback));
+		
+		return true;
+	}
+	
+	public void die(TFPlayer killer) {
+		die(killer, false);
+	}
+	
+	public void die(TFPlayer killer, boolean disconnect) {
+		if(dead)
+			return;
+		
+		new ArrayList<>(weapons).forEach(this::removeWeapon);
+		
+		List<TFPlayer> trueLastDamagers = lastDamagers.keySet().stream()
+				.filter(this::lifeBeenImpactedRecentlyBy)
+				.sorted((p1, p2) -> Long.compare(lastDamagers.get(p1), lastDamagers.get(p2)))
+				.toList();
+		lastDamagers.clear();
+		
+		for(TFPlayer lastDamager : trueLastDamagers) {
+			lastDamager.getUltimate().onOwnerDoKill();
+		}
+		
+		if(GameManager.getInstance().getGameType().isTDM()) {
+			TDMManager.getInstance().onSingleKill(this, trueLastDamagers.isEmpty() ? null : trueLastDamagers.get(0).getTeam());
+		}
+		
+		if(!disconnect) {
+			dead = true;
+			
+			toBukkit().setGameMode(GameMode.SPECTATOR);
+			
+			Bukkit.broadcastMessage(TF.getInstance().getCosmoxGame().getPrefix()
+					+ Messages.BROADCAST_KILL.formatted(getListName(), trueLastDamagers.stream().map(TFPlayer::getListName).collect(Collectors.joining("§7, "))));
+			
+			if(killer != null) {
+				Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
+					if(isOnline() && killer.isOnline()) {
+						toBukkit().setSpectatorTarget(killer.toBukkit());
+					}
+				}, 20);
+			}
+			
+			Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
+				dead = false;
+				if(isOnline()) {
+					respawn(GameManager.getInstance().findSpawnLocation(this));
+				}
+			}, 60);
+		}
 	}
 	
 	public void respawn(Location location) {
 		toBukkit().teleport(location);
 		toBukkit().setGameMode(GameMode.ADVENTURE);
+		toBukkit().setSaturation(0);
+		toBukkit().setFoodLevel(20);
+		toBukkit().setFoodLevel(20);
 		
+		new ArrayList<>(weapons).forEach(this::removeWeapon);
 		setKit(nextKit);
+		leftSafeZone = false;
 		
 		PlayerInventory inv = toBukkit().getInventory();
 		inv.clear();
@@ -366,10 +451,19 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		WeaponType[] weapons = getKit().getWeapons();
 		for(int i = 0; i < weapons.length; i++) {
 			WeaponType type = weapons[i];
-			type.createWeapon(this, i).giveItem();
+			giveWeapon(type.createWeapon(this, i));
 		}
 		
-		inv.setItem(7, TF.LOCKED_ULT_ITEM);
-		inv.setItem(8, TF.MENU_ITEM);
+		giveWeapon(getKit().getSpecial().createWeapon(this, 6));
+		
+		inv.setItem(6, Items.LOCKED_ULT_ITEM);
+		inv.setItem(7, new ItemBuilder(Material.DRIED_KELP).setDisplayName("§7?").setLore("§7Cet item ne sert a rien...").build());
+		inv.setItem(8, Items.MENU_ITEM);
+		
+		toBukkit().setWalkSpeed(getKit().getSpeed());
+		toBukkit().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(getKit().getMaxHealth());
+		toBukkit().setHealth(getKit().getMaxHealth());
+		
+		toBukkit().setAllowFlight(getKit().equals(Kit.SCOUT));
 	}
 }

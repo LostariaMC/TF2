@@ -6,6 +6,7 @@ import fr.worsewarn.cosmox.API;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.api.scoreboard.CosmoxScoreboard;
 import fr.worsewarn.cosmox.game.Phase;
+import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.chat.Messages;
 import fr.worsewarn.cosmox.tools.map.GameMap;
 import org.bukkit.Bukkit;
@@ -16,11 +17,11 @@ import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+
+import static java.util.function.Predicate.not;
 
 public abstract class GameManager {
 	protected final TF tf;
@@ -29,28 +30,48 @@ public abstract class GameManager {
 	
 	protected GamePhase phase;
 	protected long startDate;
+	protected final boolean friendlyFire;
+	protected final GameType gameType;
 	
-	public GameManager(GameMap map, List<TFTeam> teams) {
+	public GameManager(GameMap map, List<TFTeam> teams, GameType gameType) {
 		this.tf = TF.getInstance();
 		this.map = map;
+		this.friendlyFire = gameType.isFriendlyFire();
+		this.gameType = gameType;
 		
 		this.teams = teams;
+		
+		for(TFTeam team : teams) {
+			if(team.cosmoxTeam() != null) {
+				WrappedPlayer.of(Bukkit.getOnlinePlayers()).stream().filter(p -> p.toCosmox().getTeam().equals(team.cosmoxTeam())).forEach(p -> p.to(TFPlayer.class).setTeam(team));
+			}
+		}
 	}
 	
 	public static GameManager getInstance() {
 		return TF.getInstance().getGameManager();
 	}
 	
+	public Optional<TFTeam> getTFTeam(Team team) {
+		return getTeams().stream()
+				.filter(tfTeam -> team.equals(tfTeam.cosmoxTeam()))
+				.findFirst();
+	}
+	
 	public GameMap getMap() {
 		return map;
 	}
 	
-	public Collection<? extends TFEntity> getEntities() {
-		return tf.getPlayers();
+	public GameType getGameType() {
+		return gameType;
+	}
+	
+	public Collection<? extends TFEntity> getLivingEntities() {
+		return getPlayers().stream().filter(WrappedPlayer::isOnline).filter(not(TFEntity::isDead)).toList();
 	}
 	
 	public Collection<TFPlayer> getPlayers() {
-		return tf.getPlayers();
+		return tf.getPlayers().stream().filter(not(TFPlayer::isSpectator)).toList();
 	}
 	
 	public List<TFTeam> getTeams() {
@@ -59,6 +80,10 @@ public abstract class GameManager {
 	
 	public GamePhase getPhase() {
 		return phase;
+	}
+	
+	public boolean isFriendlyFire() {
+		return friendlyFire;
 	}
 	
 	public void preStartGame() {
@@ -110,22 +135,24 @@ public abstract class GameManager {
 		tf.getPlayers().stream().filter(WrappedPlayer::isOnline).forEach(this::updateScoreboard);
 	}
 	
-	public void explosion(TFPlayer damager, Location loc, double centerDamage, double radius, Predicate<TFEntity> ennemyPredicate, double centerKnockback) {
+	public void explosion(TFPlayer damager, Location loc, double centerDamage, double radius, Predicate<TFEntity> enemyPredicate, double centerKnockback) {
 		
-		loc.getWorld().spawnParticle(radius > 5 ? Particle.EXPLOSION_HUGE : Particle.EXPLOSION_LARGE, loc, 1);
+		loc.getWorld().spawnParticle(radius > 5 ? Particle.EXPLOSION_HUGE : Particle.EXPLOSION_LARGE, loc, 1, 0, 0, 0, 0, null, true);
 		
-		getEntities().stream().filter(ennemyPredicate).forEach(entity -> {
+		int nbParticles = (int) (centerDamage * radius / 2);
+		loc.getWorld().spawnParticle(Particle.SMOKE_LARGE, loc, nbParticles, 0, 0, 0, radius/20, null, true);
+		loc.getWorld().spawnParticle(Particle.FLAME, loc, nbParticles, 0, 0, 0, radius/20, null, true);
+		
+		getLivingEntities().stream().filter(enemyPredicate).forEach(entity -> {
 			double distance = entity.getLocation().distance(loc);
 			if(distance < radius) {
-				double damage = centerDamage * (1 - Math.pow(1 - (radius - distance) / radius, 2));
+				double damage = centerDamage * ((radius - distance) / radius);
 				
-				BlockIterator blocksBtwn = new BlockIterator(
-						loc.setDirection(entity.getLocation().toVector().subtract(loc.toVector())),
-						0, (int) distance);
+				BlockIterator blocksBtwn = new BlockIterator(loc.getWorld(), loc.toVector(), loc.toVector().subtract(entity.getLocation().toVector()), 0, (int) distance + 1);
 				
 				AtomicInteger blockCount = new AtomicInteger();
 				blocksBtwn.forEachRemaining(block -> {
-					if(block.isSolid()) blockCount.incrementAndGet();
+					if(block.isBuildable()) blockCount.incrementAndGet();
 				});
 				
 				damage *= Math.max(1, (double) blockCount.get() / 2 + 0.5);
@@ -136,6 +163,8 @@ public abstract class GameManager {
 			}
 		});
 	}
+	
+	public abstract Location findSpawnLocation(TFPlayer player);
 	
 	public abstract void updateScoreboard(TFPlayer player);
 	

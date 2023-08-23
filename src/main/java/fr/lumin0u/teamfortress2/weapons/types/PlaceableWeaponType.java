@@ -10,8 +10,10 @@ import fr.lumin0u.teamfortress2.weapons.Weapon;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public abstract class PlaceableWeaponType extends WeaponType
@@ -21,12 +23,19 @@ public abstract class PlaceableWeaponType extends WeaponType
 	}
 	
 	@Override
+	public Weapon createWeapon(TFPlayer owner, int slot) {
+		return new PlaceableWeapon(this, owner, slot);
+	}
+	
+	@Override
 	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		if(info.getHitBlock() == null)
 			return;
 		
 		Block minePosition = info.getHitBlock().getRelative(info.getHitBlockFace());
-		if(minePosition.isEmpty() && minePosition.getRelative(BlockFace.UP).isEmpty()) {
+		Block downBlock = minePosition.getRelative(BlockFace.DOWN);
+		if(minePosition.isEmpty() && minePosition.getRelative(BlockFace.UP).isEmpty()
+				&& downBlock.isBuildable() && BoundingBox.of(downBlock).equals(downBlock.getBoundingBox())) {
 			((PlaceableWeapon)weapon).getBlocks().add(placeBlock(player, (PlaceableWeapon) weapon, minePosition));
 			weapon.useAmmo();
 		}
@@ -36,16 +45,9 @@ public abstract class PlaceableWeaponType extends WeaponType
 	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 	}
 	
-	@Override
-	public ItemBuilder buildItem(Weapon weapon) {
-		return super.buildItem(weapon).addPlaceableKeys(NamespacedTag.minecraft(""));
-	}
-	
-	public void wrenchPickup(TFPlayer player, Weapon weapon, Block block) {
-		((PlaceableWeapon) weapon).getBlocks().stream()
-				.filter(b -> b.getBlock().equals(block))
-				.forEach(PlacedBlockWeapon::destroy);
-		((PlaceableWeapon) weapon).pickupAmmo();
+	public void wrenchPickup(TFPlayer player, PlaceableWeapon weapon, PlacedBlockWeapon clicked) {
+		weapon.removeBlock(clicked);
+		weapon.pickupAmmo();
 	}
 	
 	public abstract PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block);

@@ -15,6 +15,7 @@ import fr.worsewarn.cosmox.tools.chat.Messages;
 import fr.worsewarn.cosmox.tools.map.GameMap;
 import fr.worsewarn.cosmox.tools.world.Cuboid;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
@@ -32,15 +33,13 @@ public class TDMManager extends GameManager
 {
 	public TDMManager(GameMap map) {
 		super(map, List.of(
-				new TFTeam(Team.RED, Material.REDSTONE_BLOCK, map.getLocation("redSpawn"), BoundingBox.of(map.getCuboid("redSafezone").get(0), map.getCuboid("redSafezone").get(1))),
-				new TFTeam(Team.BLUE, Material.DIAMOND_BLOCK, map.getLocation("blueSpawn"), BoundingBox.of(map.getCuboid("blueSafezone").get(0), map.getCuboid("blueSafezone").get(1)))
-		));
+				new TFTeam(Team.RED, Material.REDSTONE_BLOCK, map.getLocation("redSpawn"), BoundingBox.of(map.getCuboid("redSafeZone").get(0), map.getCuboid("redSafeZone").get(1))),
+				new TFTeam(Team.BLUE, Material.DIAMOND_BLOCK, map.getLocation("blueSpawn"), BoundingBox.of(map.getCuboid("blueSafeZone").get(0), map.getCuboid("blueSafeZone").get(1)))
+		), GameType.TEAM_DEATHMATCH);
 	}
 	
 	public static TDMManager getInstance() {
-		if(TF.getInstance().getGameManager() instanceof TDMManager tdmManager)
-			return tdmManager;
-		return null;
+		return (TDMManager) TF.getInstance().getGameManager();
 	}
 	
 	@Override
@@ -50,12 +49,15 @@ public class TDMManager extends GameManager
 		
 		scoreboard.updateLine(line.getAndIncrement(), "§6Timer§7: " + getFormattedTimer());
 		scoreboard.updateLine(line.getAndIncrement(), "§7Mode: §fTEAM DEATHMATCH");
-		scoreboard.updateLine(line.getAndIncrement(), "§6Kit§7: §a" + player.getKit().getName());
+		
+		if(!player.isSpectator())
+			scoreboard.updateLine(line.getAndIncrement(), "§6Kit§7: §a" + player.getKit().getName());
+		
 		scoreboard.updateLine(line.getAndIncrement(), "§2");
-		getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.killCount(), t2.killCount())).forEach(team -> {
+		getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills())).forEach(team -> {
 			scoreboard.updateLine(line.getAndIncrement(),
-					"§7Equipe " + team.getPrefix() + (player.getTeam().equals(team) ? "§l" : "") + team.getName(true)
-							+ "§7: §a" + team.killCount() + " §2/40");
+					"§7Equipe " + team.getPrefix() + (team.equals(player.getTeam()) ? "§l" : "") + team.getName(true)
+							+ "§7: §a" + team.getKills() + " §2/40");
 		});
 		scoreboard.updateLine(line.getAndIncrement(), "§e");
 		scoreboard.updateLine(line.getAndIncrement(), "§f");
@@ -109,7 +111,16 @@ public class TDMManager extends GameManager
 		});
 	}
 	
-	public void onSingleKill(TFPlayer damager, TFPlayer victim) {
+	@Override
+	public Location findSpawnLocation(TFPlayer player) {
+		return player.getTeam().getSpawnpoint();
+	}
+	
+	public void onSingleKill(TFPlayer victim, TFTeam damagerTeam) {
 		updateScoreboard();
+		
+		if(damagerTeam != null) {
+			damagerTeam.incrementKills();
+		}
 	}
 }

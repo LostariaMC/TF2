@@ -7,6 +7,7 @@ import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
 
@@ -22,8 +23,8 @@ public abstract class WeaponType
 	 * */
 	protected final Material material;
 	
+	private List<String> lore;
 	protected final String name;
-	protected final List<String> lore;
 	protected final int maxAmmo;
 	protected final int reloadTicks;
 	protected final int actionDelay;
@@ -33,14 +34,13 @@ public abstract class WeaponType
 		this.material = material;
 		this.name = name;
 		this.maxAmmo = maxAmmo;
-		this.lore = loreBuilder().build();
 		this.reloadTicks = reloadTicks;
 		this.actionDelay = actionDelay;
 		this.ultimate = ultimate;
 	}
 	
 	public Weapon createWeapon(TFPlayer owner, int slot) {
-		return new Weapon<>(this, owner, slot);
+		return new Weapon(this, owner, slot);
 	}
 	
 	public abstract void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info);
@@ -66,13 +66,14 @@ public abstract class WeaponType
 	
 	public ItemBuilder buildItem(Weapon weapon) {
 		return new ItemBuilder(material)
-				.setAmount(weapon.getAmmo())
+				.setAmount(weapon.isReloading() ? 1 : weapon.getAmmo())
+				.addItemFlag(ItemFlag.HIDE_ITEM_SPECIFICS)
 				.setDisplayName((isUltimate() ? ChatColor.LIGHT_PURPLE : ChatColor.BLUE) + name)
-				.setLore(lore);
+				.setLore(getLore());
 	}
 	
 	public boolean isItem(ItemStack item) {
-		return item.getType().equals(material);
+		return item != null && item.getType().equals(material);
 	}
 	
 	protected ImmutableList.Builder<String> loreBuilder() {
@@ -80,6 +81,8 @@ public abstract class WeaponType
 	}
 	
 	public List<String> getLore() {
+		if(lore == null)
+			lore = loreBuilder().build();
 		return lore;
 	}
 	

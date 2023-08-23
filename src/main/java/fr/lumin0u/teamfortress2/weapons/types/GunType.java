@@ -12,7 +12,9 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -22,13 +24,39 @@ public class GunType extends WeaponType
 	protected final double range; // blocks
 	protected final double inaccuracy; // std variation in radians
 	protected final double knockback; // blocks/tick
+	protected final boolean perforant; // does the "bullet" goes through entities ?
 	
 	public GunType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks, int actionDelay, double damage, double range, double inaccuracy, double knockback) {
+		this(ultimate, material, name, maxAmmo, reloadTicks, actionDelay, damage, range, inaccuracy, knockback, false);
+	}
+	
+	public GunType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks, int actionDelay, double damage, double range, double inaccuracy, double knockback, boolean perforant) {
 		super(ultimate, material, name, maxAmmo, reloadTicks, actionDelay);
 		this.damage = damage;
 		this.range = range;
 		this.inaccuracy = inaccuracy;
 		this.knockback = knockback;
+		this.perforant = perforant;
+	}
+	
+	public double getDamage() {
+		return damage;
+	}
+	
+	public double getRange() {
+		return range;
+	}
+	
+	public double getInaccuracy() {
+		return inaccuracy;
+	}
+	
+	public double getKnockback() {
+		return knockback;
+	}
+	
+	public boolean isPerforant() {
+		return perforant;
 	}
 	
 	@Override
@@ -38,15 +66,13 @@ public class GunType extends WeaponType
 	
 	@Override
 	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-		shoot(true, player, player.getEyeLocation(), player.getEyeLocation().getDirection(), (Gun) weapon,
-				l -> l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, new DustOptions(Color.BLACK, 1)), GameManager.getInstance().getEntities());
+		shoot(true, player, player.getEyeLocation(), player.getEyeLocation().getDirection(), (Gun) weapon, this::particle, GameManager.getInstance().getLivingEntities());
 		
 		weapon.useAmmo();
 	}
 	
 	@Override
 	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-	
 	}
 	
 	private static Vector addSpread(Vector directionNormalized, double accuracy) {
@@ -71,6 +97,10 @@ public class GunType extends WeaponType
 		hit.hitEntity.damage(hit.player, hit.weapon.getType().damage, kb);
 	}
 	
+	public void particle(Location l) {
+		l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, 0, 0, 0, 0, new DustOptions(Color.BLACK, 0.5f), true);
+	}
+	
 	public static void shoot(boolean flame, TFPlayer player, Location source, Vector direction, Gun weapon, Consumer<Location> particle, Collection<? extends TFEntity> entities)
 	{
 		/*if(this instanceof LaTornade)
@@ -85,129 +115,97 @@ public class GunType extends WeaponType
 			source.add(x1.clone().multiply(multi * Math.sin(j / 10 * Math.PI * 2d))).add(x2.clone().multiply(multi * Math.cos(j / 10 * Math.PI * 2d)));
 			
 			tfp.setHeavyBulletNb(tfp.getHeavyBulletNb() + 1);
-			
-			
-			range * (player.isEnergized() ? 20 : 10)
 		}*/
 		
 		direction.normalize();
 		direction = addSpread(direction, weapon.getType().inaccuracy);
 		
-		double range = weapon.getType().range;
+		double range = weapon.getType().range * (player.isEnergized() ? 1.5 : 1);
 		
 		Location wantedEndPoint = source.clone().add(direction.clone().multiply(range));
 		
 		World world = source.getWorld();
 		
-		RayTraceResult collisionResult = world.rayTraceBlocks(source, direction, range);
+		RayTraceResult collisionResult = world.rayTraceBlocks(source, direction, range, FluidCollisionMode.NEVER, true);
 		Location endPoint = collisionResult == null ? wantedEndPoint : collisionResult.getHitPosition().toLocation(world);
+		double bulletTravelLength = endPoint.distance(source);
 		
-		TFEntity hitEntity = null;
-		Vector hitPosition = null;
-		boolean headshot = false;
+		//perforant
+		List<Hit> entityHits = new ArrayList<>();
 		
 		for(TFEntity ent : entities)
 		{
-			if(!player.canDamage(ent))
+			if(!player.isEnemy(ent))
 				continue;
 			
 			BoundingBox bodyBox = ent.getBodyBox();
 			BoundingBox headBox = ent.getHeadBox();
 			
-			RayTraceResult bodyCollision = bodyBox.rayTrace(source.toVector(), direction, range);
-			RayTraceResult headCollision = headBox.rayTrace(source.toVector(), direction, range);
+			RayTraceResult bodyCollision = bodyBox.rayTrace(source.toVector(), direction, bulletTravelLength);
+			RayTraceResult headCollision = headBox.rayTrace(source.toVector(), direction, bulletTravelLength);
 			
 			Vector headHitPoint = headCollision != null ? headCollision.getHitPosition() : null;
 			Vector bodyHitPoint = bodyCollision != null ? bodyCollision.getHitPosition() : null;
 			
-			Vector hitPositionHere;
-			boolean headshotHere;
+			Vector hitPosition;
+			boolean headshot;
 			
 			if(bodyHitPoint == null) {
-				hitPositionHere = headHitPoint;
-				headshotHere = true;
+				hitPosition = headHitPoint;
+				headshot = true;
 			}
 			else if(headHitPoint == null) {
-				hitPositionHere = bodyHitPoint;
-				headshotHere = false;
+				hitPosition = bodyHitPoint;
+				headshot = false;
 			}
 			else if(bodyHitPoint.distance(source.toVector()) < headHitPoint.distance(source.toVector())) {
-				hitPositionHere = bodyHitPoint;
-				headshotHere = false;
+				hitPosition = bodyHitPoint;
+				headshot = false;
 			}
 			else {
-				hitPositionHere = headHitPoint;
-				headshotHere = true;
+				hitPosition = headHitPoint;
+				headshot = true;
 			}
 			
-			if(hitPositionHere != null && (hitPosition == null || hitPositionHere.distanceSquared(source.toVector()) < hitPosition.distanceSquared(source.toVector()))) {
-				hitEntity = ent;
-				hitPosition = hitPositionHere;
-				headshot = headshotHere;
+			if(hitPosition != null) {
+				if(weapon.getType().perforant || entityHits.isEmpty() || entityHits.get(0).hitPoint().distanceSquared(source) < hitPosition.distanceSquared(source.toVector())) {
+					entityHits.add(new Hit(player, weapon, ent, hitPosition.toLocation(world), headshot, direction));
+				}
 			}
 		}
 		
-		if(hitEntity != null)
-		{
-			endPoint = hitPosition.toLocation(world);
+		for(Hit hit : entityHits) {
+			if(!weapon.getType().perforant)
+				endPoint = hit.hitPoint.toLocation(world);
 			
-			weapon.getType().onEntityHit(new Hit(player, weapon, hitEntity, endPoint, headshot, direction));
+			weapon.getType().onEntityHit(hit);
 			
 			for(int i = 0; i < 10; i++)
-				world.spawnParticle(Particle.BLOCK_CRACK, endPoint, 1, Material.REDSTONE_BLOCK.createBlockData());
+				world.spawnParticle(Particle.BLOCK_CRACK, endPoint, 1, 0, 0, 0, 0, Material.REDSTONE_BLOCK.createBlockData(), true);
 			
 			player.toBukkit().playSound(player.toBukkit().getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 0.5f, 1.0f);
-			
-		/*	boolean damageDone = false;
-			
-			if(this instanceof Revolver && headshot)// headshot revolver
-			{
-				damageDone = TF.getInstance().damageTF(ent, tfp, damage + 2, kb);
-			}
-			
-			else if(this instanceof Sniper && headshot)// headshot sniper
-			{
-				damageDone = TF.getInstance().damageTF(ent, tfp, damage * 1.5, kb);
-			}
-			
-			else if((tfp.isLooking() || p.getName().equals("lylyssou1")) && this instanceof Sniper)// looking sniper
-			{
-				damageDone = TF.getInstance().damageTF(ent, tfp, damage * 2, kb);
-			}
-			
-			else
-			{
-				damageDone = TF.getInstance().damageTF(ent, tfp, damage, kb);
-			}
-			
-			if(damageDone)
-			{
-				
-				
-				break;
-			}*/
 		}
 		
-		for(int counter = 0; counter < source.distance(endPoint) * 5; counter++)
-		{
-			Location point = source.clone().add(direction.clone().multiply(counter / 5));
-			
-			if(counter == 5 && flame)
-				world.spawnParticle(Particle.FLAME, point, 1);
-			
-			else if(counter > 5)
-			{
-				particle.accept(point);
-			}
-		}
-		
-		if(collisionResult != null && hitEntity == null)
+		if(collisionResult != null && (entityHits.isEmpty() || weapon.getType().perforant))
 		{
 			Block collided = collisionResult.getHitBlock();
 			
-			if(collided != null && !collided.isLiquid())
-				for(int i = 0; i < 20; i++)
-					world.spawnParticle(Particle.BLOCK_CRACK, endPoint, 1, collided.getBlockData());
+			if(collided != null)
+				//for(int i = 0; i < 10; i++)
+					world.spawnParticle(Particle.BLOCK_CRACK, endPoint, 10, 0, 0, 0, 0, collided.getBlockData(), true);
+		}
+		
+		final double particlePerBlock = 10;
+		for(int counter = 0; counter < source.distance(endPoint) * particlePerBlock; counter++)
+		{
+			Location point = source.clone().add(direction.clone().multiply(counter / particlePerBlock));
+			
+			if(counter == particlePerBlock && flame)
+				world.spawnParticle(Particle.FLAME, point, 1, 0, 0.01, 0, 0.000001D, null, true);
+			
+			else if(counter > particlePerBlock) {
+				particle.accept(point);
+			}
 		}
 		
 		/*for(TFEntity ent : nearestPoint.keySet())

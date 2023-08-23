@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public enum GameType//▒
+public enum GameType
 {
 	PAYLOADS("Payloads", 2, true, false, false) {
 		@Override
@@ -91,7 +91,7 @@ public enum GameType//▒
 	
 	public static List<GameType> notHiddenValues()
 	{
-		return Arrays.stream(values()).filter(gt -> !gt.isHidden()).collect(Collectors.toList());
+		return Arrays.stream(values()).filter(gt -> !gt.isHidden()).toList();
 	}
 	
 	public boolean isTDM()
@@ -121,8 +121,7 @@ public enum GameType//▒
 	
 	public abstract GameManager createManager(GameMap map);
 	
-	public boolean isFriendlyFire()
-	{
+	public boolean isFriendlyFire() {
 		return friendlyFire;
 	}
 }

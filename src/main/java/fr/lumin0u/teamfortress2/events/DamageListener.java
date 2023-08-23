@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -32,8 +33,8 @@ public class DamageListener implements Listener
 			TFPlayer damager = TFPlayer.of(event.getDamager());
 			
 			if(!damager.isSpectator() && !damager.isDead() && damager.getWeaponInHand().map(w -> w.getType() instanceof MeleeWeaponType).orElse(false)) {
-				Weapon<? extends MeleeWeaponType> weapon = (Weapon<? extends MeleeWeaponType>) damager.getWeaponInHand().get();
-				weapon.getType().leftClickAction(damager, weapon, new RayTraceResult(event.getEntity().getLocation().toVector(), event.getEntity()));
+				Weapon weapon = damager.getWeaponInHand().get();
+				weapon.leftClick(new RayTraceResult(event.getEntity().getLocation().toVector(), event.getEntity()));
 			}
 		}
 	}
@@ -41,5 +42,16 @@ public class DamageListener implements Listener
 	@EventHandler
 	public void onPlayerDamage(EntityDamageEvent event) {
 		event.setCancelled(true);
+		
+		TFPlayer player;
+		if(event.getEntity() instanceof Player && !(player = TFPlayer.of(event.getEntity())).isSpectator()) {
+			if(event.getCause() == DamageCause.VOID) {
+				player.die(null);
+			}
+			
+			if(event.getCause() == DamageCause.POISON) {
+				player.damage(player.getPoisonSource(), event.getDamage(), new Vector());
+			}
+		}
 	}
 }

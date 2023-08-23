@@ -3,17 +3,13 @@ package fr.lumin0u.teamfortress2.weapons;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.types.PlaceableWeaponType;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
-import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.block.Block;
-import org.bukkit.util.RayTraceResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-public abstract class PlaceableWeapon extends Weapon {
+public class PlaceableWeapon extends Weapon {
 	
 	protected List<PlacedBlockWeapon> blocks = new ArrayList<>();
 	
@@ -27,15 +23,28 @@ public abstract class PlaceableWeapon extends Weapon {
 		updateItem();
 	}
 	
-	public final void pickupAmmo() {
+	public void pickupAmmo() {
 		ammo++;
 		updateItem();
 	}
 	
+	public PlaceableWeaponType getType() {
+		return (PlaceableWeaponType) type;
+	}
+	
 	@Override
-	public void destroy() {
-		super.destroy();
-		blocks.forEach(PlacedBlockWeapon::destroy);
+	public void remove() {
+		super.remove();
+		removeBlocks();
+	}
+	
+	public void removeBlocks() {
+		new ArrayList<>(blocks).forEach(this::removeBlock);
+	}
+	
+	public void removeBlock(PlacedBlockWeapon block) {
+		blocks.remove(block);
+		block.destroy();
 	}
 	
 	public Collection<PlacedBlockWeapon> getBlocks() {

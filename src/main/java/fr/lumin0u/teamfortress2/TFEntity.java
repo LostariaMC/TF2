@@ -12,7 +12,7 @@ public interface TFEntity
 	public abstract Location getLocation();
 	
 	public default Location getEyeLocation() {
-		return getLocation().clone().add(0, 0.62, 0);
+		return getLocation().clone().add(0, 1.62, 0);
 	}
 	
 	public default BoundingBox getBodyBox() {
@@ -20,7 +20,7 @@ public interface TFEntity
 	}
 	
 	public default BoundingBox getHeadBox() {
-		return BoundingBox.of(getLocation().clone().add(-0.25, 1.4, -0.25), getLocation().clone().add(0.25, 1.7, 0.25));
+		return BoundingBox.of(getLocation().clone().add(-0.25, 1.4, -0.25), getLocation().clone().add(0.25, 1.8, 0.25));
 	}
 	
 	public LivingEntity getEntity();
@@ -37,5 +37,5 @@ public interface TFEntity
 	
 	public void setPoisonSource(TFPlayer poisonSource);
 	
-	public void damage(TFPlayer damager, double amount, Vector knockback);
+	public boolean damage(TFPlayer damager, double amount, Vector knockback);
 }

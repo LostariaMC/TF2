@@ -5,15 +5,17 @@ import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ComplexEntity;
-import fr.lumin0u.teamfortress2.weapons.types.EngiTurretType;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import fr.lumin0u.teamfortress2.util.Utils;
+import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.type.PointedDripstone;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.EulerAngle;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -21,20 +23,29 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 public class EngiTurret extends PlacedBlockWeapon {
 	public static final int RELOAD_TICKS = 7 * 20;
 	
-	private Block block;
 	private float yaw, pitch;
 	
 	private ComplexEntity turretHead;
 	private ComplexEntity turretGrounded;
+	private ArmorStand tipDisplay;
 	private final List<Obus> obuses = new ArrayList<>();
 	
 	private int mortarReloadTicks;
 	
+	private Controller controller;
+	private boolean removed;
+	
+	private static final String READY_TO_SHOOT = "Prêt à tirer";
+	
 	public EngiTurret(TFPlayer owner, PlaceableWeapon weapon, Block block) {
 		super(owner, weapon, block);
+		controller = new Controller(owner, weapon.getSlot());
 	}
 	
 	@Override
@@ -50,51 +61,62 @@ public class EngiTurret extends PlacedBlockWeapon {
 		BlockDisplay cauldron = (BlockDisplay) block.getWorld().spawnEntity(block.getLocation(), EntityType.BLOCK_DISPLAY);
 		cauldron.setBlock(Material.CAULDRON.createBlockData());
 		
-		turretHead = new ComplexEntity(
-				new ComplexEntity.ComplexDisplayPart(hopper, new Vector(0, 0, -0.2), 0, 90),
-				new ComplexEntity.ComplexDisplayPart(cauldron, new Vector(0, 0, 0.6), 0, 90)
+		turretHead = new ComplexEntity(getHeadLocation(),
+//				new ComplexEntity.ComplexDisplayPart(hopper, new Vector(0, 0, -0.2), 0, 90),
+//				new ComplexEntity.ComplexDisplayPart(cauldron, new Vector(0, 0, 0.6), 0, 90)
+				new ComplexEntity.ComplexDisplayPart(hopper, new Vector(-0.5, 0, -0.2 - 0.5), 0, 90),
+				new ComplexEntity.ComplexDisplayPart(cauldron, new Vector(-0.5, 0, 0.6 - 0.5), 0, 90)
 		);
 		
 		BlockDisplay mudWallDisplay = (BlockDisplay) block.getWorld().spawnEntity(block.getLocation(), EntityType.BLOCK_DISPLAY);
 		mudWallDisplay.setBlock(Material.MUD_BRICK_WALL.createBlockData());
 		
-		turretGrounded = new ComplexEntity(
+		turretGrounded = new ComplexEntity(block.getLocation(),
 				new ComplexEntity.ComplexDisplayPart(mudWallDisplay, new Vector(0, 0, 0), 0, 0)
 		);
-		turretGrounded.teleport(block.getLocation());
 		
 		updateDirection(0, 0);
+		
+		tipDisplay = (ArmorStand) block.getWorld().spawnEntity(block.getLocation().toCenterLocation(), EntityType.ARMOR_STAND);
+		tipDisplay.setCustomName("Construction...");
+		tipDisplay.setCustomNameVisible(true);
+		tipDisplay.setInvisible(true);
+		tipDisplay.setInvulnerable(true);
+		tipDisplay.setGravity(false);
+		tipDisplay.setCanMove(false);
+		
+		mortarReloadTicks = 1;
+		
+		Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
+			if(!removed) {
+				owner.giveWeapon(controller);
+				mortarReloadTicks = 0;
+				tipDisplay.setCustomName(READY_TO_SHOOT);
+			}
+		}, 100);
 	}
 	
-	@Override
-	public void destroy() {
-		turretGrounded.remove();
-		turretHead.remove();
-		block.setType(Material.AIR);
-		block.getRelative(BlockFace.UP).setType(Material.AIR);
-	}
-	
-	public void updateDirection(float yaw, float pitch) {
-		Location loc = getHeadLocation();
-		loc.setYaw(yaw);
-		loc.setPitch(pitch);
-		turretHead.teleport(loc);
-	}
-	
-	/* as of Location#getDirection */
-	public Vector getDirection() {
-		Vector vector = new Vector();
-		double rotX = yaw;
-		double rotY = pitch;
-		vector.setY(-Math.sin(Math.toRadians(rotY)));
-		double xz = Math.cos(Math.toRadians(rotY));
-		vector.setX(-xz * Math.sin(Math.toRadians(rotX)));
-		vector.setZ(xz * Math.cos(Math.toRadians(rotX)));
-		return vector;
-	}
-	
-	public Location getHeadLocation() {
-		return block.getLocation().add(0, 2.4, 0);
+	private void reload() {
+		mortarReloadTicks = RELOAD_TICKS / 10;
+		
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				mortarReloadTicks--;
+				if(removed) {
+					cancel();
+					return;
+				}
+				
+				final String dashes = "-".repeat((mortarReloadTicks % 20) / 4);
+				tipDisplay.setCustomName(dashes + " " + (mortarReloadTicks / 20) + " " + dashes);
+				
+				if(mortarReloadTicks == 0) {
+					cancel();
+					tipDisplay.setCustomName(READY_TO_SHOOT);
+				}
+			}
+		}.runTaskTimer(TF.getInstance(), 1, 1);
 	}
 	
 	public void shoot() {
@@ -102,11 +124,71 @@ public class EngiTurret extends PlacedBlockWeapon {
 			return;
 		}
 		
+		block.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, getHeadLocation(), 1);
 		obuses.add(new Obus());
+		reload();
+	}
+	
+	@Override
+	public void destroy() {
+		turretGrounded.remove();
+		turretHead.remove();
+		tipDisplay.remove();
+		block.setType(Material.AIR);
+		block.getRelative(BlockFace.UP).setType(Material.AIR);
+		removed = true;
+	}
+	
+	public void updateDirection(float yaw, float pitch) {
+		pitch = max(-45, min(45, pitch));
+		turretHead.setRotation(yaw, pitch);
+		this.yaw = yaw;
+		this.pitch = pitch;
+	}
+	
+	/* as of Location#getDirection */
+	public Vector getDirection() {
+		return Utils.yawPitchToDirection(yaw, pitch);
+	}
+	
+	public Location getHeadLocation() {
+		return block.getLocation().add(0.5, 2.4, 0.5);
 	}
 	
 	@Override
 	public void onWalkOn(TFEntity walker) {
+	}
+	
+	public Controller getController() {
+		return controller;
+	}
+	
+	public class Controller extends Weapon {
+		public Controller(TFPlayer owner, int slot) {
+			super(WeaponTypes.MANETTE, owner, slot);
+		}
+		
+		private void ifCloseEnough(Runnable runnable) {
+			if(owner.getLocation().distance(block.getLocation()) < 10) {
+				runnable.run();
+			}
+			else {
+				owner.toBukkit().sendActionBar("§cTrop loin du canon !");
+			}
+		}
+		
+		@Override
+		public void rightClick(RayTraceResult info) {
+			ifCloseEnough(() -> {
+				Location eyeLoc = owner.toBukkit().getEyeLocation();
+				updateDirection(eyeLoc.getYaw(), eyeLoc.getPitch());
+			});
+		}
+		
+		@Override
+		public void leftClick(RayTraceResult info) {
+			ifCloseEnough(EngiTurret.this::shoot);
+		}
 	}
 	
 	private class Obus extends ComplexEntity {
@@ -116,17 +198,17 @@ public class EngiTurret extends PlacedBlockWeapon {
 		private boolean removed;
 		
 		private Obus() {
-			super(createObus(getHeadLocation()));
+			super(getHeadLocation(), createObus(getHeadLocation()));
 			
 			this.loc = getHeadLocation();
-			this.velocity = getDirection();
+			this.velocity = EngiTurret.this.getDirection().clone().multiply(2);
 			
 			new BukkitRunnable() {
 				@Override
 				public void run() {
 					tick();
 					
-					if(removed) {
+					if(Obus.this.removed) {
 						cancel();
 					}
 				}
@@ -134,14 +216,26 @@ public class EngiTurret extends PlacedBlockWeapon {
 		}
 		
 		private static Collection<ComplexDisplayPart> createObus(Location loc) {
-			BlockDisplay stalagmite = (BlockDisplay) loc.getWorld().spawnEntity(loc, EntityType.BLOCK_DISPLAY);
-			stalagmite.setBlock(Material.POINTED_DRIPSTONE.createBlockData(data -> ((PointedDripstone) data).setThickness(PointedDripstone.Thickness.MIDDLE)));
+			/*BlockDisplay stalagmite = (BlockDisplay) loc.getWorld().spawnEntity(loc, EntityType.BLOCK_DISPLAY);
+			stalagmite.setBlock(Material.POINTED_DRIPSTONE.createBlockData(data -> ((PointedDripstone) data).setThickness(PointedDripstone.Thickness.MIDDLE)));*/
 			
-			return List.of(new ComplexDisplayPart(stalagmite, new Vector(0, 0, -0.3), 0, 90));
+			ArmorStand blackstoneArmorstand = (ArmorStand) loc.getWorld().spawnEntity(loc.add(0, -1.7, 0), EntityType.ARMOR_STAND);
+			blackstoneArmorstand.setGravity(false);
+			blackstoneArmorstand.setInvulnerable(true);
+			blackstoneArmorstand.setInvisible(true);
+			blackstoneArmorstand.getEquipment().setHelmet(new ItemStack(Material.BLACKSTONE), true);
+			
+			return List.of(new ComplexDisplayPart(blackstoneArmorstand, new Vector(0, -1.7, 0), 0, 90) {
+				@Override
+				public void setRotation(float yaw, float pitch) {
+					EulerAngle eu = new EulerAngle(0, pitch / 18 * Math.PI, 0);
+					((ArmorStand)entity()).setHeadPose(eu);
+				}
+			});
 		}
 		
 		public void tick() {
-			final Vector gravity = new Vector(0, -9.8 / 20.0, 0);
+			final Vector gravity = new Vector(0, -2 / 20.0, 0);
 			
 			if(!loc.getBlock().equals(getHeadLocation().getBlock())) {
 				if(loc.getWorld().rayTraceBlocks(loc, velocity, velocity.length()) != null) {
@@ -151,7 +245,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 			}
 			
 			loc.add(velocity);
-			velocity.multiply(0.99);
+			velocity.multiply(0.995);
 			velocity.add(gravity);
 			
 			if(velocity.isZero())
@@ -163,9 +257,14 @@ public class EngiTurret extends PlacedBlockWeapon {
 		
 		public void explode() {
 			remove();
-			removed = true;
 			
-			GameManager.getInstance().explosion(owner, loc, 23, 13, owner::canDamage, 1);
+			GameManager.getInstance().explosion(owner, loc, 23, 13, owner::isEnemy, 2.5);
+		}
+		
+		@Override
+		public void remove() {
+			super.remove();
+			Obus.this.removed = true;
 		}
 	}
 	

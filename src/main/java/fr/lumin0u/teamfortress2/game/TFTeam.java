@@ -30,6 +30,8 @@ public class TFTeam
 	private final ImmutableItemStack leggings;
 	private final ImmutableItemStack boots;
 	
+	private int kills;
+	
 	private WrappedPlayer modifySZ1;
 	private WrappedPlayer modifySZ2;
 	private WrappedPlayer modifyStartRails;
@@ -154,10 +156,6 @@ public class TFTeam
 		return blockInCart;
 	}
 	
-	public int killCount() {
-		return getPlayers().stream().mapToInt(TFPlayer::getKillCount).sum();
-	}
-	
 	public Team cosmoxTeam() {
 		return cosmoxTeam;
 	}
@@ -175,5 +173,13 @@ public class TFTeam
 	@Override
 	public String toString() {
 		return "Team [name=" + name + "]";
+	}
+	
+	public int getKills() {
+		return kills;
+	}
+	
+	public void incrementKills() {
+		this.kills++;
 	}
 }

@@ -4,9 +4,12 @@ import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.RayTraceResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Weapon
@@ -14,7 +17,7 @@ public class Weapon
 	public static final int ULTIMATE_RELOAD_TICKS = 25 * 20;
 	public static final int ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS = 5 * 20;
 	
-	protected List<BukkitTask> bukkitTasks;
+	protected List<BukkitTask> bukkitTasks = new ArrayList<>();
 	
 	protected final WeaponType type;
 	protected final int slot;
@@ -22,7 +25,7 @@ public class Weapon
 	protected int ammo;
 	protected boolean reloading;
 	protected TFPlayer owner;
-	protected int lastActionDate;
+	protected long lastActionDate;
 	
 	/**
 	 * for ultimate weapons
@@ -43,10 +46,11 @@ public class Weapon
 	}
 	
 	public final void giveItem() {
-		owner.toBukkit().getInventory().setItem(slot, type.buildItem(this).build());
-	}
-	
-	public final void remove() {
+		ItemStack item = type.buildItem(this).build();
+		if(item.getAmount() > 0)
+			owner.toBukkit().getInventory().setItem(slot, item);
+		else if(type.isItem(owner.toBukkit().getInventory().getItem(slot)))
+			owner.toBukkit().getInventory().setItem(slot, null);
 	}
 	
 	public void updateItem() {
@@ -55,11 +59,22 @@ public class Weapon
 		}
 	}
 	
+	public void rightClick(RayTraceResult info) {
+		if(!reloading && ammo > 0 && lastActionDate + getType().getActionDelay() < TF.currentTick()) {
+			type.rightClickAction(owner, this, info);
+			lastActionDate = TF.currentTick();
+		}
+	}
+	
+	public void leftClick(RayTraceResult info) {
+		if(!reloading && ammo > 0)
+			type.leftClickAction(owner, this, info);
+	}
+	
 	/**
-	 * should be called when main action is triggered, except for melee weapon (except for kukri)
+	 * should be called when main action is triggered
 	 * */
 	public void useAmmo() {
-		
 		ammo--;
 		
 		if(ammo > 0) {
@@ -76,6 +91,9 @@ public class Weapon
 	}
 	
 	protected void reload() {
+		if(getType().isUltimate())
+			return;
+		
 		if(type.getReloadTicks() <= 0) {
 			ammo = type.getMaxAmmo();
 			updateItem();
@@ -85,7 +103,7 @@ public class Weapon
 		owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), type.getReloadTicks());
 		reloading = true;
 		
-		Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
+		bukkitTasks.add(Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
 			if(!owner.hasWeapon(Weapon.this)) {
 				return;
 			}
@@ -93,7 +111,7 @@ public class Weapon
 			ammo = type.getMaxAmmo();
 			reloading = false;
 			updateItem();
-		}, type.getReloadTicks());
+		}, type.getReloadTicks()));
 	}
 	
 	protected void ultimateReload() {
@@ -102,7 +120,7 @@ public class Weapon
 		
 		ultiReloadTicksRem = ULTIMATE_RELOAD_TICKS;
 		
-		new BukkitRunnable() {
+		bukkitTasks.add(new BukkitRunnable() {
 			@Override
 			public void run() {
 				if(!owner.hasWeapon(Weapon.this)) {
@@ -112,7 +130,7 @@ public class Weapon
 				
 				ultiReloadTicksRem--;
 				
-				if(ultiReloadTicksRem == 0) {
+				if(ultiReloadTicksRem <= 0) {
 					ammo = type.getMaxAmmo();
 					reloading = false;
 					updateItem();
@@ -120,7 +138,7 @@ public class Weapon
 					cancel();
 				}
 			}
-		}.runTaskTimer(TF.getInstance(), 1, 1);
+		}.runTaskTimer(TF.getInstance(), 1, 1));
 	}
 	
 	/**
@@ -137,6 +155,7 @@ public class Weapon
 			}
 			else {
 				ultiReloadTicksRem -= ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS;
+				owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), 0);
 				owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), ultiReloadTicksRem);
 			}
 		}
@@ -154,7 +173,11 @@ public class Weapon
 		return slot;
 	}
 	
-	public void destroy() {
+	public void remove() {
 		bukkitTasks.forEach(BukkitTask::cancel);
+	}
+	
+	public void addBukkitTask(BukkitTask task) {
+		bukkitTasks.add(task);
 	}
 }

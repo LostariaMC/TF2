@@ -4,11 +4,15 @@ import fr.lumin0u.teamfortress2.Kit;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.Items;
 import io.papermc.paper.event.player.PlayerArmSwingEvent;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -26,7 +30,7 @@ public class InteractListener implements Listener
 	public void onArmSwing(PlayerArmSwingEvent event) {
 		TFPlayer player = TFPlayer.of(event.getPlayer());
 		
-		player.getWeaponInHand().ifPresent(weapon -> weapon.getType().leftClickAction(player, weapon, null));
+		player.getWeaponInHand().ifPresent(weapon -> weapon.leftClick(null));
 	}
 	
 	@EventHandler
@@ -35,23 +39,39 @@ public class InteractListener implements Listener
 		
 		event.setCancelled(true);
 		
-		if(event.getAction().isRightClick() && event.getItem() != null && event.getItem().isSimilar(TF.MENU_ITEM)) {
+		if(event.getAction().isRightClick() && event.getItem() != null && Items.MENU_ITEM.getType().equals(event.getItem().getType())) {
 			player.toBukkit().openInventory(Kit.getKitMenuInventory());
 		}
-		
-		if(event.getAction().isRightClick()) {
+		else if(GameManager.getInstance().getPhase().isInGame() && event.getAction().isRightClick() && !player.isInSafeZone()) {
 			Vector interactPoint = event.getInteractionPoint() == null ? new Vector() : event.getInteractionPoint().toVector();
 			
 			RayTraceResult rayTraceResult = new RayTraceResult(interactPoint, event.getClickedBlock(), event.getBlockFace());
 			
-			player.getWeaponInHand().ifPresent(weapon -> weapon.getType().rightClickAction(player, weapon, rayTraceResult));
+			player.getWeaponInHand().ifPresent(weapon -> weapon.rightClick(rayTraceResult));
 		}
 	}
 	
-	/*@EventHandler
-	public void onInteract(PlayerInteractEntityEvent event) {
+	@EventHandler
+	public void onInteractEntity(PlayerInteractEntityEvent event) {
 		TFPlayer player = TFPlayer.of(event.getPlayer());
 		
 		event.setCancelled(true);
-	}*/
+		
+		if(gm.getPhase().isInGame() && !player.isInSafeZone()) {
+			RayTraceResult rayTraceResult = new RayTraceResult(event.getRightClicked().getLocation().toVector(), event.getRightClicked());
+			
+			player.getWeaponInHand().ifPresent(weapon -> weapon.rightClick(rayTraceResult));
+		}
+	}
+	
+	@EventHandler
+	public void onInteractAtEntity(PlayerInteractAtEntityEvent event) {
+		if(event.getRightClicked() instanceof ArmorStand)
+			onInteractEntity(event);
+	}
+	
+	@EventHandler
+	public void onItemConsume(PlayerItemConsumeEvent event) {
+		event.setCancelled(true);
+	}
 }

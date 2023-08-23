@@ -4,8 +4,7 @@ import fr.lumin0u.teamfortress2.events.CosmoxListener;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.GameType;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
-import fr.lumin0u.teamfortress2.util.ImmutableItemStack;
-import fr.lumin0u.teamfortress2.util.ItemBuilder;
+import fr.lumin0u.teamfortress2.util.Items;
 import fr.worsewarn.cosmox.API;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer.PlayerWrapper;
@@ -24,7 +23,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public final class TF extends JavaPlugin {
 
@@ -34,17 +32,7 @@ public final class TF extends JavaPlugin {
 	private final Map<UUID, TFPlayer> players = new HashMap<>();
 	private Game cosmoxGame;
 	
-	public static final ImmutableItemStack LOCKED_ULT_ITEM = new ItemBuilder(Material.BLAZE_ROD)
-			.setDisplayName("§5VEROUILLE").setLore("§7Effectuez un kill pour récupérer", "§7Votre capacité spéciale")
-			.buildImmutable();
-
-	public static final ImmutableItemStack MENU_ITEM = new ItemBuilder(Material.NAME_TAG)
-			.setDisplayName("§6Changer de classe").setLore("§7Changez de §lclasse §7à votre", "§7prochaine §lmort")
-			.buildImmutable();
-
-	public static final ImmutableItemStack WR_KIT_ITEM = new ItemBuilder(Material.NAME_TAG)
-			.setDisplayName("§6Choix de classe")
-			.buildImmutable();
+	private static long currentTick = 0;
 	
 	public TF() {
 		super();
@@ -71,12 +59,18 @@ public final class TF extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		instance = this;
+		
+		Bukkit.getScheduler().runTaskTimer(this, () -> currentTick++, 1, 1);
 	
-		cosmoxGame = new Game("teamfortress2", "TeamFortress2", ChatColor.GOLD, Material.GUNPOWDER, List.of(Team.RED, Team.BLUE), 4, false, false,
+		cosmoxGame = new Game("teamfortress2", "TeamFortress2", ChatColor.GOLD, Material.GUNPOWDER, List.of(Team.BLUE, Team.RED), 4, false, false,
 				List.of(
 						new Statistic("Temps de jeu", GameVariables.TIME_PLAYED, true, "s"),
 						new Statistic("Parties jouées", GameVariables.GAMES_PLAYED),
-						new Statistic("Victoires", GameVariables.WIN)),
+						new Statistic("Victoires", GameVariables.WIN),
+						new Statistic("Kills", GameVariables.KILLS),
+						new Statistic("Dégats", GameVariables.DAMAGES),
+						new Statistic("Morts", GameVariables.DEATHS)
+				),
 				List.of(),
 				List.of("§7Il y a un spy dans le tas ..."),
 				List.of(new MapTemplate(MapType.TWO, List.of(
@@ -88,18 +82,21 @@ public final class TF extends JavaPlugin {
 						new MapLocation("redSafeZone", MapLocationType.CUBOID),
 						new MapLocation("blueSafeZone", MapLocationType.CUBOID)
 				))))
-				.addForbiddenSlot(IntStream.range(9, 36).boxed().toList())
 				.setDefaultFriendlyFire(false)
 				.setPreparationTime(5)
 				.setShowScoreTablist(true)
 				.setGameAuthor("environ lumin0u")
-				.addGameTip("§c§lJouez soldier§c, c'est la seule option");
+				.activeJoinInGame();
 	
 		registerListener(new CosmoxListener());
 	
 		API.instance().registerNewGame(cosmoxGame);
 
-		cosmoxGame.addDefaultItemWaitingRoom(new DefaultItemSlot("kitMenu", WR_KIT_ITEM), 6);
+		cosmoxGame.addDefaultItemWaitingRoom(new DefaultItemSlot("kitMenu", Items.WR_KIT_ITEM.clone()), 7);
+	}
+	
+	public static long currentTick() {
+		return currentTick;
 	}
 	
 	public static TF getInstance() {
