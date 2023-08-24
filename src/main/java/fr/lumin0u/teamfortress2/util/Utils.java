@@ -76,7 +76,7 @@ public class Utils
 			@Override
 			public BiConsumer<TextComponent.Builder, Component> accumulator() {
 				return (b, c) -> {
-					if(b.content().equals("")) b.append(c);
+					if(b.children().isEmpty()) b.append(c);
 					else b.append(delimiter).append(c);
 				};
 			}
@@ -84,7 +84,7 @@ public class Utils
 			@Override
 			public BinaryOperator<TextComponent.Builder> combiner() {
 				return (b, c) -> {
-					if(b.content().equals("")) b.append(c);
+					if(b.children().isEmpty()) b.append(c);
 					else b.append(delimiter).append(c);
 					return b;
 				};

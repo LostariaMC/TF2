@@ -411,7 +411,9 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		lastDamagers.clear();
 		
 		for(TFPlayer lastDamager : trueLastDamagers) {
-			lastDamager.getUltimate().onOwnerDoKill();
+			if(!lastDamager.isDead())
+				lastDamager.getUltimate().onOwnerDoKill();
+			
 			lastDamager.killCount++;
 			lastDamager.toCosmox().setScoreboardScore(lastDamager.killCount);
 		}
@@ -430,7 +432,10 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 								.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
 						.append(getListName())
 						.append(Component.text(" §7a été tué par "))
-						.append(Component.text().append(trueLastDamagers.stream().map(TFPlayer::getListName).collect(Utils.joiningComponentsCollector(Component.text("§f, ")))))
+						.append(Component.text().append(
+								trueLastDamagers.stream()
+										.map(TFPlayer::getListName)
+										.collect(Utils.joiningComponentsCollector(Component.text("§f, ")))))
 						.build());
 			}
 			else {
@@ -480,10 +485,9 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 			giveWeapon(type.createWeapon(this, i));
 		}
 		
-		giveWeapon(getKit().getSpecial().createWeapon(this, 6));
+		giveWeapon(getKit().getSpecial().createWeapon(this, Weapon.ULTIMATE_WEAPON_SLOT));
 		
-		inv.setItem(6, Items.LOCKED_ULT_ITEM);
-		inv.setItem(7, new ItemBuilder(Material.DRIED_KELP).setDisplayName("§7?").setLore("§7Cet item ne sert a rien...").build());
+		inv.setItem(Weapon.ULTIMATE_WEAPON_SLOT, Items.LOCKED_ULT_ITEM);
 		inv.setItem(8, Items.MENU_ITEM);
 		
 		toBukkit().setWalkSpeed(getKit().getSpeed());

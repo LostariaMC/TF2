@@ -8,6 +8,8 @@ import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.weapons.*;
 import fr.lumin0u.teamfortress2.weapons.Barbecue.BarbecueType;
+import fr.lumin0u.teamfortress2.weapons.Medigun.MedigunType;
+import fr.lumin0u.teamfortress2.weapons.Medigun.UberChargeType;
 import org.bukkit.*;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Particle.DustOptions;
@@ -339,7 +341,7 @@ public final class WeaponTypes
 	{
 		@Override
 		protected Builder<String> loreBuilder() {
-			return new Builder<String>().add(RANGE_LORE.formatted(range)).add(CUSTOM_LORE.formatted("Inflige §2poison"));
+			return new Builder<String>().add(RANGE_LORE.formatted(range)).add(CUSTOM_LORE.formatted("Inflige §2§lpoison"));
 		}
 		
 		@Override
@@ -533,7 +535,7 @@ public final class WeaponTypes
 	public static final WeaponType BEAST_FURY = new WeaponType(true, Material.MUTTON, "Beast Fury", 1, -1, -1) {
 		@Override
 		protected Builder<String> loreBuilder() {
-			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("donne régénratin etplus de vi"));
+			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("donne régénratin é plus de vi"));
 		}
 		
 		@Override
@@ -548,8 +550,31 @@ public final class WeaponTypes
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	};
 	public static final BarbecueType BARBECUE = new BarbecueType();
-	public static final MeleeWeaponType FIRE_AXE = new MeleeWeaponType(false, Material.IRON_AXE, "Hache", 1, -1, 3, 0.25);
+	public static final MeleeWeaponType FIRE_AXE = new MeleeWeaponType(false, Material.GOLDEN_AXE, "Hache", 1, -1, 3, 0.2);
 	public static final MolotovType MOLOTOV = new MolotovType();
+	public static final MedigunType MEDIGUN = new MedigunType();
+	public static final GunType SYRINGE_GUN = new GunType(false, Material.PRISMARINE_SHARD, "Tranquilisant", 1, 52, -1, 3, 20, 0, 0)
+	{
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(CUSTOM_LORE.formatted("Inflige §b§llenteur"));
+		}
+		
+		@Override
+		public void onEntityHit(Hit hit) {
+			super.onEntityHit(hit); //damage
+			int duration = 60;
+			duration += Optional.ofNullable(hit.hitEntity().getEntity().getPotionEffect(PotionEffectType.SLOW)).map(PotionEffect::getDuration).orElse(0);
+			hit.hitEntity().getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, duration, 1, false, true, true));
+		}
+		
+		@Override
+		public void particle(Location l, int i) {
+			l.getWorld().spawnParticle(Particle.GLOW_SQUID_INK, l, 1, 0, 0, 0, 0, null, true);
+		}
+	};
+	public static final MeleeWeaponType SAW = new MeleeWeaponType(false, Material.IRON_AXE, "Hache", 1, -1, 3, 0.25);
+	public static final UberChargeType UBER_CHARGE = new UberChargeType();
 	
 	
 	private WeaponTypes() {

@@ -20,6 +20,10 @@ import org.bukkit.util.Vector;
 
 public final class MolotovType extends WeaponType
 {
+	private final double radius = 7;
+	private final double fireDmg = 2.1;
+	private final int fireDuration = 180;
+	
 	public MolotovType() {
 		super(true, Material.SPLASH_POTION, "Cocktail Molotov", 1, -1, -1);
 	}
@@ -31,7 +35,11 @@ public final class MolotovType extends WeaponType
 	
 	@Override
 	protected Builder<String> loreBuilder() {
-		return super.loreBuilder().add(CUSTOM_LORE.formatted("Enflamme vos ennemis à l'impact"));
+		return super.loreBuilder()
+				.add(RADIUS_LORE.formatted(radius))
+				.add(CUSTOM_LORE.formatted("Enflamme vos ennemis"))
+				.add(DURATION_LORE.formatted((float) (fireDuration / 20f)))
+				.add(FIRE_DMG_LORE.formatted(fireDmg));
 	}
 	
 	@Override
@@ -57,9 +65,9 @@ public final class MolotovType extends WeaponType
 			public void explode() {
 				Location loc = potion.getLocation();
 				for(TFEntity ent : GameManager.getInstance().getLivingEntities()) {
-					if(player.isEnemy(ent) && ent.getLocation().distanceSquared(loc) < 7*7) {
-						ent.setFireCause(new FireDamageCause(false, player, 2.1));
-						ent.getEntity().setFireTicks(180);
+					if(player.isEnemy(ent) && ent.getLocation().distanceSquared(loc) < radius*radius) {
+						ent.setFireCause(new FireDamageCause(false, player, fireDmg));
+						ent.getEntity().setFireTicks(fireDuration);
 					}
 				}
 				loc.getWorld().spawnParticle(Particle.FLAME, loc, 100, 0, 0, 0, 0.3, null, true);

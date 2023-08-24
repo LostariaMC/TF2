@@ -9,10 +9,7 @@ import fr.worsewarn.cosmox.game.Phase;
 import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.chat.Messages;
 import fr.worsewarn.cosmox.tools.map.GameMap;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
@@ -38,6 +35,10 @@ public abstract class GameManager {
 		this.map = map;
 		this.friendlyFire = gameType.isFriendlyFire();
 		this.gameType = gameType;
+		
+		map.getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+		map.getWorld().setGameRule(GameRule.NATURAL_REGENERATION, true);
+		map.getWorld().setDifficulty(Difficulty.NORMAL);
 		
 		this.teams = teams;
 		

@@ -50,6 +50,8 @@ public final class Barbecue extends Weapon
 	public static final class BarbecueType extends WeaponType
 	{
 		private final double range = 5;
+		private final double fireDmg = 1.2;
+		private final int fireDuration = 80;
 		
 		public BarbecueType() {
 			super(false, Material.CAMPFIRE, "Barbecue", 32, -1, 4);
@@ -62,7 +64,11 @@ public final class Barbecue extends Weapon
 		
 		@Override
 		protected Builder<String> loreBuilder() {
-			return super.loreBuilder().add(RANGE_LORE.formatted(range)).add(CUSTOM_LORE.formatted("Enflamme vos ennemis"));
+			return super.loreBuilder()
+					.add(RANGE_LORE.formatted(range))
+					.add(CUSTOM_LORE.formatted("Enflamme vos ennemis"))
+					.add(DURATION_LORE.formatted((float) (fireDuration / 20f)))
+					.add(FIRE_DMG_LORE.formatted(fireDmg));
 		}
 		
 		@Override
@@ -87,8 +93,8 @@ public final class Barbecue extends Weapon
 				RayTraceResult headCollision = headBox.rayTrace(source.toVector(), direction, range);
 				
 				if(bodyCollision != null || headCollision != null) {
-					ent.setFireCause(new FireDamageCause(false, player, 1.2));
-					ent.getEntity().setFireTicks(80);
+					ent.setFireCause(new FireDamageCause(false, player, fireDmg));
+					ent.getEntity().setFireTicks(fireDuration);
 				}
 			}
 			

@@ -40,4 +40,12 @@ public final class EngiTurretType extends PlaceableWeaponType
 		player.toBukkit().setGameMode(GameMode.ADVENTURE);
 		return turret;
 	}
+	
+	@Override
+	public void wrenchPickup(TFPlayer player, PlaceableWeapon weapon, PlacedBlockWeapon clicked) {
+		if(!((EngiTurret)clicked).isReloading())
+			super.wrenchPickup(player, weapon, clicked);
+		else
+			player.toBukkit().sendActionBar("§cLa tourelle recharge !");
+	}
 }

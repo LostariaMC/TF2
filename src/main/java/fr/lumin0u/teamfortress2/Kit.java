@@ -3,6 +3,7 @@ package fr.lumin0u.teamfortress2;
 import fr.lumin0u.teamfortress2.util.ImmutableItemStack;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.Items;
+import fr.lumin0u.teamfortress2.weapons.Medigun.UberCharge;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
 import net.kyori.adventure.text.Component;
@@ -29,7 +30,7 @@ public enum Kit {
 	SNIPER(TextColor.color(0x52C538), new WeaponType[] {WeaponTypes.SNIPER, WeaponTypes.MITRAILLETTE, WeaponTypes.HEALTH_POTION}, WeaponTypes.KUKRI, 18, 0.26f, 1, 1, Material.ENDER_EYE, true, 8, '╖'),
 	//SPY(new WeaponType[] {new Poignard(), new C4(), new Revolver(), new MontreInvi()}, new Disguise(), 16, 0.3f, 2, 1, Material.STAINED_CLAY, 0, true, 9, '╕'),
 	ENGINEER(TextColor.color(0x55668F), new WeaponType[] {WeaponTypes.TURRET, WeaponTypes.DEFENSEUR, WeaponTypes.TRAMPOLINE, WeaponTypes.MINE, WeaponTypes.CLE_A_MOLETTE}, WeaponTypes.RED_BUTTON, 20, 0.26f, 1, 1, Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, true, 6, '╡'),
-	//MEDIC(new WeaponType[] {new MedecinePortable(), new PistoletTranquilisant(), new ScieAmputation()}, new UberCharge(), 20, 0.26f, 1, 1, Material.STAINED_CLAY, 2, true, 7, '╢'),
+	MEDIC(TextColor.color(0xFF62B8), new WeaponType[] {WeaponTypes.MEDIGUN, WeaponTypes.SYRINGE_GUN, WeaponTypes.SAW}, WeaponTypes.UBER_CHARGE, 20, 0.26f, 1, 1, Material.APPLE, true, 7, '╢'),
 	PYRO(TextColor.color(0xD56F29), new WeaponType[] {WeaponTypes.BARBECUE, WeaponTypes.STD_SHOTGUN, WeaponTypes.FIRE_AXE}, WeaponTypes.MOLOTOV, 24, 0.28f, 1, 1, Material.BLAZE_POWDER, true, 3, '▓'),
 	;
 	

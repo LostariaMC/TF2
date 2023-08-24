@@ -24,6 +24,8 @@ public final class FlareGunType extends WeaponType
 {
 	private final double range = 10; // blocks
 	private final double flareSpeed = 0.7; // blocks/ticks
+	private final double fireDmg = 2;
+	private final int fireDuration = 80;
 	
 	public FlareGunType() {
 		super(false, Material.REDSTONE_TORCH, "Flare gun", 1, 78, -1);
@@ -35,7 +37,11 @@ public final class FlareGunType extends WeaponType
 	
 	@Override
 	protected Builder<String> loreBuilder() {
-		return super.loreBuilder().add(RANGE_LORE.formatted(range)).add(CUSTOM_LORE.formatted("Enflamme vos ennemis"));
+		return super.loreBuilder()
+				.add(RANGE_LORE.formatted(range))
+				.add(CUSTOM_LORE.formatted("Enflamme vos ennemis"))
+				.add(DURATION_LORE.formatted((float) (fireDuration / 20f)))
+				.add(FIRE_DMG_LORE.formatted(fireDmg));
 	}
 	
 	@Override
@@ -93,8 +99,8 @@ public final class FlareGunType extends WeaponType
 							continue;
 						
 						if(ent.getBodyBox().overlaps(flareBB) || ent.getHeadBox().overlaps(flareBB)) {
-							ent.setFireCause(new FireDamageCause(false, player, 2));
-							ent.getEntity().setFireTicks(80);
+							ent.setFireCause(new FireDamageCause(false, player, fireDmg));
+							ent.getEntity().setFireTicks(fireDuration);
 							gotLit.add(ent);
 						}
 					}

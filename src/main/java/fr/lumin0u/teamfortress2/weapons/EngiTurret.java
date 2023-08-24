@@ -119,6 +119,10 @@ public class EngiTurret extends PlacedBlockWeapon {
 		}.runTaskTimer(TF.getInstance(), 1, 1);
 	}
 	
+	public boolean isReloading() {
+		return mortarReloadTicks > 1;
+	}
+	
 	public void shoot() {
 		if(mortarReloadTicks > 0) {
 			return;

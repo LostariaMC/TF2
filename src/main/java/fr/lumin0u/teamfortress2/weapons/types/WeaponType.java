@@ -27,6 +27,8 @@ public abstract class WeaponType
 	public static final String LEFT_CLICK_LORE = "§7§l> §6Clic gauche§7: §e%s";
 	public static final String RIGHT_CLICK_LORE = "§7§l> §6Clic droit§7: §e%s";
 	public static final String HEADSHOT_LORE = "§7§l> §6Headshot§7: §e§l%.1f";
+	public static final String FIRE_DMG_LORE = "§7§l> §6Dégats du feu§7: §e§l%.1f";
+	public static final String DURATION_LORE = "§7§l> §6Durée§7: §e§l%.1f";
 	public static final String CUSTOM_LORE = "§7§l> §6%s";
 	
 	/**

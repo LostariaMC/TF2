@@ -16,6 +16,7 @@ public class Weapon
 {
 	public static final int ULTIMATE_RELOAD_TICKS = 25 * 20;
 	public static final int ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS = 5 * 20;
+	public static final int ULTIMATE_WEAPON_SLOT = 7;
 	
 	protected List<BukkitTask> bukkitTasks = new ArrayList<>();
 	
