@@ -1,28 +1,25 @@
 package fr.lumin0u.teamfortress2.game;
 
 import fr.lumin0u.teamfortress2.TF;
-import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ImmutableItemStack;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.game.teams.Team;
+import net.kyori.adventure.text.format.TextColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TFTeam
 {
 	private final Team cosmoxTeam;
 	private final String name;
-	private final String prefix;
+	private final TextColor nkaColor;
+	private final ChatColor chatColor;
 	private final Location spawnpoint;
 	private final BoundingBox safeZone;
 	private final Material blockInCart;
@@ -43,10 +40,11 @@ public class TFTeam
 	public TFTeam(Team cosmoxTeam, Material blockInCart, Location spawnpoint, BoundingBox safeZone) {
 		this.cosmoxTeam = cosmoxTeam;
 		this.name = cosmoxTeam.getName();
-		this.prefix = cosmoxTeam.getColor().toString();
-		this.chestplate = new ItemBuilder(Material.LEATHER_CHESTPLATE).setDisplayName(prefix + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
-		this.leggings = new ItemBuilder(Material.LEATHER_LEGGINGS).setDisplayName(prefix + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
-		this.boots = new ItemBuilder(Material.LEATHER_BOOTS).setDisplayName(prefix + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
+		this.nkaColor = TextColor.color(cosmoxTeam.getColor().asBungee().getColor().getRGB());
+		this.chatColor = cosmoxTeam.getColor().asBungee();
+		this.chestplate = new ItemBuilder(Material.LEATHER_CHESTPLATE).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
+		this.leggings = new ItemBuilder(Material.LEATHER_LEGGINGS).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
+		this.boots = new ItemBuilder(Material.LEATHER_BOOTS).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
 		
 		this.spawnpoint = spawnpoint;
 		this.blockInCart = blockInCart;
@@ -54,7 +52,7 @@ public class TFTeam
 	}
 	
 	public String getCharFR() {
-		return new String(new char[]{name.toCharArray()[0]}).toUpperCase();
+		return String.valueOf(name.toCharArray()[0]).toUpperCase();
 	}
 	
 	public String getName(boolean f) {
@@ -64,8 +62,12 @@ public class TFTeam
 			return name;
 	}
 	
-	public String getPrefix() {
-		return prefix;
+	public TextColor getNkaColor() {
+		return nkaColor;
+	}
+	
+	public ChatColor getChatColor() {
+		return chatColor;
 	}
 	
 	public Set<TFPlayer> getPlayers() {

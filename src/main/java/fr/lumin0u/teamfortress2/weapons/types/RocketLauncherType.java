@@ -1,5 +1,6 @@
 package fr.lumin0u.teamfortress2.weapons.types;
 
+import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
@@ -24,8 +25,17 @@ public final class RocketLauncherType extends WeaponType
 	private final List<Rocket> rockets = new ArrayList<>();
 	private static final double ROCKET_SPEED = 1;
 	
+	
+	private final double centerDamage = 17;
+	private final double radius = 6;
+	
 	public RocketLauncherType() {
 		super(false, Material.CROSSBOW, "Lance Roquette", 1, 144, -1);
+	}
+	
+	@Override
+	protected Builder<String> loreBuilder() {
+		return super.loreBuilder().add(CUSTOM_LORE.formatted("Tire une roquette explosive")).add(RANGE_LORE.formatted(ROCKET_SPEED * 100)).add(DAMAGE_LORE.formatted(centerDamage)).add(RADIUS_LORE.formatted(radius));
 	}
 	
 	@Override
@@ -63,7 +73,7 @@ public final class RocketLauncherType extends WeaponType
 	@Override
 	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	
-	public static class Rocket extends ThrownExplosive
+	public class Rocket extends ThrownExplosive
 	{
 		private final SmallFireball fireball;
 		private final Vector direction;
@@ -99,10 +109,9 @@ public final class RocketLauncherType extends WeaponType
 		
 		@Override
 		public void explode() {
-			final double radius = 6;
 			final double centerKnockback = 2.5;
 			
-			GameManager.getInstance().explosion(owner, location, 13, radius, owner::isEnemy, centerKnockback);
+			GameManager.getInstance().explosion(owner, location, centerDamage, radius, owner::isEnemy, centerKnockback);
 			
 			double distance = owner.getLocation().distance(location);
 			if(distance < radius) {

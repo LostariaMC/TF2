@@ -5,6 +5,11 @@ import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.Items;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -15,17 +20,17 @@ import java.util.Arrays;
 import java.util.Random;
 
 public enum Kit {
-	RANDOM(new WeaponType[0], WeaponTypes.KUKRI, 20, 0.2f, 1, 1, Material.BARRIER, false, 0, ' '),
+	RANDOM(NamedTextColor.LIGHT_PURPLE, new WeaponType[0], WeaponTypes.KUKRI, 20, 0.2f, 1, 1, Material.BARRIER, false, 0, ' '),
 	//DEBUG(new AbstractWeapon[] {new MitrailletteLourde(), new Defoncator(), new Blaoups(), new SuperRocketLauncher()}, new Striker(), 20, 0.3f, 100000, 20, Material.CARPET, 0, false, 0, 'z'),
-	SCOUT(new WeaponType[]{WeaponTypes.CANON_SCIE, WeaponTypes.CLUB, WeaponTypes.DEFENSEUR}, WeaponTypes.SCOUT_RACE, 18, 0.32f, 2, 1, Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE, true, 1, '░'),
-	SOLDIER(new WeaponType[] {WeaponTypes.ROCKET_LAUNCHER, WeaponTypes.STD_SHOTGUN, WeaponTypes.FLASHBANG}, WeaponTypes.SCAVENGER, 20, 0.26f, 1, 1, Material.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE, true, 2, '▒'),
-	DEMOMAN(new WeaponType[] {WeaponTypes.DYNAMITE, WeaponTypes.SMOKE, WeaponTypes.STD_SHOTGUN, WeaponTypes.FLARE_GUN}, WeaponTypes.STRIKER, 20, 0.26f, 1, 1, Material.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE, true, 4, '│'),
-	HEAVY(new WeaponType[] {WeaponTypes.TORNADO, WeaponTypes.STD_SHOTGUN, WeaponTypes.MACHETE}, WeaponTypes.BEAST_FURY, 32, 0.21f, 1, 1, Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE, true, 5, '┤'),
-	SNIPER(new WeaponType[] {WeaponTypes.SNIPER, WeaponTypes.MITRAILLETTE, WeaponTypes.HEALTH_POTION}, WeaponTypes.KUKRI, 18, 0.26f, 1, 1, Material.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE, true, 8, '╖'),
+	SCOUT(NamedTextColor.WHITE, new WeaponType[]{WeaponTypes.CANON_SCIE, WeaponTypes.CLUB, WeaponTypes.DEFENSEUR}, WeaponTypes.SCOUT_RACE, 18, 0.32f, 2, 1, Material.FEATHER, true, 1, '░'),
+	SOLDIER(TextColor.color(0x9D7154), new WeaponType[] {WeaponTypes.ROCKET_LAUNCHER, WeaponTypes.STD_SHOTGUN, WeaponTypes.FLASHBANG}, WeaponTypes.SCAVENGER, 20, 0.26f, 1, 1, Material.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE, true, 2, '▒'),
+	DEMOMAN(TextColor.color(0xB04441), new WeaponType[] {WeaponTypes.DYNAMITE, WeaponTypes.SMOKE, WeaponTypes.STD_SHOTGUN, WeaponTypes.FLARE_GUN}, WeaponTypes.STRIKER, 20, 0.26f, 1, 1, Material.TNT_MINECART, true, 4, '│'),
+	HEAVY(TextColor.color(0x5D38C5), new WeaponType[] {WeaponTypes.TORNADO, WeaponTypes.STD_SHOTGUN, WeaponTypes.MACHETE}, WeaponTypes.BEAST_FURY, 32, 0.21f, 1, 1, Material.SHULKER_SHELL, true, 5, '┤'),
+	SNIPER(TextColor.color(0x52C538), new WeaponType[] {WeaponTypes.SNIPER, WeaponTypes.MITRAILLETTE, WeaponTypes.HEALTH_POTION}, WeaponTypes.KUKRI, 18, 0.26f, 1, 1, Material.ENDER_EYE, true, 8, '╖'),
 	//SPY(new WeaponType[] {new Poignard(), new C4(), new Revolver(), new MontreInvi()}, new Disguise(), 16, 0.3f, 2, 1, Material.STAINED_CLAY, 0, true, 9, '╕'),
-	ENGINEER(new WeaponType[] {WeaponTypes.TURRET, WeaponTypes.DEFENSEUR, WeaponTypes.TRAMPOLINE, WeaponTypes.MINE, WeaponTypes.CLE_A_MOLETTE}, WeaponTypes.RED_BUTTON, 20, 0.26f, 1, 1, Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, true, 6, '╡'),
+	ENGINEER(TextColor.color(0x55668F), new WeaponType[] {WeaponTypes.TURRET, WeaponTypes.DEFENSEUR, WeaponTypes.TRAMPOLINE, WeaponTypes.MINE, WeaponTypes.CLE_A_MOLETTE}, WeaponTypes.RED_BUTTON, 20, 0.26f, 1, 1, Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, true, 6, '╡'),
 	//MEDIC(new WeaponType[] {new MedecinePortable(), new PistoletTranquilisant(), new ScieAmputation()}, new UberCharge(), 20, 0.26f, 1, 1, Material.STAINED_CLAY, 2, true, 7, '╢'),
-	//PYRO(new WeaponType[] {new Barbecue(), new FusilAPompe(), new Hache()}, new CoktailMolotov(), 24, 0.28f, 1, 1, Material.STAINED_CLAY, 6, true, 3, '▓'),
+	PYRO(TextColor.color(0xD56F29), new WeaponType[] {WeaponTypes.BARBECUE, WeaponTypes.STD_SHOTGUN, WeaponTypes.FIRE_AXE}, WeaponTypes.MOLOTOV, 24, 0.28f, 1, 1, Material.BLAZE_POWDER, true, 3, '▓'),
 	;
 	
 	private static Inventory wrInventory;
@@ -40,8 +45,10 @@ public enum Kit {
 	private final char symbole;
 	private final int valeurCart, valeurCap;
 	private final ImmutableItemStack repItem;
+	private final TextColor color;
 	
-	private Kit(WeaponType[] weapons, WeaponType special, int maxHealth, float speed, int valeurCart, int valeurCap, Material blockOnHead, boolean realKit, int place, char symbole) {
+	private Kit(TextColor color, WeaponType[] weapons, WeaponType special, int maxHealth, float speed, int valeurCart, int valeurCap, Material blockOnHead, boolean realKit, int place, char symbole) {
+		this.color = color;
 		this.weapons = weapons;
 		this.special = special;
 		this.maxHealth = maxHealth;
@@ -55,11 +62,15 @@ public enum Kit {
 		
 		this.repItem = new ItemBuilder(blockOnHead)
 				.addItemFlag(ItemFlag.HIDE_ITEM_SPECIFICS)
-				.setDisplayName("§6" + getName())
+				.setDisplayName(Component.text(getName(), Style.style(color, TextDecoration.BOLD)))
 				.setLore(Arrays.stream(weapons).map(w -> "§2" + w.getName()).toList())
-				.addLore("", "§7Vie : §6" + maxHealth, "§7Vitesse : §6%.2f".formatted(speed))
+				.addLore(special.equals(WeaponTypes.SCOUT_RACE) ? "§dDASH DISPONIBLE" : "", "§7Vie : §6" + maxHealth, "§7Vitesse : §6%.2f".formatted(speed))
 				.addLore("§7Valeur minecart : §6" + valeurCart, "§7Valeur de capture : §6" + valeurCap)
 				.buildImmutable();
+	}
+	
+	public TextColor getColor() {
+		return color;
 	}
 	
 	public static Kit byRepItem(ItemStack item) {

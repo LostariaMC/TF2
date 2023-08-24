@@ -20,18 +20,18 @@ public class RClickingPlayerTask extends BukkitRunnable
 	}
 	
 	public void triggerRClick() {
-		//System.out.println("CLICK :pog: " + (TF.currentTick() - lastClickDate));
 		lastClickDate = TF.currentTick();
+	}
+	
+	public void resetClick() {
+		lastClickDate = 0;
 	}
 	
 	@Override
 	public void run() {
 		
-		//System.out.println(TF.currentTick() - lastClickDate);
-		
 		if(TF.currentTick() - lastClickDate <= 4) {
 			if(GameManager.getInstance().getPhase().isInGame() && !player.isInSafeZone() && !player.isDead()) {
-				//System.out.println("SEND CLICK");
 				RayTraceResult rayTraceResult = new RayTraceResult(new Vector());
 				
 				player.getWeaponInHand().ifPresent(weapon -> weapon.rightClick(rayTraceResult));

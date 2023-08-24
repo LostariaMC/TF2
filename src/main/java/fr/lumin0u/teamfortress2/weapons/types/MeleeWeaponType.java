@@ -21,9 +21,7 @@ public class MeleeWeaponType extends WeaponType
 	}
 	
 	@Override
-	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-	
-	}
+	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	
 	@Override
 	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
@@ -53,6 +51,6 @@ public class MeleeWeaponType extends WeaponType
 	
 	@Override
 	protected Builder<String> loreBuilder() {
-		return new Builder<String>().add(DAMAGE_LORE.formatted((int) damage));
+		return super.loreBuilder().add(DAMAGE_LORE.formatted(damage));
 	}
 }

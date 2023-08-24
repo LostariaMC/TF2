@@ -1,8 +1,10 @@
 package fr.lumin0u.teamfortress2.weapons.types;
 
+import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.Utils;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import org.bukkit.*;
 import org.bukkit.Particle.DustOptions;
@@ -70,6 +72,11 @@ public class GunType extends WeaponType
 	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 	}
 	
+	@Override
+	protected Builder<String> loreBuilder() {
+		return super.loreBuilder().add(DAMAGE_LORE.formatted(damage)).add(RANGE_LORE.formatted(range));
+	}
+	
 	private static Vector addSpread(Vector directionNormalized, double accuracy) {
 		double a = directionNormalized.getX(), b = directionNormalized.getY(), c = directionNormalized.getZ();
 		Vector perpendicular;
@@ -99,8 +106,7 @@ public class GunType extends WeaponType
 			l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, 0, 0, 0, 0, new DustOptions(Color.BLACK, 0.5f), true);
 	}
 	
-	public static void shoot(TFPlayer player, Location source, Vector direction, Weapon weapon, double inaccuracy, BiConsumer<Location, Integer> particle, Collection<? extends TFEntity> entities)
-	{
+	public static void shoot(TFPlayer player, Location source, Vector direction, Weapon weapon, double inaccuracy, BiConsumer<Location, Integer> particle, Collection<? extends TFEntity> entities) {
 		/*if(this instanceof LaTornade)
 		{
 			p.setVelocity(p.getVelocity().subtract(p.getEyeLocation().getDirection().multiply(0.05)));
@@ -133,8 +139,7 @@ public class GunType extends WeaponType
 		//perforant
 		List<Hit> entityHits = new ArrayList<>();
 		
-		for(TFEntity ent : entities)
-		{
+		for(TFEntity ent : entities) {
 			if(!player.isEnemy(ent))
 				continue;
 			
@@ -186,19 +191,17 @@ public class GunType extends WeaponType
 			player.toBukkit().playSound(player.toBukkit().getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 0.5f, 1.0f);
 		}
 		
-		if(collisionResult != null && (entityHits.isEmpty() || type.perforant))
-		{
+		if(collisionResult != null && (entityHits.isEmpty() || type.perforant)) {
 			Block collided = collisionResult.getHitBlock();
 			
 			if(collided != null)
 				//for(int i = 0; i < 10; i++)
-					world.spawnParticle(Particle.BLOCK_CRACK, endPoint, 10, 0, 0, 0, 0, collided.getBlockData(), true);
+				world.spawnParticle(Particle.BLOCK_CRACK, endPoint, 10, 0, 0, 0, 0, collided.getBlockData(), true);
 		}
 		
 		final double particlePerBlock = 10;
 		int i = 0;
-		for(int counter = 0; counter < source.distance(endPoint) * particlePerBlock; counter++)
-		{
+		for(int counter = 0; counter < source.distance(endPoint) * particlePerBlock; counter++) {
 			Location point = source.clone().add(direction.clone().multiply(counter / particlePerBlock));
 			
 			if(counter > particlePerBlock) {

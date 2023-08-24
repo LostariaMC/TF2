@@ -3,10 +3,13 @@ package fr.lumin0u.teamfortress2.util;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -72,12 +75,19 @@ public class Utils
 			
 			@Override
 			public BiConsumer<TextComponent.Builder, Component> accumulator() {
-				return (b, c) -> b.append(delimiter).append(c);
+				return (b, c) -> {
+					if(b.content().equals("")) b.append(c);
+					else b.append(delimiter).append(c);
+				};
 			}
 			
 			@Override
 			public BinaryOperator<TextComponent.Builder> combiner() {
-				return (b1, b2) -> b1.append(delimiter).append(b2);
+				return (b, c) -> {
+					if(b.content().equals("")) b.append(c);
+					else b.append(delimiter).append(c);
+					return b;
+				};
 			}
 			
 			@Override
@@ -90,5 +100,17 @@ public class Utils
 				return Set.of();
 			}
 		};
+	}
+	
+	public static <T> Supplier<T> supplierOf(T value) {
+		return () -> value;
+	}
+	
+	public static TextColor nkaColor(ChatColor bungeeColor) {
+		return TextColor.color(bungeeColor.getColor().getRGB());
+	}
+	
+	public static ChatColor bungeeColor(TextColor nkaColor) {
+		return ChatColor.of(new Color(nkaColor.red(), nkaColor.green(), nkaColor.blue()));
 	}
 }

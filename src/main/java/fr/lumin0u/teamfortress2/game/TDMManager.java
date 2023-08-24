@@ -1,32 +1,20 @@
 package fr.lumin0u.teamfortress2.game;
 
-import fr.lumin0u.teamfortress2.Kit;
 import fr.lumin0u.teamfortress2.TF;
-import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.util.ExpValues;
-import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
-import fr.worsewarn.cosmox.API;
+import fr.lumin0u.teamfortress2.util.Utils;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.api.scoreboard.CosmoxScoreboard;
 import fr.worsewarn.cosmox.game.GameVariables;
-import fr.worsewarn.cosmox.game.Phase;
 import fr.worsewarn.cosmox.game.teams.Team;
-import fr.worsewarn.cosmox.tools.chat.Messages;
 import fr.worsewarn.cosmox.tools.map.GameMap;
-import fr.worsewarn.cosmox.tools.world.Cuboid;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BoundingBox;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TDMManager extends GameManager
@@ -51,12 +39,12 @@ public class TDMManager extends GameManager
 		scoreboard.updateLine(line.getAndIncrement(), "§7Mode: §fTEAM DEATHMATCH");
 		
 		if(!player.isSpectator())
-			scoreboard.updateLine(line.getAndIncrement(), "§6Kit§7: §a" + player.getKit().getName());
+			scoreboard.updateLine(line.getAndIncrement(), "§6Classe§7: §a" + Utils.bungeeColor(player.getKit().getColor()) + player.getKit().getName());
 		
 		scoreboard.updateLine(line.getAndIncrement(), "§2");
 		getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills())).forEach(team -> {
 			scoreboard.updateLine(line.getAndIncrement(),
-					"§7Equipe " + team.getPrefix() + (team.equals(player.getTeam()) ? "§l" : "") + team.getName(true)
+					"§7Equipe " + team.getChatColor() + (team.equals(player.getTeam()) ? "§l" : "") + team.getName(true)
 							+ "§7: §a" + team.getKills() + " §2/40");
 		});
 		scoreboard.updateLine(line.getAndIncrement(), "§e");

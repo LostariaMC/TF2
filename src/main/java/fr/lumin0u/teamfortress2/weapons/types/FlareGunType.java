@@ -1,5 +1,6 @@
 package fr.lumin0u.teamfortress2.weapons.types;
 
+import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.FireDamageCause;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.TFEntity;
@@ -30,6 +31,11 @@ public final class FlareGunType extends WeaponType
 	
 	public double getRange() {
 		return range;
+	}
+	
+	@Override
+	protected Builder<String> loreBuilder() {
+		return super.loreBuilder().add(RANGE_LORE.formatted(range)).add(CUSTOM_LORE.formatted("Enflamme vos ennemis"));
 	}
 	
 	@Override

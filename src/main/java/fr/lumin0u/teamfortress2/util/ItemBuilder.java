@@ -1,11 +1,16 @@
 package fr.lumin0u.teamfortress2.util;
 
 import com.destroystokyo.paper.Namespaced;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
@@ -42,13 +47,12 @@ public class ItemBuilder
 		return stack.getItemMeta();
 	}
 	
-	public ItemBuilder setFireworkStarColor(Color color) {
+	public ItemBuilder setFireworkEffect(FireworkEffect effect) {
 		
 		try
 		{
 			FireworkEffectMeta meta = (FireworkEffectMeta) stack.getItemMeta();
-			FireworkEffect aa = FireworkEffect.builder().withColor(color).build();
-			meta.setEffect(aa);
+			meta.setEffect(effect);
 			setItemMeta(meta);
 		} catch(NullPointerException ignored)
 		{
@@ -130,8 +134,33 @@ public class ItemBuilder
 		return this;
 	}
 	
+	public ItemBuilder setDisplayName(Component displayname) {
+		ItemMeta meta = getItemMeta();
+		meta.displayName(displayname);
+		setItemMeta(meta);
+		return this;
+	}
+	
 	public ItemBuilder setItemStack(ItemStack stack) {
 		this.stack = stack;
+		return this;
+	}
+	
+	public ItemBuilder noAttackDelay() {
+		return addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, new AttributeModifier(Attribute.GENERIC_ATTACK_SPEED.getKey().getKey(), 1020, Operation.ADD_NUMBER));
+	}
+	
+	public ItemBuilder addAttributeModifier(Attribute attribute, AttributeModifier modifier) {
+		ItemMeta meta = getItemMeta();
+		meta.addAttributeModifier(attribute, modifier);
+		setItemMeta(meta);
+		return this;
+	}
+	
+	public ItemBuilder removeAttributeModifier(Attribute attribute) {
+		ItemMeta meta = getItemMeta();
+		meta.removeAttributeModifier(attribute);
+		setItemMeta(meta);
 		return this;
 	}
 	
@@ -142,7 +171,6 @@ public class ItemBuilder
 	public ItemBuilder addLore(List<String> lore) {
 		
 		ItemMeta meta = getItemMeta();
-		
 		List<String> lore2 = new LinkedList<>();
 		
 		if(meta.hasLore())

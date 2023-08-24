@@ -61,6 +61,8 @@ public class InventoryListener implements Listener
 					.filter(PlaceableWeapon.class::isInstance)
 					.ifPresentOrElse(w -> event.getPlayer().setGameMode(GameMode.SURVIVAL), () -> event.getPlayer().setGameMode(GameMode.ADVENTURE));
 		}
+		
+		player.getrClickingTask().resetClick();
 	}
 	
 	@EventHandler

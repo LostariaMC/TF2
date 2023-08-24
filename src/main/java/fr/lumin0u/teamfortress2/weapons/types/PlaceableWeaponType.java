@@ -1,6 +1,7 @@
 package fr.lumin0u.teamfortress2.weapons.types;
 
 import com.destroystokyo.paper.NamespacedTag;
+import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
@@ -19,7 +20,12 @@ import java.util.function.Supplier;
 public abstract class PlaceableWeaponType extends WeaponType
 {
 	public PlaceableWeaponType(boolean ultimate, Material material, String name, int maxAmmo) {
-		super(ultimate, material, name, maxAmmo, 0, 0);
+		super(ultimate, material, name, maxAmmo, -1, 2);
+	}
+	
+	@Override
+	protected Builder<String> loreBuilder() {
+		return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("placer le block"));
 	}
 	
 	@Override

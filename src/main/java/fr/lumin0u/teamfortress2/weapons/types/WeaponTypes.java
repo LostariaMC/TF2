@@ -1,11 +1,13 @@
 package fr.lumin0u.teamfortress2.weapons.types;
 
+import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.weapons.*;
+import fr.lumin0u.teamfortress2.weapons.Barbecue.BarbecueType;
 import org.bukkit.*;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Particle.DustOptions;
@@ -25,15 +27,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public final class WeaponTypes
 {
-	static final AtomicInteger DROPPED_ITEM_COUNT = new AtomicInteger(0);
+	private static final AtomicInteger DROPPED_ITEM_COUNT = new AtomicInteger(0);
 	
 	public static final WeaponType CANON_SCIE = new ShotgunType(false, Material.GOLDEN_SHOVEL, "Canon scié", 2, 48, 14, 4, 12, Math.PI / 50, 0.15, 3);
-	
-	// mine -> candle
 	public static final MeleeWeaponType CLUB = new MeleeWeaponType(false, Material.GOLDEN_SWORD, "Batte", 1, -1, 3, 0.3);
 	public static final GunType DEFENSEUR = new GunType(false, Material.WOODEN_HOE, "Défenseur", 1, 20, -1, 2, 30, Math.PI / 200, 0.25);
 	public static final WeaponType SCOUT_RACE = new WeaponType(true, Material.DRAGON_BREATH, "Scout race", 1, -1, -1)
 	{
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(CUSTOM_LORE.formatted("Augmente la vitesse et la portée"));
+		}
+		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			final int duration = 10 * 20;
@@ -46,13 +51,16 @@ public final class WeaponTypes
 		}
 		
 		@Override
-		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-		}
+		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	};
 	public static final MeleeWeaponType KUKRI = new MeleeWeaponType(true, Material.IRON_SWORD, "Kukri", 2, -1, 12, 0.3);
 	public static final EngiTurretType TURRET = new EngiTurretType();
 	public static final WeaponType RED_BUTTON = new WeaponType(true, Material.TOTEM_OF_UNDYING, "Invincibilité", 1, -1, -1)
 	{
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(CUSTOM_LORE.formatted("Rend invincible pour §e§l5 s"));
+		}
 		
 		private Vector randomPositionIn(BoundingBox box) {
 			Random r = new Random();
@@ -94,6 +102,11 @@ public final class WeaponTypes
 	public static final WeaponType CLE_A_MOLETTE = new MeleeWeaponType(false, Material.SHEARS, "Clé à molette", 1, -1, 2, 0.2)
 	{
 		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("récupérez vos constructions !"));
+		}
+		
+		@Override
 		public void rightClickAction(TFPlayer player, Weapon wrench, RayTraceResult info) {
 			//if(info != null && info.getHitBlock() != null) {
 			player.getWeapons().stream()
@@ -109,6 +122,11 @@ public final class WeaponTypes
 	};
 	public static final WeaponType TRAMPOLINE = new PlaceableWeaponType(false, Material.LIGHT_WEIGHTED_PRESSURE_PLATE, "Trampoline", 1)
 	{
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(CUSTOM_LORE.formatted("Envolez vous !"));
+		}
+		
 		@Override
 		public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block) {
 			PlacedBlockWeapon trampo = new PlacedBlockWeapon(player, weapon, block)
@@ -153,6 +171,13 @@ public final class WeaponTypes
 	};
 	public static final WeaponType MINE = new PlaceableWeaponType(false, Material.STONE_PRESSURE_PLATE, "Mine", 3)
 	{
+		private final double centerDamage = 10;
+		private final double radius = 4;
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(CUSTOM_LORE.formatted("Explose au contact d'ennemis")).add(DAMAGE_LORE.formatted(centerDamage)).add(RADIUS_LORE.formatted(radius));
+		}
+		
 		@Override
 		public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block) {
 			PlacedBlockWeapon mine = new PlacedBlockWeapon(player, weapon, block)
@@ -170,7 +195,7 @@ public final class WeaponTypes
 				@Override
 				public void onWalkOn(TFEntity walker) {
 					if(player.isEnemy(walker)) {
-						GameManager.getInstance().explosion(owner, block.getLocation().add(0.5, 0.1, 0.5), 10, 5, player::isEnemy, 0);
+						GameManager.getInstance().explosion(owner, block.getLocation().add(0.5, 0.1, 0.5), centerDamage, radius, player::isEnemy, 0);
 						weapon.removeBlock(this);
 					}
 				}
@@ -179,13 +204,44 @@ public final class WeaponTypes
 			return mine;
 		}
 	};
-	public static final GunType SNIPER = new Sniper.SniperType();
+	public static final GunType SNIPER = new GunType(false, Material.DIAMOND_HOE, "Sniper", 1, 76, -1, 10, 100, 0, 0.02) {
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(HEADSHOT_LORE.formatted(damage*1.5)).add(LEFT_CLICK_LORE.formatted("activer la lunette")).add("§7> §6Degats avec visée§7: §e§l%.1f".formatted(damage*2));
+		}
+		
+		@Override
+		public Weapon createWeapon(TFPlayer owner, int slot) {
+			return new Scopeable(SNIPER, owner, slot) {
+				@Override
+				public void scopeEffect() {
+					owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 10, false, false, false));
+				}
+				@Override
+				public void unscopeEffect() {
+					owner.toBukkit().removePotionEffect(PotionEffectType.SLOW);
+				}
+			};
+		}
+		@Override
+		public void onEntityHit(Hit hit) {
+			boolean scoping = ((Scopeable)hit.weapon()).isScoping();
+			Vector kb = hit.direction().clone().setY(0).multiply(hit.gunType().getKnockback());
+			hit.hitEntity().damage(hit.player(), hit.gunType().getDamage() * (hit.headshot() ? 1.5 : scoping ? 2 : 1), kb);
+		}
+	};
 	public static final GunType MITRAILLETTE = new GunType(false, Material.IRON_HOE, "Carabine du Nettoyeur", 1, 9, -1, 2, 30, Math.PI / 90, 0.4);
 	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 7 * 20, -1)
 	{
+		private final int heal = 8;
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("§l+%d pv".formatted(heal)));
+		}
+		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-			player.toBukkit().setHealth(Math.min(player.toBukkit().getHealth() + 8, player.getKit().getMaxHealth()));
+			player.toBukkit().setHealth(Math.min(player.toBukkit().getHealth() + heal, player.getKit().getMaxHealth()));
 			weapon.useAmmo();
 		}
 		
@@ -200,17 +256,26 @@ public final class WeaponTypes
 	public static final WeaponType MANETTE = new WeaponType(false, Material.COMPARATOR, "Manette", 1, -1, 10)
 	{
 		@Override
-		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) { // handled in the weapon class
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("diriger le canon")).add(LEFT_CLICK_LORE.formatted("tirer"));
 		}
 		
 		@Override
-		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-		}
+		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {} // handled in the weapon class
+		
+		@Override
+		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	};
 	public static final RocketLauncherType ROCKET_LAUNCHER = new RocketLauncherType();
 	public static final ShotgunType STD_SHOTGUN = new ShotgunType(false, Material.IRON_SHOVEL, "Fusil à pompe", 1, 64, -1, 3.5, 15, Math.PI / 40, 0.1, 5);
 	public static final WeaponType FLASHBANG = new WeaponType(false, Material.FIREWORK_ROCKET, "Grenade flash", 1, 15 * 20 + 18, -1)
 	{
+		private final double radius = 6;
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(RADIUS_LORE.formatted(radius)).add(CUSTOM_LORE.formatted("Aveugle les joueurs"));
+		}
+		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			Vector direction = player.getEyeLocation().getDirection();
@@ -232,7 +297,7 @@ public final class WeaponTypes
 					Location loc = item.getLocation();
 					
 					GameManager.getInstance().getLivingEntities().forEach(entity -> {
-						if(entity.getLocation().distance(loc) < 5) {
+						if(entity.getLocation().distance(loc) < radius) {
 							final int duration = 20 * 5;
 							
 							entity.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 0, false, false));
@@ -273,6 +338,11 @@ public final class WeaponTypes
 	public static final GunType SCAVENGER = new GunType(true, Material.NETHERITE_HOE, "Scavenger", 2, -1, 10, 0, 100, 0, 0, true)
 	{
 		@Override
+		protected Builder<String> loreBuilder() {
+			return new Builder<String>().add(RANGE_LORE.formatted(range)).add(CUSTOM_LORE.formatted("Inflige §2poison"));
+		}
+		
+		@Override
 		public void onEntityHit(Hit hit) {
 			hit.hitEntity().setPoisonSource(hit.player());
 			int duration = 100;
@@ -282,13 +352,21 @@ public final class WeaponTypes
 		
 		@Override
 		public void particle(Location l, int i) {
-			Random r = new Random();
+			//Random r = new Random();
 			//for(int i = 0; i < 3; i++)
-			l.getWorld().spawnParticle(Particle.GLOW, l.clone().add(new Vector(r.nextDouble() - 0.5, r.nextDouble() - 0.5, r.nextDouble() - 0.5).multiply(0.0)), 1);
+			l.getWorld().spawnParticle(Particle.GLOW, l/*.clone().add(new Vector(r.nextDouble() - 0.5, r.nextDouble() - 0.5, r.nextDouble() - 0.5).multiply(0.0))*/, 1);
 		}
 	};
 	public static final WeaponType DYNAMITE = new WeaponType(false, Material.RED_CANDLE, "Dynamite", 1, 158, -1)
 	{
+		private final double centerDamage = 15;
+		private final double radius = 7;
+		
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(DAMAGE_LORE.formatted(centerDamage)).add(RADIUS_LORE.formatted(radius));
+		}
+		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			Vector direction = player.getEyeLocation().getDirection();
@@ -308,7 +386,7 @@ public final class WeaponTypes
 				@Override
 				public void explode() {
 					Location loc = item.getLocation();
-					GameManager.getInstance().explosion(player, loc, 15, 6, player::isEnemy, 0.7);
+					GameManager.getInstance().explosion(player, loc, centerDamage, radius, player::isEnemy, 0.7);
 					remove();
 				}
 				
@@ -324,6 +402,11 @@ public final class WeaponTypes
 	};
 	public static final WeaponType SMOKE = new WeaponType(false, Material.BRUSH, "Fumigène", 1, 278, -1)
 	{
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add("§fPouf");
+		}
+		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			Vector direction = player.getEyeLocation().getDirection();
@@ -399,16 +482,24 @@ public final class WeaponTypes
 	public static final FlareGunType FLARE_GUN = new FlareGunType();
 	public static final StrikerType STRIKER = new StrikerType();
 	public static final GunType TORNADO = new GunType(false, Material.GOLDEN_HOE, "La Tornade", 1, -1, 3, 1.5, 25, Math.PI / 80, 0.1) {
+		
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(LEFT_CLICK_LORE.formatted("augmente la précision"));
+		}
+		
 		@Override
 		public Weapon createWeapon(TFPlayer owner, int slot) {
 			return new Scopeable(TORNADO, owner, slot) {
 				@Override
 				public void scopeEffect() {
 					updateItem();
+					owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 7, false, false, false));
 				}
 				@Override
 				public void unscopeEffect() {
 					updateItem();
+					owner.toBukkit().removePotionEffect(PotionEffectType.SLOW);
 				}
 			};
 		}
@@ -440,6 +531,10 @@ public final class WeaponTypes
 	};
 	public static final MeleeWeaponType MACHETE = new MeleeWeaponType(false, Material.STONE_SWORD, "Machette", 1, -1, 3, 0.15);
 	public static final WeaponType BEAST_FURY = new WeaponType(true, Material.MUTTON, "Beast Fury", 1, -1, -1) {
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("donne régénratin etplus de vi"));
+		}
 		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
@@ -452,6 +547,9 @@ public final class WeaponTypes
 		@Override
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	};
+	public static final BarbecueType BARBECUE = new BarbecueType();
+	public static final MeleeWeaponType FIRE_AXE = new MeleeWeaponType(false, Material.IRON_AXE, "Hache", 1, -1, 3, 0.25);
+	public static final MolotovType MOLOTOV = new MolotovType();
 	
 	
 	private WeaponTypes() {

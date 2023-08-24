@@ -1,5 +1,6 @@
 package fr.lumin0u.teamfortress2.weapons.types;
 
+import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
@@ -37,5 +38,10 @@ public class ShotgunType extends GunType
 		}
 		
 		weapon.useAmmo();
+	}
+	
+	@Override
+	protected Builder<String> loreBuilder() {
+		return super.loreBuilder().add(NBSHOTS_LORE.formatted(shots));
 	}
 }

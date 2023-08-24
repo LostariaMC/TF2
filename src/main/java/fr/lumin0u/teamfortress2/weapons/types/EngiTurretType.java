@@ -1,5 +1,6 @@
 package fr.lumin0u.teamfortress2.weapons.types;
 
+import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.EngiTurret;
 import fr.lumin0u.teamfortress2.weapons.PlaceableWeapon;
@@ -25,6 +26,11 @@ public final class EngiTurretType extends PlaceableWeaponType
 					super.pickupAmmo();
 			}
 		};
+	}
+	
+	@Override
+	protected Builder<String> loreBuilder() {
+		return super.loreBuilder().add(CUSTOM_LORE.formatted("Placez une tourelle qui tire des obus"));
 	}
 	
 	@Override

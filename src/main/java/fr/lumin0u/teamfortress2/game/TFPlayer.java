@@ -10,10 +10,9 @@ import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.game.teams.Team;
-import fr.worsewarn.cosmox.tools.chat.Messages;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.PacketPlayOutUpdateHealth;
@@ -27,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static fr.lumin0u.teamfortress2.FireDamageCause.WILD_FIRE;
 
@@ -307,8 +305,13 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	
 	public Component getListName() {
 		return Component.text()
-				.content((getTeam() == null ? "§7" : getTeam().getPrefix()) + getName() + " §6" + getKit().getSymbol())
-				.hoverEvent(HoverEvent.showText(Component.text("§6Kit: §l§e" + getKit().getName())))
+				.append(Component.text(getName(), getTeam() == null ? NamedTextColor.GRAY : getTeam().getNkaColor()))
+				.appendSpace()
+				.append(Component.text(getKit().getSymbol(), getKit().getColor()))
+				.hoverEvent(HoverEvent.showText(Component.text()
+						.append(Component.text("Classe: ", NamedTextColor.GOLD))
+						.append(Component.text(getKit().getName(), getKit().getColor()))
+						.build()))
 				.build();
 	}
 	
@@ -427,7 +430,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 								.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
 						.append(getListName())
 						.append(Component.text(" §7a été tué par "))
-						.append(Component.text().append(trueLastDamagers.stream().map(TFPlayer::getListName).collect(Utils.joiningComponentsCollector(Component.text(", ")))))
+						.append(Component.text().append(trueLastDamagers.stream().map(TFPlayer::getListName).collect(Utils.joiningComponentsCollector(Component.text("§f, ")))))
 						.build());
 			}
 			else {
