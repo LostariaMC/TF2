@@ -39,6 +39,10 @@ public class InteractListener implements Listener
 		
 		event.setCancelled(true);
 		
+		if(event.getAction().isRightClick()) {
+			player.getrClickingTask().triggerRClick();
+		}
+		
 		if(event.getAction().isRightClick() && event.getItem() != null && Items.MENU_ITEM.getType().equals(event.getItem().getType())) {
 			player.toBukkit().openInventory(Kit.getKitMenuInventory());
 		}
@@ -56,6 +60,7 @@ public class InteractListener implements Listener
 		TFPlayer player = TFPlayer.of(event.getPlayer());
 		
 		event.setCancelled(true);
+		player.getrClickingTask().triggerRClick();
 		
 		if(gm.getPhase().isInGame() && !player.isInSafeZone()) {
 			RayTraceResult rayTraceResult = new RayTraceResult(event.getRightClicked().getLocation().toVector(), event.getRightClicked());

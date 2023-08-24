@@ -61,7 +61,7 @@ public class GunType extends WeaponType
 	
 	@Override
 	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-		shoot(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), weapon, this::particle, GameManager.getInstance().getLivingEntities());
+		shoot(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), weapon, inaccuracy, this::particle, GameManager.getInstance().getLivingEntities());
 		
 		weapon.useAmmo();
 	}
@@ -99,7 +99,7 @@ public class GunType extends WeaponType
 			l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, 0, 0, 0, 0, new DustOptions(Color.BLACK, 0.5f), true);
 	}
 	
-	public static void shoot(TFPlayer player, Location source, Vector direction, Weapon weapon, BiConsumer<Location, Integer> particle, Collection<? extends TFEntity> entities)
+	public static void shoot(TFPlayer player, Location source, Vector direction, Weapon weapon, double inaccuracy, BiConsumer<Location, Integer> particle, Collection<? extends TFEntity> entities)
 	{
 		/*if(this instanceof LaTornade)
 		{
@@ -118,7 +118,7 @@ public class GunType extends WeaponType
 		GunType type = (GunType) weapon.getType();
 		
 		direction.normalize();
-		direction = addSpread(direction, type.inaccuracy);
+		direction = addSpread(direction, inaccuracy);
 		
 		double range = type.range * (player.isEnergized() ? 1.5 : 1);
 		

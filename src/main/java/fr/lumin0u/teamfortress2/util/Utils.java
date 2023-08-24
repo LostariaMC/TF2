@@ -1,11 +1,20 @@
 package fr.lumin0u.teamfortress2.util;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentBuilder;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 
 public class Utils
 {
@@ -52,5 +61,34 @@ public class Utils
 		double xz = Math.sqrt(x2 + z2);
 		
 		return (float) Math.toDegrees(Math.atan(-direction.getY() / xz));
+	}
+	
+	public static Collector<Component, ?, Component> joiningComponentsCollector(Component delimiter) {
+		return new Collector<Component, TextComponent.Builder, Component>() {
+			@Override
+			public Supplier<TextComponent.Builder> supplier() {
+				return Component::text;
+			}
+			
+			@Override
+			public BiConsumer<TextComponent.Builder, Component> accumulator() {
+				return (b, c) -> b.append(delimiter).append(c);
+			}
+			
+			@Override
+			public BinaryOperator<TextComponent.Builder> combiner() {
+				return (b1, b2) -> b1.append(delimiter).append(b2);
+			}
+			
+			@Override
+			public Function<TextComponent.Builder, Component> finisher() {
+				return ComponentBuilder::build;
+			}
+			
+			@Override
+			public Set<Characteristics> characteristics() {
+				return Set.of();
+			}
+		};
 	}
 }

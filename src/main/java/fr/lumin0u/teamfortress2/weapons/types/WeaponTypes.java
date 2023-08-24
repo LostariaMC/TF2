@@ -30,7 +30,7 @@ public final class WeaponTypes
 	public static final WeaponType CANON_SCIE = new ShotgunType(false, Material.GOLDEN_SHOVEL, "Canon scié", 2, 48, 14, 4, 12, Math.PI / 50, 0.15, 3);
 	
 	// mine -> candle
-	public static final MeleeWeaponType BATTE = new MeleeWeaponType(false, Material.GOLDEN_SWORD, "Batte", 1, -1, 3, 0.3);
+	public static final MeleeWeaponType CLUB = new MeleeWeaponType(false, Material.GOLDEN_SWORD, "Batte", 1, -1, 3, 0.3);
 	public static final GunType DEFENSEUR = new GunType(false, Material.WOODEN_HOE, "Défenseur", 1, 20, -1, 2, 30, Math.PI / 200, 0.25);
 	public static final WeaponType SCOUT_RACE = new WeaponType(true, Material.DRAGON_BREATH, "Scout race", 1, -1, -1)
 	{
@@ -208,7 +208,7 @@ public final class WeaponTypes
 		}
 	};
 	public static final RocketLauncherType ROCKET_LAUNCHER = new RocketLauncherType();
-	public static final ShotgunType STD_SHOTGUN = new ShotgunType(false, Material.IRON_SHOVEL, "Fusil à pompe", 1, 64, -1, 4, 15, Math.PI / 40, 0.1, 5);
+	public static final ShotgunType STD_SHOTGUN = new ShotgunType(false, Material.IRON_SHOVEL, "Fusil à pompe", 1, 64, -1, 3.5, 15, Math.PI / 40, 0.1, 5);
 	public static final WeaponType FLASHBANG = new WeaponType(false, Material.FIREWORK_ROCKET, "Grenade flash", 1, 15 * 20 + 18, -1)
 	{
 		@Override
@@ -398,6 +398,60 @@ public final class WeaponTypes
 	};
 	public static final FlareGunType FLARE_GUN = new FlareGunType();
 	public static final StrikerType STRIKER = new StrikerType();
+	public static final GunType TORNADO = new GunType(false, Material.GOLDEN_HOE, "La Tornade", 1, -1, 3, 1.5, 25, Math.PI / 80, 0.1) {
+		@Override
+		public Weapon createWeapon(TFPlayer owner, int slot) {
+			return new Scopeable(TORNADO, owner, slot) {
+				@Override
+				public void scopeEffect() {
+					updateItem();
+				}
+				@Override
+				public void unscopeEffect() {
+					updateItem();
+				}
+			};
+		}
+		
+		@Override
+		public ItemBuilder buildItem(Weapon weapon) {
+			return super.buildItem(weapon).setGlow(((Scopeable)weapon).isScoping());
+		}
+		
+		@Override
+		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+			boolean scoping = ((Scopeable)weapon).isScoping();
+			
+			Location source = player.getEyeLocation();
+			Vector direction = player.getEyeLocation().getDirection();
+			player.toBukkit().setVelocity(player.toBukkit().getVelocity().subtract(direction.clone().multiply(0.05)));
+			
+			double j = player.heavyBulletNb().getAndIncrement();
+			double radius = 0.20;
+			
+			Vector x1 = new Vector(direction.getZ(), 0d, direction.getX()).normalize();
+			Vector x2 = direction.clone().crossProduct(x1).normalize();
+			source.add(x1.clone().multiply(radius * Math.sin(j / 10 * Math.PI * 2d))).add(x2.clone().multiply(radius * Math.cos(j / 10 * Math.PI * 2d)));
+			
+			shoot(player, source, direction, weapon, scoping ? inaccuracy / 2 : inaccuracy, this::particle, GameManager.getInstance().getLivingEntities());
+			
+			weapon.useAmmo();
+		}
+	};
+	public static final MeleeWeaponType MACHETE = new MeleeWeaponType(false, Material.STONE_SWORD, "Machette", 1, -1, 3, 0.15);
+	public static final WeaponType BEAST_FURY = new WeaponType(true, Material.MUTTON, "Beast Fury", 1, -1, -1) {
+		
+		@Override
+		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+			player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 2));
+			player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 300, 1));
+			
+			weapon.useAmmo();
+		}
+		
+		@Override
+		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
+	};
 	
 	
 	private WeaponTypes() {

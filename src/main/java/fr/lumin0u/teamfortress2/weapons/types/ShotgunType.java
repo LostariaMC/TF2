@@ -8,9 +8,14 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
+
+import java.util.Random;
 
 public class ShotgunType extends GunType
 {
+	public static final boolean RANDOM_SPRAY = true;
+	
 	protected final int shots;
 	
 	public ShotgunType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks, int actionDelay, double damage, double range, double accuracy, double knockback, int shots) {
@@ -21,8 +26,14 @@ public class ShotgunType extends GunType
 	
 	@Override
 	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-		for(int i = 0; i < shots; i++) {
-			shoot(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), weapon, this::particle, GameManager.getInstance().getLivingEntities());
+		
+		if(RANDOM_SPRAY) {
+			for(int i = 0; i < shots; i++) {
+				shoot(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), weapon, inaccuracy, this::particle, GameManager.getInstance().getLivingEntities());
+			}
+		}
+		else {
+			// TODO
 		}
 		
 		weapon.useAmmo();

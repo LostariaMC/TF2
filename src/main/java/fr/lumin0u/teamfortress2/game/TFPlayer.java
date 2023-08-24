@@ -2,17 +2,18 @@ package fr.lumin0u.teamfortress2.game;
 
 import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
-import fr.lumin0u.teamfortress2.FireDamageCause;
-import fr.lumin0u.teamfortress2.Kit;
-import fr.lumin0u.teamfortress2.TF;
-import fr.lumin0u.teamfortress2.TFEntity;
+import fr.lumin0u.teamfortress2.*;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.Items;
+import fr.lumin0u.teamfortress2.util.Utils;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.chat.Messages;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.PacketPlayOutUpdateHealth;
@@ -58,15 +59,15 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	private long lastMeleeHitDate;
 	private int killCount;
 	
-	//private RClickingPlayerTask rClickingTask;
+	private final RClickingPlayerTask rClickingTask;
 	private boolean dead;
 	private boolean hasJoinedGameBefore;
 	
 	public TFPlayer(UUID uuid) {
 		super(uuid);
 		
-		/*rClickingTask = new RClickingPlayerTask(this);
-		rClickingTask.runTaskTimer(TF.getInstance(), 1, 1);*/
+		rClickingTask = new RClickingPlayerTask(this);
+		rClickingTask.start();
 		
 		this.nextKit = TF.getInstance().getKitFromRedis(this);
 		setKit(nextKit);
@@ -118,6 +119,10 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	
 	public <T extends WeaponType, E extends Weapon> Optional<E> getOptWeapon(T type) {
 		return (Optional<E>) weapons.stream().filter(w -> w.getType().equals(type)).findAny();
+	}
+	
+	public <T extends Weapon> Collection<? extends T> getWeapons(Class<T> superClass) {
+		return (Collection<? extends T>) weapons.stream().filter(w -> superClass.isInstance(w)).toList();
 	}
 	
 	public <T extends WeaponType, E extends Weapon> Optional<E> getWeaponInHand() {
@@ -273,13 +278,9 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		this.leftSafeZone = leftSafeZone;
 	}
 	
-	/*public RClickingPlayerTask getrClickingTask() {
+	public RClickingPlayerTask getrClickingTask() {
 		return rClickingTask;
 	}
-	
-	public void setrClickingTask(RClickingPlayerTask rClickingTask) {
-		this.rClickingTask = rClickingTask;
-	}*/
 	
 	@Override
 	public Location getLocation() {
@@ -304,8 +305,11 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		return dead || isSpectator() || !isOnline();
 	}
 	
-	public String getListName() {
-		return (getTeam() == null ? "§7" : getTeam().getPrefix()) + getName() + " §6" + getKit().getSymbol();
+	public Component getListName() {
+		return Component.text()
+				.content((getTeam() == null ? "§7" : getTeam().getPrefix()) + getName() + " §6" + getKit().getSymbol())
+				.hoverEvent(HoverEvent.showText(Component.text("§6Kit: §l§e" + getKit().getName())))
+				.build();
 	}
 	
 	public void setDead(boolean dead) {
@@ -369,7 +373,8 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 					new ClientboundDamageEventPacket(toBukkit().getEntityId(), 0, 0, 0, Optional.empty()));
 			
 			PacketContainer packetHurtAnimation = new PacketContainer(Server.HURT_ANIMATION, new ClientboundHurtAnimationPacket(toBukkit().getEntityId(), 0f));
-			PacketContainer packetUpdateHealth = new PacketContainer(Server.UPDATE_HEALTH, new PacketPlayOutUpdateHealth((float) toBukkit().getHealth() / (float) getKit().getMaxHealth() * 20f, 20, 0f));
+			float relativeHealth = (float) toBukkit().getHealth() / (float) toBukkit().getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
+			PacketContainer packetUpdateHealth = new PacketContainer(Server.UPDATE_HEALTH, new PacketPlayOutUpdateHealth(relativeHealth * 20f, 20, 0f));
 			
 			for(WrappedPlayer watcher : WrappedPlayer.of(Bukkit.getOnlinePlayers())) {
 				watcher.sendPacket(packetDamageEvent);
@@ -417,8 +422,21 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 			
 			toBukkit().setGameMode(GameMode.SPECTATOR);
 			
-			Bukkit.broadcastMessage(TF.getInstance().getCosmoxGame().getPrefix()
-					+ Messages.BROADCAST_KILL.formatted(getListName(), trueLastDamagers.stream().map(TFPlayer::getListName).collect(Collectors.joining("§7, "))));
+			if(!trueLastDamagers.isEmpty()) {
+				Bukkit.broadcast(Component.text()
+								.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
+						.append(getListName())
+						.append(Component.text(" §7a été tué par "))
+						.append(Component.text().append(trueLastDamagers.stream().map(TFPlayer::getListName).collect(Utils.joiningComponentsCollector(Component.text(", ")))))
+						.build());
+			}
+			else {
+				Bukkit.broadcast(Component.text()
+						.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
+						.append(getListName())
+						.append(Component.text(" §7est mort"))
+						.build());
+			}
 			
 			if(killer != null) {
 				Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {

@@ -17,15 +17,15 @@ import java.util.Random;
 public enum Kit {
 	RANDOM(new WeaponType[0], WeaponTypes.KUKRI, 20, 0.2f, 1, 1, Material.BARRIER, false, 0, ' '),
 	//DEBUG(new AbstractWeapon[] {new MitrailletteLourde(), new Defoncator(), new Blaoups(), new SuperRocketLauncher()}, new Striker(), 20, 0.3f, 100000, 20, Material.CARPET, 0, false, 0, 'z'),
-	SCOUT(new WeaponType[]{WeaponTypes.CANON_SCIE, WeaponTypes.BATTE, WeaponTypes.DEFENSEUR}, WeaponTypes.SCOUT_RACE, 18, 0.32f, 2, 1, Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE, true, 1, '░'),
+	SCOUT(new WeaponType[]{WeaponTypes.CANON_SCIE, WeaponTypes.CLUB, WeaponTypes.DEFENSEUR}, WeaponTypes.SCOUT_RACE, 18, 0.32f, 2, 1, Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE, true, 1, '░'),
 	SOLDIER(new WeaponType[] {WeaponTypes.ROCKET_LAUNCHER, WeaponTypes.STD_SHOTGUN, WeaponTypes.FLASHBANG}, WeaponTypes.SCAVENGER, 20, 0.26f, 1, 1, Material.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE, true, 2, '▒'),
 	DEMOMAN(new WeaponType[] {WeaponTypes.DYNAMITE, WeaponTypes.SMOKE, WeaponTypes.STD_SHOTGUN, WeaponTypes.FLARE_GUN}, WeaponTypes.STRIKER, 20, 0.26f, 1, 1, Material.SPIRE_ARMOR_TRIM_SMITHING_TEMPLATE, true, 4, '│'),
-	//HEAVY(new AbstractWeapon[] {new LaTornade(), new FusilAPompe(), new PoingsAmericains()}, new BeastFury(), 32, 0.21f, 1, 1, Material.STAINED_CLAY, 4, true, 5, '┤'),
+	HEAVY(new WeaponType[] {WeaponTypes.TORNADO, WeaponTypes.STD_SHOTGUN, WeaponTypes.MACHETE}, WeaponTypes.BEAST_FURY, 32, 0.21f, 1, 1, Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE, true, 5, '┤'),
 	SNIPER(new WeaponType[] {WeaponTypes.SNIPER, WeaponTypes.MITRAILLETTE, WeaponTypes.HEALTH_POTION}, WeaponTypes.KUKRI, 18, 0.26f, 1, 1, Material.SILENCE_ARMOR_TRIM_SMITHING_TEMPLATE, true, 8, '╖'),
-	//SPY(new AbstractWeapon[] {new Poignard(), new C4(), new Revolver(), new MontreInvi()}, new Disguise(), 16, 0.3f, 2, 1, Material.STAINED_CLAY, 0, true, 9, '╕'),
+	//SPY(new WeaponType[] {new Poignard(), new C4(), new Revolver(), new MontreInvi()}, new Disguise(), 16, 0.3f, 2, 1, Material.STAINED_CLAY, 0, true, 9, '╕'),
 	ENGINEER(new WeaponType[] {WeaponTypes.TURRET, WeaponTypes.DEFENSEUR, WeaponTypes.TRAMPOLINE, WeaponTypes.MINE, WeaponTypes.CLE_A_MOLETTE}, WeaponTypes.RED_BUTTON, 20, 0.26f, 1, 1, Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, true, 6, '╡'),
-	//MEDIC(new AbstractWeapon[] {new MedecinePortable(), new PistoletTranquilisant(), new ScieAmputation()}, new UberCharge(), 20, 0.26f, 1, 1, Material.STAINED_CLAY, 2, true, 7, '╢'),
-	//PYRO(new AbstractWeapon[] {new Barbecue(), new FusilAPompe(), new Hache()}, new CoktailMolotov(), 24, 0.28f, 1, 1, Material.STAINED_CLAY, 6, true, 3, '▓'),
+	//MEDIC(new WeaponType[] {new MedecinePortable(), new PistoletTranquilisant(), new ScieAmputation()}, new UberCharge(), 20, 0.26f, 1, 1, Material.STAINED_CLAY, 2, true, 7, '╢'),
+	//PYRO(new WeaponType[] {new Barbecue(), new FusilAPompe(), new Hache()}, new CoktailMolotov(), 24, 0.28f, 1, 1, Material.STAINED_CLAY, 6, true, 3, '▓'),
 	;
 	
 	private static Inventory wrInventory;

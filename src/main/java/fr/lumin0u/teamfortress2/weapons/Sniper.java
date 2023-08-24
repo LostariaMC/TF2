@@ -9,41 +9,25 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-public class Sniper extends Weapon {
-	
-	private boolean scoping;
+public class Sniper extends Scopeable {
 	
 	public Sniper(TFPlayer owner, int slot) {
 		super(WeaponTypes.SNIPER, owner, slot);
 	}
 	
-	public void setScoping(boolean scoping) {
-		if(this.scoping == scoping) {
-			return;
-		}
-		this.scoping = scoping;
-		
-		if(scoping) {
-			owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 10, false, false, false));
-		}
-		else {
-			owner.toBukkit().removePotionEffect(PotionEffectType.SLOW);
-		}
-	}
-	
-	public void invertScope() {
-		setScoping(!scoping);
-	}
-	
-	@Override
-	public void remove() {
-		super.remove();
-		setScoping(false);
-	}
-	
 	@Override
 	public void leftClick(RayTraceResult info) {
 		type.leftClickAction(owner, this, info);
+	}
+	
+	@Override
+	public void scopeEffect() {
+		owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 10, false, false, false));
+	}
+	
+	@Override
+	public void unscopeEffect() {
+		owner.toBukkit().removePotionEffect(PotionEffectType.SLOW);
 	}
 	
 	public static class SniperType extends GunType {
@@ -65,12 +49,6 @@ public class Sniper extends Weapon {
 			Vector kb = hit.direction().clone().setY(0).multiply(hit.gunType().getKnockback());
 			
 			hit.hitEntity().damage(hit.player(), hit.gunType().getDamage() * (hit.headshot() ? 1.5 : scoping ? 2 : 1), kb);
-		}
-		
-		@Override
-		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-			super.leftClickAction(player, weapon, info);
-			((Sniper)weapon).invertScope();
 		}
 	}
 }

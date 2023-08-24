@@ -6,9 +6,7 @@ import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.Items;
 import fr.lumin0u.teamfortress2.weapons.PlaceableWeapon;
-import fr.lumin0u.teamfortress2.weapons.Sniper;
-import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
-import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
+import fr.lumin0u.teamfortress2.weapons.Scopeable;
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -39,7 +37,6 @@ public class InventoryListener implements Listener
 			if(clickedKit != null) {
 				player.setNextKit(clickedKit, true);
 				player.toBukkit().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "Vous choisissez la classe §e" + clickedKit.getName());
-				
 			}
 			else if(Items.randomKitItem.isSimilar(event.getCurrentItem())) {
 				player.setNextKit(Kit.RANDOM, true);
@@ -56,11 +53,14 @@ public class InventoryListener implements Listener
 	
 	@EventHandler
 	public void onScroll(PlayerItemHeldEvent event) {
-		TFPlayer.of(event.getPlayer()).<WeaponType, Sniper>getOptWeapon(WeaponTypes.SNIPER).ifPresent(sniper -> sniper.setScoping(false));
+		TFPlayer player = TFPlayer.of(event.getPlayer());
+		player.getWeapons(Scopeable.class).forEach(sniper -> ((Scopeable)sniper).setScoping(false));
 		
-		TFPlayer.of(event.getPlayer()).getWeaponInSlot(event.getNewSlot())
-				.filter(PlaceableWeapon.class::isInstance)
-				.ifPresentOrElse(w -> event.getPlayer().setGameMode(GameMode.SURVIVAL), () -> event.getPlayer().setGameMode(GameMode.ADVENTURE));
+		if(!player.isDead()) {
+			player.getWeaponInSlot(event.getNewSlot())
+					.filter(PlaceableWeapon.class::isInstance)
+					.ifPresentOrElse(w -> event.getPlayer().setGameMode(GameMode.SURVIVAL), () -> event.getPlayer().setGameMode(GameMode.ADVENTURE));
+		}
 	}
 	
 	@EventHandler
