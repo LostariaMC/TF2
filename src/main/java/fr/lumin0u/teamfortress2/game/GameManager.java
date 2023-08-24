@@ -66,8 +66,8 @@ public abstract class GameManager {
 		return gameType;
 	}
 	
-	public Collection<? extends TFEntity> getLivingEntities() {
-		return getPlayers().stream().filter(WrappedPlayer::isOnline).filter(not(TFEntity::isDead)).toList();
+	public Collection<TFEntity> getLivingEntities() {
+		return getPlayers().stream().filter(WrappedPlayer::isOnline).filter(not(TFEntity::isDead)).map(TFEntity.class::cast).toList();
 	}
 	
 	public Collection<TFPlayer> getPlayers() {

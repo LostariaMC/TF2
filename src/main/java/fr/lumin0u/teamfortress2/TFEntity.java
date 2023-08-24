@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 public interface TFEntity
 {
@@ -29,9 +30,10 @@ public interface TFEntity
 	
 	public boolean isDead();
 	
-	public FireCause getFireCause();
+	@NotNull
+	public FireDamageCause getFireCause();
 	
-	public void setFireCause(FireCause fireCause);
+	public void setFireCause(FireDamageCause fireCause);
 	
 	public TFPlayer getPoisonSource();
 	

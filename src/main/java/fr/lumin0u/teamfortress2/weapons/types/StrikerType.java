@@ -1,17 +1,13 @@
 package fr.lumin0u.teamfortress2.weapons.types;
 
-import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
-import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.ThrownExplosive;
+import fr.lumin0u.teamfortress2.weapons.Weapon;
+import fr.lumin0u.teamfortress2.weapons.types.RocketLauncherType.Rocket;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.SmallFireball;
-import org.bukkit.util.BoundingBox;
+import org.bukkit.entity.*;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -19,13 +15,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class RocketLauncherType extends WeaponType
+public final class StrikerType extends WeaponType
 {
-	private final List<Rocket> rockets = new ArrayList<>();
-	private static final double ROCKET_SPEED = 1;
+	private final List<ThrownExplosive> projectiles = new ArrayList<>();
 	
-	public RocketLauncherType() {
-		super(false, Material.CROSSBOW, "Lance Roquette", 1, 144, -1);
+	public StrikerType() {
+		super(true, Material.LEATHER_HORSE_ARMOR, "Striker", 4, -1, 10);
 	}
 	
 	@Override
@@ -34,14 +29,26 @@ public final class RocketLauncherType extends WeaponType
 		Vector direction = player.getEyeLocation().getDirection();
 		Location rocketLoc = player.getEyeLocation().add(direction);
 		
-		SmallFireball fireball = (SmallFireball) player.toBukkit().getWorld().spawnEntity(rocketLoc, EntityType.SMALL_FIREBALL);
-		fireball.setDirection(direction.clone().multiply(ROCKET_SPEED));
-		fireball.setYield(0);
-		fireball.setIsIncendiary(false);
+		Egg egg = (Egg) player.toBukkit().getWorld().spawnEntity(rocketLoc, EntityType.EGG);
+		egg.setVelocity(direction.clone().multiply(1.7));
 		
 		weapon.useAmmo();
 		
-		rockets.add(new Rocket(player, fireball, direction));
+		projectiles.add(new ThrownExplosive(player, this, 100, true) {
+			@Override
+			public void tick() {}
+			
+			@Override
+			public void explode() {
+				GameManager.getInstance().explosion(player, egg.getLocation(), 14, 8, player::isEnemy, 2);
+				remove();
+			}
+			
+			@Override
+			public Entity getEntity() {
+				return egg;
+			}
+		});
 		
 		/*Random rand = new Random();
 		
@@ -56,13 +63,13 @@ public final class RocketLauncherType extends WeaponType
 		}*/
 	}
 	
-	public List<Rocket> getRockets() {
-		return Collections.unmodifiableList(rockets);
+	public List<ThrownExplosive> getProjectiles() {
+		return Collections.unmodifiableList(projectiles);
 	}
 	
 	@Override
 	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
-	
+	/*
 	public static class Rocket extends ThrownExplosive
 	{
 		private final SmallFireball fireball;
@@ -70,7 +77,7 @@ public final class RocketLauncherType extends WeaponType
 		private Location location;
 		
 		public Rocket(TFPlayer owner, SmallFireball fireball, Vector direction) {
-			super(owner, WeaponTypes.ROCKET_LAUNCHER, 100, false);
+			super(owner, WeaponTypes.ROCKET_LAUNCHER, -1);
 			this.fireball = fireball;
 			this.direction = direction;
 			this.location = fireball.getLocation();
@@ -81,9 +88,8 @@ public final class RocketLauncherType extends WeaponType
 			//fireball.setDirection(direction);
 			
 			Location nextLoc = location.clone().add(direction.clone().multiply(ROCKET_SPEED));
-			BoundingBox bb = getEntity().getBoundingBox();
-			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED) != null
-				|| GameManager.getInstance().getLivingEntities().stream().map(TFEntity::getEntity).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
+			
+			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED) != null) {
 				explode();
 				return;
 			}
@@ -115,5 +121,5 @@ public final class RocketLauncherType extends WeaponType
 			
 			remove();
 		}
-	}
+	}*/
 }

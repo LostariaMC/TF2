@@ -14,6 +14,8 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import static fr.lumin0u.teamfortress2.FireDamageCause.WILD_FIRE;
+
 public class DamageListener implements Listener
 {
 	private final GameManager gm;
@@ -48,9 +50,15 @@ public class DamageListener implements Listener
 			if(event.getCause() == DamageCause.VOID) {
 				player.die(null);
 			}
-			
 			if(event.getCause() == DamageCause.POISON) {
 				player.damage(player.getPoisonSource(), event.getDamage(), new Vector());
+			}
+			if(event.getCause() == DamageCause.FIRE_TICK || event.getCause() == DamageCause.FIRE) {
+				player.damage(player.getFireCause().damager(), player.getFireCause().damage(), new Vector());
+			}
+			if(event.getCause() == DamageCause.LAVA) {
+				player.setFireCause(WILD_FIRE);
+				player.damage(null, event.getDamage(), new Vector());
 			}
 		}
 	}

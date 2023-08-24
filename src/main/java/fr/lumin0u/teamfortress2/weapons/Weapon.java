@@ -147,16 +147,13 @@ public class Weapon
 	public void onOwnerDoKill() {
 		if(type.isUltimate()) {
 			if(!unlocked) {
+				unlocked = true;
 				giveItem();
 				ultimateReload();
 			}
-			else if(!reloading) {
-				ultimateReload();
-			}
-			else {
+			else if(reloading) {
 				ultiReloadTicksRem -= ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS;
-				owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), 0);
-				owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), ultiReloadTicksRem);
+				owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), Math.max(0, ultiReloadTicksRem));
 			}
 		}
 	}
@@ -179,5 +176,9 @@ public class Weapon
 	
 	public void addBukkitTask(BukkitTask task) {
 		bukkitTasks.add(task);
+	}
+	
+	public boolean isUnlocked() {
+		return unlocked;
 	}
 }

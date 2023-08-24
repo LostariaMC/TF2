@@ -2,7 +2,6 @@ package fr.lumin0u.teamfortress2.weapons.types;
 
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
-import fr.lumin0u.teamfortress2.weapons.Gun;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -23,8 +22,7 @@ public class ShotgunType extends GunType
 	@Override
 	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		for(int i = 0; i < shots; i++) {
-			shoot(true, player, player.getEyeLocation(), player.getEyeLocation().getDirection(), (Gun) weapon,
-					l -> l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, 0, 0, 0, 0, new DustOptions(Color.BLACK, 1), true), GameManager.getInstance().getLivingEntities());
+			shoot(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), weapon, this::particle, GameManager.getInstance().getLivingEntities());
 		}
 		
 		weapon.useAmmo();

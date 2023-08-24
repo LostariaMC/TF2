@@ -2,7 +2,7 @@ package fr.lumin0u.teamfortress2.game;
 
 import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
-import fr.lumin0u.teamfortress2.FireCause;
+import fr.lumin0u.teamfortress2.FireDamageCause;
 import fr.lumin0u.teamfortress2.Kit;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.TFEntity;
@@ -21,15 +21,18 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static fr.lumin0u.teamfortress2.FireDamageCause.WILD_FIRE;
+
 public class TFPlayer extends WrappedPlayer implements TFEntity
 {
-	protected FireCause fireCause;
+	protected FireDamageCause fireCause = WILD_FIRE;
 	private TFPlayer poisonSource;
 	private boolean leftSafeZone;
 	
@@ -322,12 +325,13 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	}
 	
 	@Override
-	public FireCause getFireCause() {
+	@NotNull
+	public FireDamageCause getFireCause() {
 		return fireCause;
 	}
 	
 	@Override
-	public void setFireCause(FireCause fireCause) {
+	public void setFireCause(FireDamageCause fireCause) {
 		this.fireCause = fireCause;
 	}
 	
@@ -400,6 +404,8 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		
 		for(TFPlayer lastDamager : trueLastDamagers) {
 			lastDamager.getUltimate().onOwnerDoKill();
+			lastDamager.killCount++;
+			lastDamager.toCosmox().setScoreboardScore(lastDamager.killCount);
 		}
 		
 		if(GameManager.getInstance().getGameType().isTDM()) {
@@ -436,7 +442,6 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		toBukkit().setGameMode(GameMode.ADVENTURE);
 		toBukkit().setSaturation(0);
 		toBukkit().setFoodLevel(20);
-		toBukkit().setFoodLevel(20);
 		
 		new ArrayList<>(weapons).forEach(this::removeWeapon);
 		setKit(nextKit);
@@ -462,6 +467,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		
 		toBukkit().setWalkSpeed(getKit().getSpeed());
 		toBukkit().getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(getKit().getMaxHealth());
+		toBukkit().sendHealthUpdate();
 		toBukkit().setHealth(getKit().getMaxHealth());
 		
 		toBukkit().setAllowFlight(getKit().equals(Kit.SCOUT));

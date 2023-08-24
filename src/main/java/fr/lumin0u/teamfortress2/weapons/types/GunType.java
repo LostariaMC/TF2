@@ -3,7 +3,6 @@ package fr.lumin0u.teamfortress2.weapons.types;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
-import fr.lumin0u.teamfortress2.weapons.Gun;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import org.bukkit.*;
 import org.bukkit.Particle.DustOptions;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class GunType extends WeaponType
@@ -60,13 +60,8 @@ public class GunType extends WeaponType
 	}
 	
 	@Override
-	public Weapon createWeapon(TFPlayer owner, int slot) {
-		return new Gun(this, owner, slot);
-	}
-	
-	@Override
 	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-		shoot(true, player, player.getEyeLocation(), player.getEyeLocation().getDirection(), (Gun) weapon, this::particle, GameManager.getInstance().getLivingEntities());
+		shoot(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), weapon, this::particle, GameManager.getInstance().getLivingEntities());
 		
 		weapon.useAmmo();
 	}
@@ -92,16 +87,19 @@ public class GunType extends WeaponType
 	}
 	
 	public void onEntityHit(Hit hit) {
-		Vector kb = hit.direction.clone().setY(0).multiply(hit.weapon.getType().knockback);
+		Vector kb = hit.direction.clone().setY(0).multiply(hit.gunType().knockback);
 		
-		hit.hitEntity.damage(hit.player, hit.weapon.getType().damage, kb);
+		hit.hitEntity.damage(hit.player, hit.gunType().damage, kb);
 	}
 	
-	public void particle(Location l) {
-		l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, 0, 0, 0, 0, new DustOptions(Color.BLACK, 0.5f), true);
+	public void particle(Location l, int i) {
+		if(i == 0)
+			l.getWorld().spawnParticle(Particle.FLAME, l, 1, 0, 0.01, 0, 0.000001D, null, true);
+		else
+			l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, 0, 0, 0, 0, new DustOptions(Color.BLACK, 0.5f), true);
 	}
 	
-	public static void shoot(boolean flame, TFPlayer player, Location source, Vector direction, Gun weapon, Consumer<Location> particle, Collection<? extends TFEntity> entities)
+	public static void shoot(TFPlayer player, Location source, Vector direction, Weapon weapon, BiConsumer<Location, Integer> particle, Collection<? extends TFEntity> entities)
 	{
 		/*if(this instanceof LaTornade)
 		{
@@ -117,10 +115,12 @@ public class GunType extends WeaponType
 			tfp.setHeavyBulletNb(tfp.getHeavyBulletNb() + 1);
 		}*/
 		
-		direction.normalize();
-		direction = addSpread(direction, weapon.getType().inaccuracy);
+		GunType type = (GunType) weapon.getType();
 		
-		double range = weapon.getType().range * (player.isEnergized() ? 1.5 : 1);
+		direction.normalize();
+		direction = addSpread(direction, type.inaccuracy);
+		
+		double range = type.range * (player.isEnergized() ? 1.5 : 1);
 		
 		Location wantedEndPoint = source.clone().add(direction.clone().multiply(range));
 		
@@ -168,17 +168,17 @@ public class GunType extends WeaponType
 			}
 			
 			if(hitPosition != null) {
-				if(weapon.getType().perforant || entityHits.isEmpty() || entityHits.get(0).hitPoint().distanceSquared(source) < hitPosition.distanceSquared(source.toVector())) {
-					entityHits.add(new Hit(player, weapon, ent, hitPosition.toLocation(world), headshot, direction));
+				if(type.perforant || entityHits.isEmpty() || entityHits.get(0).hitPoint().distanceSquared(source) < hitPosition.distanceSquared(source.toVector())) {
+					entityHits.add(new Hit(player, weapon, type, ent, hitPosition.toLocation(world), headshot, direction));
 				}
 			}
 		}
 		
 		for(Hit hit : entityHits) {
-			if(!weapon.getType().perforant)
+			if(!type.perforant)
 				endPoint = hit.hitPoint.toLocation(world);
 			
-			weapon.getType().onEntityHit(hit);
+			type.onEntityHit(hit);
 			
 			for(int i = 0; i < 10; i++)
 				world.spawnParticle(Particle.BLOCK_CRACK, endPoint, 1, 0, 0, 0, 0, Material.REDSTONE_BLOCK.createBlockData(), true);
@@ -186,7 +186,7 @@ public class GunType extends WeaponType
 			player.toBukkit().playSound(player.toBukkit().getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 0.5f, 1.0f);
 		}
 		
-		if(collisionResult != null && (entityHits.isEmpty() || weapon.getType().perforant))
+		if(collisionResult != null && (entityHits.isEmpty() || type.perforant))
 		{
 			Block collided = collisionResult.getHitBlock();
 			
@@ -196,15 +196,13 @@ public class GunType extends WeaponType
 		}
 		
 		final double particlePerBlock = 10;
+		int i = 0;
 		for(int counter = 0; counter < source.distance(endPoint) * particlePerBlock; counter++)
 		{
 			Location point = source.clone().add(direction.clone().multiply(counter / particlePerBlock));
 			
-			if(counter == particlePerBlock && flame)
-				world.spawnParticle(Particle.FLAME, point, 1, 0, 0.01, 0, 0.000001D, null, true);
-			
-			else if(counter > particlePerBlock) {
-				particle.accept(point);
+			if(counter > particlePerBlock) {
+				particle.accept(point, i++);
 			}
 		}
 		
@@ -213,5 +211,5 @@ public class GunType extends WeaponType
 				Utils.playSound(((TFPlayer) ent).getPlayer(), nearestPoint.get(ent), "guns.FIEEW", 5, (float) Math.random() * 0.2F + 0.9F);*/
 	}
 	
-	public static record Hit(TFPlayer player, Gun weapon, TFEntity hitEntity, Location hitPoint, boolean headshot, Vector direction) {}
+	public static record Hit(TFPlayer player, Weapon weapon, GunType gunType, TFEntity hitEntity, Location hitPoint, boolean headshot, Vector direction) {}
 }

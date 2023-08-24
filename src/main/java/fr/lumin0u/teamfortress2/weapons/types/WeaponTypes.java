@@ -20,19 +20,20 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class WeaponTypes
 {
+	static final AtomicInteger DROPPED_ITEM_COUNT = new AtomicInteger(0);
+	
 	public static final WeaponType CANON_SCIE = new ShotgunType(false, Material.GOLDEN_SHOVEL, "Canon scié", 2, 48, 14, 4, 12, Math.PI / 50, 0.15, 3);
 	
 	// mine -> candle
 	public static final MeleeWeaponType BATTE = new MeleeWeaponType(false, Material.GOLDEN_SWORD, "Batte", 1, -1, 3, 0.3);
 	public static final GunType DEFENSEUR = new GunType(false, Material.WOODEN_HOE, "Défenseur", 1, 20, -1, 2, 30, Math.PI / 200, 0.25);
-	public static final WeaponType SCOUT_RACE = new WeaponType(true, Material.DRAGON_BREATH, "Scout race", 1, -1, -1) {
+	public static final WeaponType SCOUT_RACE = new WeaponType(true, Material.DRAGON_BREATH, "Scout race", 1, -1, -1)
+	{
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			final int duration = 10 * 20;
@@ -50,7 +51,8 @@ public final class WeaponTypes
 	};
 	public static final MeleeWeaponType KUKRI = new MeleeWeaponType(true, Material.IRON_SWORD, "Kukri", 2, -1, 12, 0.3);
 	public static final EngiTurretType TURRET = new EngiTurretType();
-	public static final WeaponType RED_BUTTON = new WeaponType(true, Material.TOTEM_OF_UNDYING, "Invincibilité", 1, -1, -1) {
+	public static final WeaponType RED_BUTTON = new WeaponType(true, Material.TOTEM_OF_UNDYING, "Invincibilité", 1, -1, -1)
+	{
 		
 		private Vector randomPositionIn(BoundingBox box) {
 			Random r = new Random();
@@ -62,11 +64,12 @@ public final class WeaponTypes
 			final int duration = 5 * 20;
 			player.setEngiInvicible(true);
 			weapon.useAmmo();
-			((PlaceableWeapon)player.getWeapon(MINE)).pickupAmmo();
+			((PlaceableWeapon) player.getWeapon(MINE)).pickupAmmo();
 			
 			new BukkitRunnable()
 			{
 				int counter = 0;
+				
 				@Override
 				public void run() {
 					if(!player.isOnline() || counter == duration || player.isDead()) {
@@ -88,26 +91,30 @@ public final class WeaponTypes
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		}
 	};
-	public static final WeaponType CLE_A_MOLETTE = new MeleeWeaponType(false, Material.SHEARS, "Clé à molette", 1, -1, 2, 0.2) {
+	public static final WeaponType CLE_A_MOLETTE = new MeleeWeaponType(false, Material.SHEARS, "Clé à molette", 1, -1, 2, 0.2)
+	{
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon wrench, RayTraceResult info) {
 			//if(info != null && info.getHitBlock() != null) {
-				player.getWeapons().stream()
-						.filter(w -> w.getType() instanceof PlaceableWeaponType)
-						.flatMap(w -> new ArrayList<>(((PlaceableWeapon) w).getBlocks()).stream()) // new ArrayList... => concurrent modification
-						.filter(block -> block.isClicked(info))
-						.forEach(block -> {
-							block.getWeapon().getType().wrenchPickup(player, block.getWeapon(), block);
-							player.toBukkit().swingMainHand();
-						});
+			player.getWeapons().stream()
+					.filter(w -> w.getType() instanceof PlaceableWeaponType)
+					.flatMap(w -> new ArrayList<>(((PlaceableWeapon) w).getBlocks()).stream()) // new ArrayList... => concurrent modification
+					.filter(block -> block.isClicked(info))
+					.forEach(block -> {
+						block.getWeapon().getType().wrenchPickup(player, block.getWeapon(), block);
+						player.toBukkit().swingMainHand();
+					});
 			//}
 		}
 	};
-	public static final WeaponType TRAMPOLINE = new PlaceableWeaponType(false, Material.LIGHT_WEIGHTED_PRESSURE_PLATE, "Trampoline", 1) {
+	public static final WeaponType TRAMPOLINE = new PlaceableWeaponType(false, Material.LIGHT_WEIGHTED_PRESSURE_PLATE, "Trampoline", 1)
+	{
 		@Override
 		public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block) {
-			PlacedBlockWeapon trampo = new PlacedBlockWeapon(player, weapon, block) {
+			PlacedBlockWeapon trampo = new PlacedBlockWeapon(player, weapon, block)
+			{
 				ArmorStand armorStand;
+				
 				@Override
 				public void place() {
 					block.setType(Material.LIGHT_WEIGHTED_PRESSURE_PLATE, false);
@@ -144,10 +151,12 @@ public final class WeaponTypes
 			return trampo;
 		}
 	};
-	public static final WeaponType MINE = new PlaceableWeaponType(false, Material.STONE_PRESSURE_PLATE, "Mine", 3) {
+	public static final WeaponType MINE = new PlaceableWeaponType(false, Material.STONE_PRESSURE_PLATE, "Mine", 3)
+	{
 		@Override
 		public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block) {
-			PlacedBlockWeapon mine = new PlacedBlockWeapon(player, weapon, block) {
+			PlacedBlockWeapon mine = new PlacedBlockWeapon(player, weapon, block)
+			{
 				@Override
 				public void place() {
 					block.setType(Material.STONE_PRESSURE_PLATE, false);
@@ -172,7 +181,8 @@ public final class WeaponTypes
 	};
 	public static final GunType SNIPER = new Sniper.SniperType();
 	public static final GunType MITRAILLETTE = new GunType(false, Material.IRON_HOE, "Carabine du Nettoyeur", 1, 9, -1, 2, 30, Math.PI / 90, 0.4);
-	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 7*20, -1) {
+	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 7 * 20, -1)
+	{
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			player.toBukkit().setHealth(Math.min(player.toBukkit().getHealth() + 8, player.getKit().getMaxHealth()));
@@ -187,30 +197,33 @@ public final class WeaponTypes
 			return super.buildItem(weapon).setPotionColor(PotionEffectType.HEAL.getColor());
 		}
 	};
-	public static final WeaponType MANETTE = new WeaponType(false, Material.COMPARATOR, "Manette", 1, -1, 10) {
+	public static final WeaponType MANETTE = new WeaponType(false, Material.COMPARATOR, "Manette", 1, -1, 10)
+	{
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) { // handled in the weapon class
 		}
+		
 		@Override
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		}
 	};
 	public static final RocketLauncherType ROCKET_LAUNCHER = new RocketLauncherType();
 	public static final ShotgunType STD_SHOTGUN = new ShotgunType(false, Material.IRON_SHOVEL, "Fusil à pompe", 1, 64, -1, 4, 15, Math.PI / 40, 0.1, 5);
-	public static final WeaponType FLASHBANG = new WeaponType(false, Material.FIREWORK_ROCKET, "Grenade flash", 1, 15*20+18, -1) {
-		static final AtomicInteger flashcount = new AtomicInteger(0);
+	public static final WeaponType FLASHBANG = new WeaponType(false, Material.FIREWORK_ROCKET, "Grenade flash", 1, 15 * 20 + 18, -1)
+	{
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			Vector direction = player.getEyeLocation().getDirection();
 			Location loc = player.getEyeLocation().add(direction);
 			
-			Item item = (Item) player.toBukkit().getWorld().dropItem(loc, new ItemBuilder(Material.ENDER_EYE).setDisplayName(flashcount.incrementAndGet() + "").build());
+			Item item = (Item) player.toBukkit().getWorld().dropItem(loc, new ItemBuilder(Material.ENDER_EYE).setDisplayName(DROPPED_ITEM_COUNT.incrementAndGet() + "").build());
 			item.setVelocity(direction);
 			item.setPickupDelay(Integer.MAX_VALUE);
 			
 			weapon.useAmmo();
 			
-			new ThrownExplosive(player, FLASHBANG, 20) {
+			new ThrownExplosive(player, FLASHBANG, 20, false)
+			{
 				@Override
 				public void tick() {}
 				
@@ -220,7 +233,7 @@ public final class WeaponTypes
 					
 					GameManager.getInstance().getLivingEntities().forEach(entity -> {
 						if(entity.getLocation().distance(loc) < 5) {
-							final int duration = 20*5;
+							final int duration = 20 * 5;
 							
 							entity.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 0, false, false));
 							
@@ -236,7 +249,7 @@ public final class WeaponTypes
 						}
 					});
 					
-					Firework fw = (Firework)loc.getWorld().spawn(loc, Firework.class);
+					Firework fw = (Firework) loc.getWorld().spawn(loc, Firework.class);
 					
 					FireworkMeta fwMeta = fw.getFireworkMeta();
 					fwMeta.addEffect(FireworkEffect.builder().trail(false).with(Type.BALL).withColor(Color.WHITE).build());
@@ -257,7 +270,8 @@ public final class WeaponTypes
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		}
 	};
-	public static final GunType SCAVENGER = new GunType(true, Material.NETHERITE_HOE, "Scavenger", 2, -1, 10, 0, 100, 0, 0, true) {
+	public static final GunType SCAVENGER = new GunType(true, Material.NETHERITE_HOE, "Scavenger", 2, -1, 10, 0, 100, 0, 0, true)
+	{
 		@Override
 		public void onEntityHit(Hit hit) {
 			hit.hitEntity().setPoisonSource(hit.player());
@@ -267,12 +281,124 @@ public final class WeaponTypes
 		}
 		
 		@Override
-		public void particle(Location l) {
+		public void particle(Location l, int i) {
 			Random r = new Random();
 			//for(int i = 0; i < 3; i++)
-				l.getWorld().spawnParticle(Particle.GLOW, l.clone().add(new Vector(r.nextDouble()-0.5, r.nextDouble()-0.5, r.nextDouble()-0.5).multiply(0.2)), 1);
+			l.getWorld().spawnParticle(Particle.GLOW, l.clone().add(new Vector(r.nextDouble() - 0.5, r.nextDouble() - 0.5, r.nextDouble() - 0.5).multiply(0.0)), 1);
 		}
 	};
+	public static final WeaponType DYNAMITE = new WeaponType(false, Material.RED_CANDLE, "Dynamite", 1, 158, -1)
+	{
+		@Override
+		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+			Vector direction = player.getEyeLocation().getDirection();
+			Location loc = player.getEyeLocation().add(direction);
+			
+			Item item = (Item) player.toBukkit().getWorld().dropItem(loc, new ItemBuilder(Material.RED_CANDLE).setDisplayName(DROPPED_ITEM_COUNT.incrementAndGet() + "").build());
+			item.setVelocity(direction.clone().multiply(0.6));
+			item.setPickupDelay(Integer.MAX_VALUE);
+			
+			weapon.useAmmo();
+			
+			new ThrownExplosive(player, SMOKE, 35, false)
+			{
+				@Override
+				public void tick() {}
+				
+				@Override
+				public void explode() {
+					Location loc = item.getLocation();
+					GameManager.getInstance().explosion(player, loc, 15, 6, player::isEnemy, 0.7);
+					remove();
+				}
+				
+				@Override
+				public Entity getEntity() {
+					return item;
+				}
+			};
+		}
+		
+		@Override
+		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
+	};
+	public static final WeaponType SMOKE = new WeaponType(false, Material.BRUSH, "Fumigène", 1, 278, -1)
+	{
+		@Override
+		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+			Vector direction = player.getEyeLocation().getDirection();
+			Location loc = player.getEyeLocation().add(direction);
+			
+			Item item = (Item) player.toBukkit().getWorld().dropItem(loc, new ItemBuilder(Material.BRUSH).setDisplayName(DROPPED_ITEM_COUNT.incrementAndGet() + "").build());
+			item.setVelocity(direction.clone().multiply(0.6));
+			item.setPickupDelay(Integer.MAX_VALUE);
+			
+			weapon.useAmmo();
+			
+			new ThrownExplosive(player, SMOKE, 35, false)
+			{
+				@Override
+				public void tick() {}
+				
+				@Override
+				public void explode() {
+					//List<Location> smokeBlocks = new ArrayList<>();
+					Map<BlockDisplay, Integer> smokeDisplayTimes = new HashMap<>();
+					Location loc = item.getLocation();
+					for(int x = 0; x < 11; x++) {
+						for(int y = 0; y < 11; y++) {
+							for(int z = 0; z < 11; z++) {
+								Location l = loc.clone().add(x - 5.5, y - 5.5, z - 5.5);
+								if(l.distanceSquared(loc) < 25.01/* =5*5 */) {
+									/*if(l.getBlock().getType() == Material.AIR) {
+										smokeBlocks.add(l);
+										l.getBlock().setType(Material.TRIPWIRE);
+									}*/
+									
+									BlockDisplay smokeDisplay = (BlockDisplay) l.getWorld().spawnEntity(l.toCenterLocation(), EntityType.BLOCK_DISPLAY);
+									smokeDisplay.setBlock(Material.COBWEB.createBlockData());
+									smokeDisplayTimes.put(smokeDisplay, (int) new Random().nextGaussian(130, 5));
+								}
+							}
+						}
+					}
+					//final int duration = 120;
+					new BukkitRunnable()
+					{
+						int i = 0;
+						@Override
+						public void run() {
+							i++;
+							smokeDisplayTimes.keySet().forEach(blockDisplay -> blockDisplay.setRotation(new Random().nextFloat() * 360, new Random().nextFloat() * 180 - 90));
+							for(BlockDisplay e : new HashSet<>(smokeDisplayTimes.keySet())) {
+								if(smokeDisplayTimes.get(e) < i) {
+									smokeDisplayTimes.remove(e);
+									e.remove();
+								}
+							}
+							
+							if(smokeDisplayTimes.isEmpty()) {
+								cancel();
+								return;
+							}
+						}
+					}.runTaskTimer(TF.getInstance(), 1, 1);
+					remove();
+				}
+				
+				@Override
+				public Entity getEntity() {
+					return item;
+				}
+			};
+		}
+		
+		@Override
+		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
+	};
+	public static final FlareGunType FLARE_GUN = new FlareGunType();
+	public static final StrikerType STRIKER = new StrikerType();
+	
 	
 	private WeaponTypes() {
 	}

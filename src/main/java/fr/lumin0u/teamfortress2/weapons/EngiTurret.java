@@ -97,7 +97,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 	}
 	
 	private void reload() {
-		mortarReloadTicks = RELOAD_TICKS / 10;
+		mortarReloadTicks = RELOAD_TICKS;
 		
 		new BukkitRunnable() {
 			@Override

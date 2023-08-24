@@ -9,7 +9,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-public class Sniper extends Gun {
+public class Sniper extends Weapon {
 	
 	private boolean scoping;
 	
@@ -62,9 +62,9 @@ public class Sniper extends Gun {
 			
 			boolean scoping = ((Sniper)hit.weapon()).scoping;
 			
-			Vector kb = hit.direction().clone().setY(0).multiply(hit.weapon().getType().getKnockback());
+			Vector kb = hit.direction().clone().setY(0).multiply(hit.gunType().getKnockback());
 			
-			hit.hitEntity().damage(hit.player(), hit.weapon().getType().getDamage() * (hit.headshot() ? 1.5 : scoping ? 2 : 1), kb);
+			hit.hitEntity().damage(hit.player(), hit.gunType().getDamage() * (hit.headshot() ? 1.5 : scoping ? 2 : 1), kb);
 		}
 		
 		@Override
