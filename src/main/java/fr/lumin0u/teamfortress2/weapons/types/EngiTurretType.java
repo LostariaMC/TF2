@@ -9,6 +9,7 @@ import fr.lumin0u.teamfortress2.weapons.Weapon;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 
 public final class EngiTurretType extends PlaceableWeaponType
 {
@@ -34,9 +35,9 @@ public final class EngiTurretType extends PlaceableWeaponType
 	}
 	
 	@Override
-	public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block) {
+	public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block, BlockFace against) {
 		EngiTurret turret = new EngiTurret(player, (PlaceableWeapon) weapon, block);
-		turret.place();
+		turret.place(against);
 		player.toBukkit().setGameMode(GameMode.ADVENTURE);
 		return turret;
 	}

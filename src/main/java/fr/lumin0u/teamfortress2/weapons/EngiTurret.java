@@ -49,7 +49,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 	}
 	
 	@Override
-	public void place() {
+	public void place(BlockFace against) {
 		block.setType(Material.MUD_BRICK_SLAB);
 		block.getRelative(BlockFace.UP).setBlockData(Material.MUD_BRICK_WALL.createBlockData(), false);
 		

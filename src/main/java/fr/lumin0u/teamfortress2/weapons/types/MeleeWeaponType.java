@@ -15,7 +15,7 @@ public class MeleeWeaponType extends WeaponType
 	protected final double knockback; // blocks/tick
 	
 	public MeleeWeaponType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks, double damage, double knockback) {
-		super(ultimate, material, name, maxAmmo, 0, 0);
+		super(ultimate, material, name, maxAmmo, reloadTicks, 0);
 		this.damage = damage;
 		this.knockback = knockback;
 	}

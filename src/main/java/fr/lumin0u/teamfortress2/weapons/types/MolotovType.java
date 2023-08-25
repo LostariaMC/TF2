@@ -38,7 +38,7 @@ public final class MolotovType extends WeaponType
 		return super.loreBuilder()
 				.add(RADIUS_LORE.formatted(radius))
 				.add(CUSTOM_LORE.formatted("Enflamme vos ennemis"))
-				.add(DURATION_LORE.formatted((float) (fireDuration / 20f)))
+				.add(DURATION_LORE.formatted((float) ((float) fireDuration / 20f)))
 				.add(FIRE_DMG_LORE.formatted(fireDmg));
 	}
 	

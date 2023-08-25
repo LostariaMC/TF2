@@ -37,7 +37,7 @@ public final class Barbecue extends Weapon
 	}
 	
 	@Override
-	protected void reload() {}
+	public void reload(int ticks) {}
 	
 	@Override
 	public void rightClick(RayTraceResult info) {
@@ -67,7 +67,7 @@ public final class Barbecue extends Weapon
 			return super.loreBuilder()
 					.add(RANGE_LORE.formatted(range))
 					.add(CUSTOM_LORE.formatted("Enflamme vos ennemis"))
-					.add(DURATION_LORE.formatted((float) (fireDuration / 20f)))
+					.add(DURATION_LORE.formatted((float) ((float) fireDuration / 20f)))
 					.add(FIRE_DMG_LORE.formatted(fireDmg));
 		}
 		

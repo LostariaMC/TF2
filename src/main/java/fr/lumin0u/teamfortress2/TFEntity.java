@@ -17,11 +17,11 @@ public interface TFEntity
 	}
 	
 	public default BoundingBox getBodyBox() {
-		return BoundingBox.of(getLocation().clone().add(-0.3, 0, -0.3), getLocation().clone().add(0.3, 1.4, 0.3));
+		return BoundingBox.of(getLocation().clone().add(-0.35, 0, -0.35), getLocation().clone().add(0.35, 1.4, 0.35));
 	}
 	
 	public default BoundingBox getHeadBox() {
-		return BoundingBox.of(getLocation().clone().add(-0.25, 1.4, -0.25), getLocation().clone().add(0.25, 1.8, 0.25));
+		return BoundingBox.of(getLocation().clone().add(-0.3, 1.4, -0.3), getLocation().clone().add(0.3, 1.9, 0.3));
 	}
 	
 	public LivingEntity getEntity();

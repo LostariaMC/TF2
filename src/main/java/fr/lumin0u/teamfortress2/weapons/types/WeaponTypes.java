@@ -14,6 +14,7 @@ import org.bukkit.*;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -33,7 +34,7 @@ public final class WeaponTypes
 	
 	public static final WeaponType CANON_SCIE = new ShotgunType(false, Material.GOLDEN_SHOVEL, "Canon scié", 2, 48, 14, 4, 12, Math.PI / 50, 0.15, 3);
 	public static final MeleeWeaponType CLUB = new MeleeWeaponType(false, Material.GOLDEN_SWORD, "Batte", 1, -1, 3, 0.3);
-	public static final GunType DEFENSEUR = new GunType(false, Material.WOODEN_HOE, "Défenseur", 1, 20, -1, 2, 30, Math.PI / 200, 0.25);
+	public static final GunType DEFENSEUR = new GunType(false, Material.WOODEN_HOE, "Défenseur", 1, 16, -1, 2, 30, Math.PI / 200, 0.25);
 	public static final WeaponType SCOUT_RACE = new WeaponType(true, Material.DRAGON_BREATH, "Scout race", 1, -1, -1)
 	{
 		@Override
@@ -130,13 +131,13 @@ public final class WeaponTypes
 		}
 		
 		@Override
-		public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block) {
+		public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block, BlockFace against) {
 			PlacedBlockWeapon trampo = new PlacedBlockWeapon(player, weapon, block)
 			{
 				ArmorStand armorStand;
 				
 				@Override
-				public void place() {
+				public void place(BlockFace against) {
 					block.setType(Material.LIGHT_WEIGHTED_PRESSURE_PLATE, false);
 					armorStand = (ArmorStand) block.getWorld().spawnEntity(block.getLocation().add(0.5, 0, 0.5), EntityType.ARMOR_STAND);
 					armorStand.setInvulnerable(true);
@@ -167,7 +168,7 @@ public final class WeaponTypes
 					}
 				}
 			};
-			trampo.place();
+			trampo.place(against);
 			return trampo;
 		}
 	};
@@ -181,11 +182,11 @@ public final class WeaponTypes
 		}
 		
 		@Override
-		public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block) {
+		public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block, BlockFace against) {
 			PlacedBlockWeapon mine = new PlacedBlockWeapon(player, weapon, block)
 			{
 				@Override
-				public void place() {
+				public void place(BlockFace against) {
 					block.setType(Material.STONE_PRESSURE_PLATE, false);
 				}
 				
@@ -202,11 +203,11 @@ public final class WeaponTypes
 					}
 				}
 			};
-			mine.place();
+			mine.place(against);
 			return mine;
 		}
 	};
-	public static final GunType SNIPER = new GunType(false, Material.DIAMOND_HOE, "Sniper", 1, 76, -1, 10, 100, 0, 0.02) {
+	public static final GunType SNIPER = new GunType(false, Material.DIAMOND_HOE, "Sniper", 1, 76, -1, 10, 100, 0, 0.4) {
 		@Override
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder().add(HEADSHOT_LORE.formatted(damage*1.5)).add(LEFT_CLICK_LORE.formatted("activer la lunette")).add("§7> §6Degats avec visée§7: §e§l%.1f".formatted(damage*2));
@@ -575,6 +576,33 @@ public final class WeaponTypes
 	};
 	public static final MeleeWeaponType SAW = new MeleeWeaponType(false, Material.IRON_AXE, "Hache", 1, -1, 3, 0.25);
 	public static final UberChargeType UBER_CHARGE = new UberChargeType();
+	public static final KnifeType KNIFE = new KnifeType();
+	public static final InvisWatchType INVIS_WATCH = new InvisWatchType();
+	public static final WeaponType C4_IGNITER = new WeaponType(false, Material.LIGHTNING_ROD, "Détonateur", 1, -1, -1)
+	{
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("déclencher la C4"));
+		}
+		@Override
+		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
+		@Override
+		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
+	};
+	public static final C4Type C4 = new C4Type();
+	public static final GunType REVOLVER = new GunType(false, Material.STONE_HOE, "Revolver", 1, 36, -1, 4, 30, Math.PI / 800, 0.2) {
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(HEADSHOT_LORE.formatted(damage*2));
+		}
+		
+		@Override
+		public void onEntityHit(Hit hit) {
+			Vector kb = hit.direction().clone().setY(0).multiply(hit.gunType().getKnockback());
+			hit.hitEntity().damage(hit.player(), hit.gunType().getDamage() * (hit.headshot() ? 2 : 1), kb);
+		}
+	};
+	public static final DisguiseType DISGUISE = new DisguiseType();
 	
 	
 	private WeaponTypes() {

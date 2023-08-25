@@ -86,22 +86,22 @@ public class Weapon
 				ultimateReload();
 			}
 			else {
-				reload();
+				reload(type.getReloadTicks());
 			}
 		}
 	}
 	
-	protected void reload() {
+	public void reload(int ticks) {
 		if(getType().isUltimate())
 			return;
 		
-		if(type.getReloadTicks() <= 0) {
+		if(ticks <= 0) {
 			ammo = type.getMaxAmmo();
 			updateItem();
 			return;
 		}
 		
-		owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), type.getReloadTicks());
+		owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), ticks);
 		reloading = true;
 		
 		bukkitTasks.add(Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
@@ -112,7 +112,7 @@ public class Weapon
 			ammo = type.getMaxAmmo();
 			reloading = false;
 			updateItem();
-		}, type.getReloadTicks()));
+		}, ticks));
 	}
 	
 	protected void ultimateReload() {

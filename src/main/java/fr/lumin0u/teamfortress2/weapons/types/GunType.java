@@ -6,6 +6,7 @@ import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.Utils;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
+import fr.lumin0u.teamfortress2.weapons.types.InvisWatchType.InvisWatch;
 import org.bukkit.*;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.block.Block;
@@ -66,6 +67,8 @@ public class GunType extends WeaponType
 		shoot(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), weapon, inaccuracy, this::particle, GameManager.getInstance().getLivingEntities());
 		
 		weapon.useAmmo();
+		
+		player.getOptWeapon(WeaponTypes.INVIS_WATCH).ifPresent(w -> ((InvisWatch)w).setInvisibilityCancelled(true));
 	}
 	
 	@Override
@@ -101,7 +104,7 @@ public class GunType extends WeaponType
 	
 	public void particle(Location l, int i) {
 		if(i == 0)
-			l.getWorld().spawnParticle(Particle.FLAME, l, 1, 0, 0.01, 0, 0.000001D, null, true);
+			l.getWorld().spawnParticle(Particle.SMALL_FLAME, l, 1, 0, 0.01, 0, 0.000001D, null, true);
 		else
 			l.getWorld().spawnParticle(Particle.REDSTONE, l, 1, 0, 0, 0, 0, new DustOptions(Color.BLACK, 0.5f), true);
 	}
@@ -143,8 +146,8 @@ public class GunType extends WeaponType
 			if(!player.isEnemy(ent))
 				continue;
 			
-			BoundingBox bodyBox = ent.getBodyBox();
-			BoundingBox headBox = ent.getHeadBox();
+			BoundingBox bodyBox = ent.getBodyBox().expand(0.2);
+			BoundingBox headBox = ent.getHeadBox().expand(0.2);
 			
 			RayTraceResult bodyCollision = bodyBox.rayTrace(source.toVector(), direction, bulletTravelLength);
 			RayTraceResult headCollision = headBox.rayTrace(source.toVector(), direction, bulletTravelLength);

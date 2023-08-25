@@ -91,7 +91,7 @@ public final class RocketLauncherType extends WeaponType
 			//fireball.setDirection(direction);
 			
 			Location nextLoc = location.clone().add(direction.clone().multiply(ROCKET_SPEED));
-			BoundingBox bb = getEntity().getBoundingBox();
+			BoundingBox bb = getEntity().getBoundingBox().expand(0.4);
 			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED) != null
 				|| GameManager.getInstance().getLivingEntities().stream().map(TFEntity::getEntity).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
 				explode();

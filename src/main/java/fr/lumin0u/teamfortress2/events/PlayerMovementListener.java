@@ -78,7 +78,7 @@ public class PlayerMovementListener implements Listener
 			event.setCancelled(true);
 			
 			if(player.getKit().equals(Kit.SCOUT)) {
-				player.toBukkit().setVelocity(player.toBukkit().getVelocity().multiply(3).setY(0.8));
+				player.toBukkit().setVelocity(player.toBukkit().getVelocity().multiply(5).setY(0.8));
 				player.toBukkit().setAllowFlight(false);
 			}
 		}

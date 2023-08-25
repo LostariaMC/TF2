@@ -1,7 +1,12 @@
 package fr.lumin0u.teamfortress2.util;
 
+import com.comphenix.protocol.ProtocolLib;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import net.minecraft.world.entity.Entity;
+import org.bukkit.Bukkit;
+import org.bukkit.Server;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -11,6 +16,17 @@ import java.util.Arrays;
 public class NMSUtils
 {
 	public NMSUtils() {
+	}
+	
+	public static Object getMinecraftServer() {
+		try
+		{
+			Server server = Bukkit.getServer();
+			return server.getClass().getDeclaredMethod("getServer").invoke(server);
+		} catch(ReflectiveOperationException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public static <T> T getHandle(Object obj, Object... params) {

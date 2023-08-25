@@ -40,7 +40,7 @@ public final class FlareGunType extends WeaponType
 		return super.loreBuilder()
 				.add(RANGE_LORE.formatted(range))
 				.add(CUSTOM_LORE.formatted("Enflamme vos ennemis"))
-				.add(DURATION_LORE.formatted((float) (fireDuration / 20f)))
+				.add(DURATION_LORE.formatted((float) ((float) fireDuration / 20f)))
 				.add(FIRE_DMG_LORE.formatted(fireDmg));
 	}
 	

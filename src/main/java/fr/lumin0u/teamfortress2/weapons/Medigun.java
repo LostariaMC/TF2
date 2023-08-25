@@ -43,7 +43,6 @@ public class Medigun extends Weapon
 				new HashMap<>(healStartDate).forEach((ally, startDate) -> {
 					if(ally.isDead()) {
 						healStartDate.remove(ally);
-						ally.ifOnline(a -> ally.toBukkit().removePotionEffect(PotionEffectType.REGENERATION));
 					}
 				});
 				
@@ -112,7 +111,7 @@ public class Medigun extends Weapon
 					.add(RIGHT_CLICK_LORE.formatted("heal le joueur visé (regen II)"))
 					.add(RANGE_LORE.formatted(range))
 					.add(LEFT_CLICK_LORE.formatted("vous heal (regen I)"))
-					.add(DURATION_LORE.formatted((float) (duration / 20f)));
+					.add(DURATION_LORE.formatted((float) ((float) duration / 20f)));
 		}
 		
 		@Override
@@ -184,7 +183,7 @@ public class Medigun extends Weapon
 			return super.loreBuilder()
 					.add(RIGHT_CLICK_LORE.formatted("heal les joueurs proches (regen IV)"))
 					.add(RADIUS_LORE.formatted(range))
-					.add(DURATION_LORE.formatted((float) (duration / 20f)));
+					.add(DURATION_LORE.formatted((float) ((float) duration / 20f)));
 		}
 		
 		@Override

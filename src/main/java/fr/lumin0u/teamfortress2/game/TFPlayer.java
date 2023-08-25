@@ -3,7 +3,6 @@ package fr.lumin0u.teamfortress2.game;
 import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import fr.lumin0u.teamfortress2.*;
-import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.Items;
 import fr.lumin0u.teamfortress2.util.Utils;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
@@ -16,10 +15,14 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.minecraft.network.protocol.game.ClientboundDamageEventPacket;
 import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
 import net.minecraft.network.protocol.game.PacketPlayOutUpdateHealth;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -46,7 +49,8 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	private final AtomicInteger heavyBulletNb;
 	
 	private boolean spyInvisible;
-	private WrappedPlayer disguise;
+	private TFPlayer disguise;
+	private TFPlayer nextDisguise;
 	
 	private boolean engiInvicible;
 	
@@ -78,7 +82,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		
 		this.engiInvicible = false;
 		
-		this.disguise = this;
+		this.disguise = null;
 		this.spyInvisible = false;
 		
 		this.heavyBulletNb = new AtomicInteger(0);
@@ -191,11 +195,11 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		this.spyInvisible = spyInvisible;
 	}
 	
-	public WrappedPlayer getDisguise() {
+	public TFPlayer getDisguise() {
 		return disguise;
 	}
 	
-	public void setDisguise(WrappedPlayer disguise) {
+	public void setDisguise(TFPlayer disguise) {
 		this.disguise = disguise;
 	}
 	
@@ -331,6 +335,11 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		this.hasJoinedGameBefore = hasJoinedGameBefore;
 	}
 	
+	@NotNull
+	public WrappedPlayer getNextDisguise() {
+		return nextDisguise == null ? GameManager.getInstance().getPlayers().stream().filter(this::isEnemy).findAny().orElseThrow() : nextDisguise;
+	}
+	
 	@Override
 	@NotNull
 	public FireDamageCause getFireCause() {
@@ -370,8 +379,6 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		} else {
 			toBukkit().setHealth(toBukkit().getHealth() - amount);
 			
-			//toBukkit().damage(0);
-			
 			PacketContainer packetDamageEvent = new PacketContainer(Server.DAMAGE_EVENT,
 					new ClientboundDamageEventPacket(toBukkit().getEntityId(), 0, 0, 0, Optional.empty()));
 			
@@ -410,6 +417,10 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 				.toList();
 		lastDamagers.clear();
 		
+		TFPlayer pseudokiller = killer != null ? killer : trueLastDamagers.isEmpty() ? null : trueLastDamagers.get(0);
+		if(pseudokiller != null)
+			pseudokiller.nextDisguise = this;
+		
 		for(TFPlayer lastDamager : trueLastDamagers) {
 			if(!lastDamager.isDead())
 				lastDamager.getUltimate().onOwnerDoKill();
@@ -419,7 +430,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		}
 		
 		if(GameManager.getInstance().getGameType().isTDM()) {
-			TDMManager.getInstance().onSingleKill(this, trueLastDamagers.isEmpty() ? null : trueLastDamagers.get(0).getTeam());
+			TDMManager.getInstance().onSingleKill(this, pseudokiller == null ? null : pseudokiller.getTeam());
 		}
 		
 		if(!disconnect) {
@@ -446,10 +457,10 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 						.build());
 			}
 			
-			if(killer != null) {
+			if(pseudokiller != null) {
 				Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
-					if(isOnline() && killer.isOnline()) {
-						toBukkit().setSpectatorTarget(killer.toBukkit());
+					if(isOnline() && pseudokiller.isOnline()) {
+						toBukkit().setSpectatorTarget(pseudokiller.toBukkit());
 					}
 				}, 20);
 			}
@@ -468,6 +479,13 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		toBukkit().setGameMode(GameMode.ADVENTURE);
 		toBukkit().setSaturation(0);
 		toBukkit().setFoodLevel(20);
+		toBukkit().removePotionEffect(PotionEffectType.REGENERATION);
+		toBukkit().removePotionEffect(PotionEffectType.HEALTH_BOOST);
+		
+		setSpyInvisible(false);
+		setDisguise(null);
+		setEngiInvicible(false);
+		setEnergized(false);
 		
 		new ArrayList<>(weapons).forEach(this::removeWeapon);
 		setKit(nextKit);
@@ -475,9 +493,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		
 		PlayerInventory inv = toBukkit().getInventory();
 		inv.clear();
-		inv.setBoots(team.getBoots());
-		inv.setLeggings(team.getLeggings());
-		inv.setChestplate(team.getChestplate());
+		giveArmor();
 		
 		WeaponType[] weapons = getKit().getWeapons();
 		for(int i = 0; i < weapons.length; i++) {
@@ -496,5 +512,15 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		toBukkit().setHealth(getKit().getMaxHealth());
 		
 		toBukkit().setAllowFlight(getKit().equals(Kit.SCOUT));
+	}
+	
+	public void giveArmor() {
+		PlayerInventory inv = toBukkit().getInventory();
+		
+		TFTeam team = disguise == null ? this.team : disguise.getTeam();
+		
+		inv.setBoots(team.getBoots());
+		inv.setLeggings(team.getLeggings());
+		inv.setChestplate(team.getChestplate());
 	}
 }

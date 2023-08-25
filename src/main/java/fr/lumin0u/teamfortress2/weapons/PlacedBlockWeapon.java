@@ -3,6 +3,7 @@ package fr.lumin0u.teamfortress2.weapons;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.util.RayTraceResult;
 
 public abstract class PlacedBlockWeapon {
@@ -29,7 +30,7 @@ public abstract class PlacedBlockWeapon {
 		return owner;
 	}
 	
-	public abstract void place();
+	public abstract void place(BlockFace against);
 	
 	public abstract void destroy();
 	

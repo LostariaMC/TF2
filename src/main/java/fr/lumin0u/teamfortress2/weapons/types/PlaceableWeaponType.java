@@ -23,6 +23,10 @@ public abstract class PlaceableWeaponType extends WeaponType
 		super(ultimate, material, name, maxAmmo, -1, 2);
 	}
 	
+	public PlaceableWeaponType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks) {
+		super(ultimate, material, name, maxAmmo, reloadTicks, 2);
+	}
+	
 	@Override
 	protected Builder<String> loreBuilder() {
 		return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("placer le block"));
@@ -40,11 +44,16 @@ public abstract class PlaceableWeaponType extends WeaponType
 		
 		Block minePosition = info.getHitBlock().getRelative(info.getHitBlockFace());
 		Block downBlock = minePosition.getRelative(BlockFace.DOWN);
-		if(minePosition.isEmpty() && minePosition.getRelative(BlockFace.UP).isEmpty()
-				&& downBlock.isBuildable() && BoundingBox.of(downBlock).equals(downBlock.getBoundingBox())) {
-			((PlaceableWeapon)weapon).getBlocks().add(placeBlock(player, (PlaceableWeapon) weapon, minePosition));
+		
+		if(isCorrectLocation(minePosition, downBlock, info.getHitBlockFace())) {
+			((PlaceableWeapon)weapon).getBlocks().add(placeBlock(player, (PlaceableWeapon) weapon, minePosition, info.getHitBlockFace()));
 			weapon.useAmmo();
 		}
+	}
+	
+	public boolean isCorrectLocation(Block minePosition, Block downBlock, BlockFace against) {
+		return minePosition.isEmpty() && minePosition.getRelative(BlockFace.UP).isEmpty()
+				&& downBlock.isBuildable() && BoundingBox.of(downBlock).equals(downBlock.getBoundingBox());
 	}
 	
 	@Override
@@ -56,5 +65,5 @@ public abstract class PlaceableWeaponType extends WeaponType
 		weapon.pickupAmmo();
 	}
 	
-	public abstract PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block);
+	public abstract PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block, BlockFace against);
 }
