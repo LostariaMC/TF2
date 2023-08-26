@@ -99,15 +99,18 @@ public class EngiTurret extends PlacedBlockWeapon {
 					return;
 				}
 				
+				final int constructTime = 100;
+				final int soundDuration = 40;
+				
 				tick += 5;
 				nextSound -= 5;
 				
-				if(nextSound <= 0) {
+				if(nextSound <= 0 && tick + soundDuration < constructTime) {
 					TFSound.TURRET_CONSTRUCT.play(block.getLocation());
-					nextSound = (int) new Random().nextGaussian(40, 10);
+					nextSound = new Random().nextInt(30) + 25;
 				}
 				
-				if(tick >= 100) {
+				if(tick >= constructTime) {
 					owner.giveWeapon(controller);
 					mortarReloadTicks = 0;
 					tipDisplay.setCustomName(READY_TO_SHOOT);
@@ -162,6 +165,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 	
 	@Override
 	public void destroy() {
+		owner.removeWeapon(controller);
 		turretGrounded.remove();
 		turretHead.remove();
 		tipDisplay.remove();

@@ -26,7 +26,8 @@ public final class KnifeType extends MeleeWeaponType
 	@Override
 	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		if(info == null || !(info.getHitEntity() instanceof Player)) {
-			TFSound.MELEE_MISS.playTo(player);
+			if(!player.isSpyInvisible())
+				TFSound.MELEE_MISS.playTo(player);
 			return;
 		}
 		
