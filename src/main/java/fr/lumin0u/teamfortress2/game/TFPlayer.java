@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import fr.lumin0u.teamfortress2.*;
 import fr.lumin0u.teamfortress2.util.Items;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.util.Utils;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
@@ -436,6 +437,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		if(!disconnect) {
 			dead = true;
 			
+			TFSound.PLAYER_DEATH.play(toBukkit().getLocation());
 			toBukkit().setGameMode(GameMode.SPECTATOR);
 			
 			if(!trueLastDamagers.isEmpty()) {

@@ -5,6 +5,7 @@ import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.GameManager.GamePhase;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.PlaceableWeapon;
 import fr.lumin0u.teamfortress2.weapons.types.PlaceableWeaponType;
 import org.bukkit.GameMode;
@@ -14,6 +15,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 
@@ -78,8 +80,10 @@ public class PlayerMovementListener implements Listener
 			event.setCancelled(true);
 			
 			if(player.getKit().equals(Kit.SCOUT)) {
-				player.toBukkit().setVelocity(player.toBukkit().getVelocity().multiply(5).setY(0.8));
+				player.toBukkit().setVelocity(new Vector(0, 0.5, 0).add(player.getEyeLocation().getDirection().multiply(0.8)));
 				player.toBukkit().setAllowFlight(false);
+				
+				TFSound.SCOUT_DASH.play(player.toBukkit().getLocation());
 			}
 		}
 	}

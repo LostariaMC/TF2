@@ -5,6 +5,7 @@ import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ComplexEntity;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.util.Utils;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
 import org.bukkit.*;
@@ -22,6 +23,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -87,13 +89,35 @@ public class EngiTurret extends PlacedBlockWeapon {
 		
 		mortarReloadTicks = 1;
 		
-		Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
-			if(!removed) {
-				owner.giveWeapon(controller);
-				mortarReloadTicks = 0;
-				tipDisplay.setCustomName(READY_TO_SHOOT);
+		new BukkitRunnable() {
+			int tick = 0;
+			int nextSound = 0;
+			@Override
+			public void run() {
+				if(removed) {
+					cancel();
+					return;
+				}
+				
+				tick += 5;
+				nextSound -= 5;
+				
+				if(nextSound <= 0) {
+					TFSound.TURRET_CONSTRUCT.play(block.getLocation());
+					nextSound = (int) new Random().nextGaussian(40, 10);
+				}
+				
+				if(tick >= 100) {
+					owner.giveWeapon(controller);
+					mortarReloadTicks = 0;
+					tipDisplay.setCustomName(READY_TO_SHOOT);
+					TFSound.TURRET_CONSTRUCT_READY.play(block.getLocation());
+					TFSound.TURRET_READY.playTo(owner);
+					cancel();
+					return;
+				}
 			}
-		}, 100);
+		}.runTaskTimer(TF.getInstance(), 5, 5);
 	}
 	
 	private void reload() {
@@ -114,6 +138,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 				if(mortarReloadTicks == 0) {
 					cancel();
 					tipDisplay.setCustomName(READY_TO_SHOOT);
+					TFSound.TURRET_READY.playTo(owner);
 				}
 			}
 		}.runTaskTimer(TF.getInstance(), 1, 1);
@@ -127,6 +152,8 @@ public class EngiTurret extends PlacedBlockWeapon {
 		if(mortarReloadTicks > 0) {
 			return;
 		}
+		
+		TFSound.TURRET_SHOOT.play(getHeadLocation());
 		
 		block.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, getHeadLocation(), 1);
 		obuses.add(new Obus());
@@ -183,10 +210,14 @@ public class EngiTurret extends PlacedBlockWeapon {
 		
 		@Override
 		public void rightClick(RayTraceResult info) {
-			ifCloseEnough(() -> {
-				Location eyeLoc = owner.toBukkit().getEyeLocation();
-				updateDirection(eyeLoc.getYaw(), eyeLoc.getPitch());
-			});
+			if(lastActionDate + getType().getActionDelay() < TF.currentTick()) {
+				ifCloseEnough(() -> {
+					Location eyeLoc = owner.toBukkit().getEyeLocation();
+					updateDirection(eyeLoc.getYaw(), eyeLoc.getPitch());
+					TFSound.TURRET_DIRECTION.playTo(owner);
+				});
+				lastActionDate = TF.currentTick();
+			}
 		}
 		
 		@Override

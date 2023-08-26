@@ -6,6 +6,7 @@ import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.GunType.Hit;
 import org.bukkit.*;
@@ -54,6 +55,8 @@ public final class FlareGunType extends WeaponType
 		
 		final Location source = player.getEyeLocation();
 		final Vector direction = player.getEyeLocation().getDirection();
+		
+		TFSound.FLARE_GUN.play(source);
 		
 		Location point = source.clone().add(direction.clone().multiply(0.5));
 		

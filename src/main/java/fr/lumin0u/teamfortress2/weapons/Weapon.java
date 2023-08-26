@@ -73,7 +73,7 @@ public class Weapon
 	}
 	
 	/**
-	 * should be called when main action is triggered
+	 * should be called when main action is triggered (for most weapons)
 	 * */
 	public void useAmmo() {
 		ammo--;
@@ -101,8 +101,10 @@ public class Weapon
 			return;
 		}
 		
-		owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), ticks);
 		reloading = true;
+		
+		updateItem();
+		owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), ticks);
 		
 		bukkitTasks.add(Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
 			if(!owner.hasWeapon(Weapon.this)) {
@@ -156,6 +158,16 @@ public class Weapon
 				ultiReloadTicksRem -= ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS;
 				owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), Math.max(0, ultiReloadTicksRem));
 			}
+		}
+	}
+	
+	public void fullyUnlockUltimate() {
+		if(type.isUltimate()) {
+			unlocked = true;
+			giveItem();
+			ultimateReload();
+			ultiReloadTicksRem = 1;
+			owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), 0);
 		}
 	}
 	

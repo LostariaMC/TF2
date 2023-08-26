@@ -6,6 +6,7 @@ import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.ThrownExplosive;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import org.bukkit.Color;
@@ -47,13 +48,14 @@ public final class MolotovType extends WeaponType
 		
 		Vector direction = player.getEyeLocation().getDirection();
 		Location rocketLoc = player.getEyeLocation().add(direction);
+		TFSound.MOLOTOV_THROW.play(rocketLoc);
 		
 		ThrownPotion potion = (ThrownPotion) player.toBukkit().getWorld().spawnEntity(rocketLoc, EntityType.SPLASH_POTION, SpawnReason.CUSTOM, p -> {
 			PotionMeta meta = ((ThrownPotion)p).getPotionMeta();
 			meta.setColor(Color.ORANGE);
 			((ThrownPotion)p).setPotionMeta(meta);
 		});
-		potion.setVelocity(direction.clone().multiply(1.7));
+		potion.setVelocity(direction.clone().multiply(0.8));
 		
 		weapon.useAmmo();
 		

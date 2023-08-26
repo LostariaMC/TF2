@@ -3,12 +3,10 @@ package fr.lumin0u.teamfortress2.weapons.types;
 import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.InvisWatchType.InvisWatch;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
@@ -28,6 +26,7 @@ public final class KnifeType extends MeleeWeaponType
 	@Override
 	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		if(info == null || !(info.getHitEntity() instanceof Player)) {
+			TFSound.MELEE_MISS.playTo(player);
 			return;
 		}
 		
@@ -47,6 +46,10 @@ public final class KnifeType extends MeleeWeaponType
 				particleLoc.getWorld().spawnParticle(Particle.REDSTONE, particleLoc, 40, 0.3, 0.3, 0.3, 0.7, new DustOptions(Color.fromRGB(0xb20063), 0.7f), true);
 				
 				player.getOptWeapon(WeaponTypes.INVIS_WATCH).ifPresent(w -> ((InvisWatch)w).setInvisibilityCancelled(true));
+				
+				if(stab) {
+					particleLoc.getWorld().spawnParticle(Particle.CRIT_MAGIC, particleLoc, 40, 0, 0, 0, 0.7);
+				}
 			}
 		}
 	}

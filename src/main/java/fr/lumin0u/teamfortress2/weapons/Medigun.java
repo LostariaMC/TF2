@@ -6,12 +6,11 @@ import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
-import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -43,6 +42,7 @@ public class Medigun extends Weapon
 				new HashMap<>(healStartDate).forEach((ally, startDate) -> {
 					if(ally.isDead()) {
 						healStartDate.remove(ally);
+						TFSound.HEAL_STOP.playTo(ally);
 					}
 				});
 				
@@ -72,6 +72,7 @@ public class Medigun extends Weapon
 								.toArray(ItemStack[]::new));
 						
 						healStartDate.remove(ally);
+						TFSound.HEAL_STOP.playTo(ally);
 					}
 				});
 				
@@ -83,6 +84,8 @@ public class Medigun extends Weapon
 	public void startHealing(TFPlayer target, int amplifier) {
 		healStartDate.put(target, TF.currentTick());
 		target.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, healDuration, amplifier, true, true, true));
+		
+		TFSound.GET_HEALED.playTo(target);
 		
 		target.toBukkit().getInventory().setArmorContents(Arrays.stream(target.toBukkit().getInventory().getArmorContents())
 				.map(item -> item == null ? null : ItemBuilder.modify(item).setGlow(true).build())

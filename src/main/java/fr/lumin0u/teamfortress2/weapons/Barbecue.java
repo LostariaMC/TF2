@@ -6,6 +6,7 @@ import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.types.GunType.Hit;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
@@ -77,6 +78,7 @@ public final class Barbecue extends Weapon
 			
 			Location source = player.toBukkit().getEyeLocation();
 			Vector direction = source.getDirection();
+			TFSound.BARBECUE.play(source);
 			
 			for(TFEntity ent : GameManager.getInstance().getLivingEntities())
 			{

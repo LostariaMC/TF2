@@ -77,6 +77,10 @@ public abstract class WeaponType
 		return maxAmmo;
 	}
 	
+	public ItemStack getDefaultRender() {
+		return new ItemStack(material);
+	}
+	
 	public ItemBuilder buildItem(Weapon weapon) {
 		return new ItemBuilder(material)
 				.setAmount(weapon.isReloading() ? 1 : weapon.getAmmo())

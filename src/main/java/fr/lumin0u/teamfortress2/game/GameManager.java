@@ -2,9 +2,9 @@ package fr.lumin0u.teamfortress2.game;
 
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.TFEntity;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.worsewarn.cosmox.API;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
-import fr.worsewarn.cosmox.api.scoreboard.CosmoxScoreboard;
 import fr.worsewarn.cosmox.game.Phase;
 import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.chat.Messages;
@@ -29,8 +29,9 @@ public abstract class GameManager {
 	protected long startDate;
 	protected final boolean friendlyFire;
 	protected final GameType gameType;
+	protected final ScoreboardUpdater scoreboardUpdater;
 	
-	public GameManager(GameMap map, List<TFTeam> teams, GameType gameType) {
+	public GameManager(GameMap map, List<TFTeam> teams, GameType gameType, ScoreboardUpdater scoreboardUpdater) {
 		this.tf = TF.getInstance();
 		this.map = map;
 		this.friendlyFire = gameType.isFriendlyFire();
@@ -47,6 +48,10 @@ public abstract class GameManager {
 				WrappedPlayer.of(Bukkit.getOnlinePlayers()).stream().filter(p -> p.toCosmox().getTeam().equals(team.cosmoxTeam())).forEach(p -> p.to(TFPlayer.class).setTeam(team));
 			}
 		}
+		
+		this.scoreboardUpdater = scoreboardUpdater;
+		
+		Bukkit.getScheduler().runTaskTimer(tf, scoreboardUpdater::updateTimer, 20, 20);
 	}
 	
 	public static GameManager getInstance() {
@@ -65,6 +70,10 @@ public abstract class GameManager {
 	
 	public GameType getGameType() {
 		return gameType;
+	}
+	
+	public ScoreboardUpdater getScoreboardUpdater() {
+		return scoreboardUpdater;
 	}
 	
 	public Collection<TFEntity> getLivingEntities() {
@@ -92,6 +101,7 @@ public abstract class GameManager {
 		
 		WrappedPlayer.of(Bukkit.getOnlinePlayers()).forEach(tf::loadTFPlayer);
 		getPlayers().forEach(player -> {
+			scoreboardUpdater.createScoreboard(player);
 			if(player.isSpectator())
 				player.toBukkit().setGameMode(GameMode.SPECTATOR);
 			else
@@ -125,17 +135,6 @@ public abstract class GameManager {
 		return new SimpleDateFormat("mm':'ss").format(new Date(System.currentTimeMillis() - startDate));
 	}
 	
-	public void createScoreboard(TFPlayer player) {
-		CosmoxScoreboard scoreboard = new CosmoxScoreboard(player.toBukkit());
-		scoreboard.updateTitle("§f§lTF2");
-		
-		player.toCosmox().setScoreboard(scoreboard);
-	}
-	
-	public void updateScoreboard() {
-		tf.getPlayers().stream().filter(WrappedPlayer::isOnline).forEach(this::updateScoreboard);
-	}
-	
 	public void explosion(TFPlayer damager, Location loc, double centerDamage, double radius, Predicate<TFEntity> enemyPredicate, double centerKnockback) {
 		
 		loc.getWorld().spawnParticle(radius > 5 ? Particle.EXPLOSION_HUGE : Particle.EXPLOSION_LARGE, loc, 1, 0, 0, 0, 0, null, true);
@@ -166,8 +165,6 @@ public abstract class GameManager {
 	}
 	
 	public abstract Location findSpawnLocation(TFPlayer player);
-	
-	public abstract void updateScoreboard(TFPlayer player);
 	
 	public static enum GamePhase {
 		PRE_START,

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.ThrownExplosive;
 import org.bukkit.Location;
@@ -43,6 +44,8 @@ public final class RocketLauncherType extends WeaponType
 		
 		Vector direction = player.getEyeLocation().getDirection();
 		Location rocketLoc = player.getEyeLocation().add(direction);
+		
+		TFSound.ROCKET_LAUNCHER.play(rocketLoc);
 		
 		SmallFireball fireball = (SmallFireball) player.toBukkit().getWorld().spawnEntity(rocketLoc, EntityType.SMALL_FIREBALL);
 		fireball.setDirection(direction.clone().multiply(ROCKET_SPEED));
@@ -93,7 +96,7 @@ public final class RocketLauncherType extends WeaponType
 			Location nextLoc = location.clone().add(direction.clone().multiply(ROCKET_SPEED));
 			BoundingBox bb = getEntity().getBoundingBox().expand(0.4);
 			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED) != null
-				|| GameManager.getInstance().getLivingEntities().stream().map(TFEntity::getEntity).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
+				|| GameManager.getInstance().getLivingEntities().stream().filter(owner::isNot).map(TFEntity::getEntity).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
 				explode();
 				return;
 			}

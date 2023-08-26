@@ -6,6 +6,7 @@ import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.*;
 import fr.lumin0u.teamfortress2.weapons.Barbecue.BarbecueType;
 import fr.lumin0u.teamfortress2.weapons.Medigun.MedigunType;
@@ -44,6 +45,8 @@ public final class WeaponTypes
 		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+			TFSound.DRINK.play(player.getLocation());
+			
 			final int duration = 10 * 20;
 			
 			player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration, 1, false, true, true));
@@ -60,9 +63,12 @@ public final class WeaponTypes
 	public static final EngiTurretType TURRET = new EngiTurretType();
 	public static final WeaponType RED_BUTTON = new WeaponType(true, Material.TOTEM_OF_UNDYING, "Invincibilité", 1, -1, -1)
 	{
+		private final int duration = 5 * 20;
 		@Override
 		protected Builder<String> loreBuilder() {
-			return super.loreBuilder().add(CUSTOM_LORE.formatted("Rend invincible pour §e§l5 s"));
+			return super.loreBuilder()
+					.add(CUSTOM_LORE.formatted("Rend invincible"))
+					.add(DURATION_LORE.formatted((float) ((float) duration / 20f)));
 		}
 		
 		private Vector randomPositionIn(BoundingBox box) {
@@ -72,7 +78,9 @@ public final class WeaponTypes
 		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-			final int duration = 5 * 20;
+			TFSound.ACTIVATE_INVICIBILITY.play(player.getLocation());
+			
+			player.toBukkit().playEffect(EntityEffect.TOTEM_RESURRECT);
 			player.setEngiInvicible(true);
 			weapon.useAmmo();
 			((PlaceableWeapon) player.getWeapon(MINE)).pickupAmmo();
@@ -95,7 +103,10 @@ public final class WeaponTypes
 				}
 			}.runTaskTimer(TF.getInstance(), 1, 1);
 			
-			Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> player.setEngiInvicible(false), duration);
+			Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
+				player.setEngiInvicible(false);
+				TFSound.DEACTIVATE_INVICIBILITY.play(player.getLocation());
+			}, duration);
 		}
 		
 		@Override
@@ -218,10 +229,12 @@ public final class WeaponTypes
 			return new Scopeable(SNIPER, owner, slot) {
 				@Override
 				public void scopeEffect() {
+					TFSound.SNIPER_SCOPE.playTo(owner);
 					owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 10, false, false, false));
 				}
 				@Override
 				public void unscopeEffect() {
+					TFSound.SNIPER_UNSCOPE.playTo(owner);
 					owner.toBukkit().removePotionEffect(PotionEffectType.SLOW);
 				}
 			};
@@ -244,6 +257,7 @@ public final class WeaponTypes
 		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+			TFSound.DRINK.play(player.toBukkit().getLocation());
 			player.toBukkit().setHealth(Math.min(player.toBukkit().getHealth() + heal, player.getKit().getMaxHealth()));
 			weapon.useAmmo();
 		}
@@ -338,7 +352,7 @@ public final class WeaponTypes
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		}
 	};
-	public static final GunType SCAVENGER = new GunType(true, Material.NETHERITE_HOE, "Scavenger", 2, -1, 10, 0, 100, 0, 0, true)
+	public static final GunType SCAVENGER = new GunType(true, Material.NETHERITE_HOE, "Scavenger", 2, -1, 10, 0, 100, 0, 0, TFSound.SCAVENGER, true)
 	{
 		@Override
 		protected Builder<String> loreBuilder() {
@@ -381,7 +395,7 @@ public final class WeaponTypes
 			
 			weapon.useAmmo();
 			
-			new ThrownExplosive(player, SMOKE, 35, false)
+			new ThrownExplosive(player, DYNAMITE, 35, false)
 			{
 				@Override
 				public void tick() {}
@@ -431,6 +445,7 @@ public final class WeaponTypes
 					//List<Location> smokeBlocks = new ArrayList<>();
 					Map<BlockDisplay, Integer> smokeDisplayTimes = new HashMap<>();
 					Location loc = item.getLocation();
+					TFSound.SMOKE_EXPLODE.play(loc);
 					for(int x = 0; x < 11; x++) {
 						for(int y = 0; y < 11; y++) {
 							for(int z = 0; z < 11; z++) {
@@ -484,7 +499,7 @@ public final class WeaponTypes
 	};
 	public static final FlareGunType FLARE_GUN = new FlareGunType();
 	public static final StrikerType STRIKER = new StrikerType();
-	public static final GunType TORNADO = new GunType(false, Material.GOLDEN_HOE, "La Tornade", 1, -1, 3, 1.5, 25, Math.PI / 80, 0.1) {
+	public static final GunType TORNADO = new GunType(false, Material.GOLDEN_HOE, "La Tornade", 1, -1, 3, 1.5, 25, Math.PI / 70, 0.1) {
 		
 		@Override
 		protected Builder<String> loreBuilder() {
@@ -514,6 +529,7 @@ public final class WeaponTypes
 		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+			shotSound.play(player.getLocation());
 			boolean scoping = ((Scopeable)weapon).isScoping();
 			
 			Location source = player.getEyeLocation();
@@ -527,7 +543,7 @@ public final class WeaponTypes
 			Vector x2 = direction.clone().crossProduct(x1).normalize();
 			source.add(x1.clone().multiply(radius * Math.sin(j / 10 * Math.PI * 2d))).add(x2.clone().multiply(radius * Math.cos(j / 10 * Math.PI * 2d)));
 			
-			shoot(player, source, direction, weapon, scoping ? inaccuracy / 2 : inaccuracy, this::particle, GameManager.getInstance().getLivingEntities());
+			shoot(player, source, direction, weapon, scoping ? inaccuracy / 4 : inaccuracy, this::particle, GameManager.getInstance().getLivingEntities());
 			
 			weapon.useAmmo();
 		}
@@ -541,6 +557,7 @@ public final class WeaponTypes
 		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+			TFSound.BURP.play(player.toBukkit().getLocation());
 			player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 2));
 			player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 300, 1));
 			
@@ -554,7 +571,7 @@ public final class WeaponTypes
 	public static final MeleeWeaponType FIRE_AXE = new MeleeWeaponType(false, Material.GOLDEN_AXE, "Hache", 1, -1, 3, 0.2);
 	public static final MolotovType MOLOTOV = new MolotovType();
 	public static final MedigunType MEDIGUN = new MedigunType();
-	public static final GunType SYRINGE_GUN = new GunType(false, Material.PRISMARINE_SHARD, "Tranquilisant", 1, 52, -1, 3, 20, 0, 0)
+	public static final GunType SYRINGE_GUN = new GunType(false, Material.PRISMARINE_SHARD, "Tranquilisant", 1, 52, -1, 3, 20, 0, 0, TFSound.SYRINGE_GUN, false)
 	{
 		@Override
 		protected Builder<String> loreBuilder() {

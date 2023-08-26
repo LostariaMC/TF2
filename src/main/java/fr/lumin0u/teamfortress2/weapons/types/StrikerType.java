@@ -3,12 +3,14 @@ package fr.lumin0u.teamfortress2.weapons.types;
 import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.ThrownExplosive;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.RocketLauncherType.Rocket;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
+import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -22,7 +24,7 @@ public final class StrikerType extends WeaponType
 	private final double radius = 8;
 	
 	public StrikerType() {
-		super(true, Material.LEATHER_HORSE_ARMOR, "Striker", 4, -1, 10);
+		super(true, Material.IRON_HORSE_ARMOR, "Striker", 4, -1, 10);
 	}
 	
 	@Override
@@ -36,8 +38,13 @@ public final class StrikerType extends WeaponType
 		Vector direction = player.getEyeLocation().getDirection();
 		Location rocketLoc = player.getEyeLocation().add(direction);
 		
+		TFSound.STRIKER.play(rocketLoc);
+		
 		Egg egg = (Egg) player.toBukkit().getWorld().spawnEntity(rocketLoc, EntityType.EGG);
 		egg.setVelocity(direction.clone().multiply(1.7));
+		
+		// for PlayerEggThrowEvent
+		egg.setShooter(player.toBukkit());
 		
 		weapon.useAmmo();
 		

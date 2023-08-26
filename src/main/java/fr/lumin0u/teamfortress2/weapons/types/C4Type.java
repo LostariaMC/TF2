@@ -21,7 +21,7 @@ import org.bukkit.util.RayTraceResult;
 public final class C4Type extends PlaceableWeaponType
 {
 	private final double centerDamage = 10;
-	private final double radius = 4;
+	private final double radius = 5;
 	
 	public C4Type() {
 		super(false, Material.POLISHED_BLACKSTONE_BUTTON, "C4", 1, 415);
@@ -102,6 +102,7 @@ public final class C4Type extends PlaceableWeaponType
 				GameManager.getInstance().explosion(owner, explosionLoc, WeaponTypes.C4.centerDamage, WeaponTypes.C4.radius, owner::isEnemy, 0);
 				weapon.removeBlock(C4Block.this);
 				owner.removeWeapon(this);
+				owner.toBukkit().getInventory().setItem(slot, null);
 				((C4)owner.getWeapon(WeaponTypes.C4)).onExplode();
 			}
 		}

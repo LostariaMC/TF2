@@ -3,6 +3,7 @@ package fr.lumin0u.teamfortress2.weapons.types;
 import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -26,6 +27,7 @@ public class MeleeWeaponType extends WeaponType
 	@Override
 	public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		if(info == null || !(info.getHitEntity() instanceof Player)) {
+			TFSound.MELEE_MISS.playTo(player);
 			return;
 		}
 		
@@ -37,6 +39,7 @@ public class MeleeWeaponType extends WeaponType
 			if(victim.damage(player, damage, kb)) {
 				victim.setLastMeleeHitDate(TF.currentTick());
 				weapon.useAmmo();
+				TFSound.MELEE_HIT.playTo(player);
 			}
 		}
 	}

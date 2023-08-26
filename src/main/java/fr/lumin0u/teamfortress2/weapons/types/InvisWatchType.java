@@ -6,15 +6,13 @@ import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.NMSUtils;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.DisguiseType.Disguise;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
 import net.minecraft.network.protocol.game.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.world.entity.player.EntityHuman;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -38,7 +36,8 @@ public final class InvisWatchType extends WeaponType
 	@Override
 	protected Builder<String> loreBuilder() {
 		return super.loreBuilder()
-				.add(RIGHT_CLICK_LORE.formatted("rend invisible"))
+				.add(RIGHT_CLICK_LORE.formatted("rend complètement invisible"))
+				.add("§eaux yeux de vos ennemis")
 				.add(DURATION_LORE.formatted((float) ((float) duration / 20f)));
 	}
 	
@@ -73,6 +72,9 @@ public final class InvisWatchType extends WeaponType
 				}
 				
 				if(tick == duration || ((InvisWatch)weapon).invisibilityCancelled()) {
+					
+					TFSound.SPY_INVIS_END.play(player.toBukkit().getLocation());
+					
 					((InvisWatch)weapon).setInvisibilityCancelled(false);
 					player.setSpyInvisible(false);
 					Bukkit.getOnlinePlayers().stream()

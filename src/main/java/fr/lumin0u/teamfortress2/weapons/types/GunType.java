@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
-import fr.lumin0u.teamfortress2.util.Utils;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.InvisWatchType.InvisWatch;
 import org.bukkit.*;
@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class GunType extends WeaponType
 {
@@ -28,18 +27,20 @@ public class GunType extends WeaponType
 	protected final double inaccuracy; // std variation in radians
 	protected final double knockback; // blocks/tick
 	protected final boolean perforant; // does the "bullet" goes through entities ?
+	protected final TFSound shotSound;
 	
 	public GunType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks, int actionDelay, double damage, double range, double inaccuracy, double knockback) {
-		this(ultimate, material, name, maxAmmo, reloadTicks, actionDelay, damage, range, inaccuracy, knockback, false);
+		this(ultimate, material, name, maxAmmo, reloadTicks, actionDelay, damage, range, inaccuracy, knockback, TFSound.GUN_SHOT, false);
 	}
 	
-	public GunType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks, int actionDelay, double damage, double range, double inaccuracy, double knockback, boolean perforant) {
+	public GunType(boolean ultimate, Material material, String name, int maxAmmo, int reloadTicks, int actionDelay, double damage, double range, double inaccuracy, double knockback, TFSound sound, boolean perforant) {
 		super(ultimate, material, name, maxAmmo, reloadTicks, actionDelay);
 		this.damage = damage;
 		this.range = range;
 		this.inaccuracy = inaccuracy;
 		this.knockback = knockback;
 		this.perforant = perforant;
+		this.shotSound = sound;
 	}
 	
 	public double getDamage() {
@@ -64,8 +65,9 @@ public class GunType extends WeaponType
 	
 	@Override
 	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
-		shoot(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), weapon, inaccuracy, this::particle, GameManager.getInstance().getLivingEntities());
+		shotSound.play(player.getLocation());
 		
+		shoot(player, player.getEyeLocation(), player.getEyeLocation().getDirection(), weapon, inaccuracy, this::particle, GameManager.getInstance().getLivingEntities());
 		weapon.useAmmo();
 		
 		player.getOptWeapon(WeaponTypes.INVIS_WATCH).ifPresent(w -> ((InvisWatch)w).setInvisibilityCancelled(true));
