@@ -5,12 +5,14 @@ import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.MeleeWeaponType;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -61,5 +63,10 @@ public class DamageListener implements Listener
 				player.damage(null, event.getDamage(), new Vector());
 			}
 		}
+	}
+	
+	@EventHandler
+	public void onMinecartDamage(VehicleDamageEvent event) {
+		event.setCancelled(true);
 	}
 }

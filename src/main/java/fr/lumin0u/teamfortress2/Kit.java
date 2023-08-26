@@ -22,7 +22,7 @@ import java.util.Random;
 public enum Kit {
 	RANDOM(NamedTextColor.LIGHT_PURPLE, new WeaponType[0], WeaponTypes.KUKRI, 20, 0.2f, 1, 1, Material.BARRIER, false, 0, ""),
 	//DEBUG(new AbstractWeapon[] {new MitrailletteLourde(), new Defoncator(), new Blaoups(), new SuperRocketLauncher()}, new Striker(), 20, 0.3f, 100000, 20, Material.CARPET, 0, false, 0, 'z'),
-	SCOUT(NamedTextColor.WHITE, new WeaponType[]{WeaponTypes.CANON_SCIE, WeaponTypes.CLUB, WeaponTypes.DEFENSEUR}, WeaponTypes.SCOUT_RACE, 18, 0.32f, 2, 1, Material.FEATHER, true, 1, "░"),
+	SCOUT(NamedTextColor.WHITE, new WeaponType[]{WeaponTypes.CANON_SCIE, WeaponTypes.CLUB, WeaponTypes.DEFENSEUR}, WeaponTypes.SCOUT_RACE, 18, 0.32f, 20, 1, Material.FEATHER, true, 1, "░"),
 	SOLDIER(TextColor.color(0x9D7154), new WeaponType[] {WeaponTypes.ROCKET_LAUNCHER, WeaponTypes.STD_SHOTGUN, WeaponTypes.FLASHBANG}, WeaponTypes.SCAVENGER, 20, 0.26f, 1, 1, Material.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE, true, 2, "▒"),
 	DEMOMAN(TextColor.color(0xB04441), new WeaponType[] {WeaponTypes.DYNAMITE, WeaponTypes.SMOKE, WeaponTypes.STD_SHOTGUN, WeaponTypes.FLARE_GUN}, WeaponTypes.STRIKER, 20, 0.26f, 1, 1, Material.TNT_MINECART, true, 4, "│"),
 	HEAVY(TextColor.color(0x5D38C5), new WeaponType[] {WeaponTypes.TORNADO, WeaponTypes.STD_SHOTGUN, WeaponTypes.MACHETE}, WeaponTypes.BEAST_FURY, 32, 0.21f, 1, 1, Material.SHULKER_SHELL, true, 5, "┤"),

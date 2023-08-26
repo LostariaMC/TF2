@@ -34,7 +34,8 @@ public class CosmoxListener implements Listener
 			
 			TF tf = TF.getInstance();
 			
-			GameManager gm = tf.createGameManager(GameType.TEAM_DEATHMATCH, event.getMap());
+			GameType gameType = GameType.valueOf(event.getMap().getStr("gamemode"));
+			GameManager gm = tf.createGameManager(gameType, event.getMap());
 			
 			gm.preStartGame();
 			Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {

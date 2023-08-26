@@ -23,10 +23,7 @@ public class TDMManager extends GameManager
 	public final int KILLS_TO_WIN = 20;
 	
 	public TDMManager(GameMap map) {
-		super(map, List.of(
-				new TFTeam(Team.RED, Material.REDSTONE_BLOCK, map.getLocation("redSpawn"), BoundingBox.of(map.getCuboid("redSafeZone").get(0), map.getCuboid("redSafeZone").get(1))),
-				new TFTeam(Team.BLUE, Material.DIAMOND_BLOCK, map.getLocation("blueSpawn"), BoundingBox.of(map.getCuboid("blueSafeZone").get(0), map.getCuboid("blueSafeZone").get(1)))
-		), GameType.TEAM_DEATHMATCH, new TDMScoreboardUpdater());
+		super(map, List.of(TFTeam.loadTDM(Team.RED, map), TFTeam.loadTDM(Team.BLUE, map)), GameType.TEAM_DEATHMATCH, new TDMScoreboardUpdater());
 	}
 	
 	public static TDMManager getInstance() {

@@ -11,7 +11,7 @@ public enum GameType
 	PAYLOADS("Payloads", 2, true, false, false) {
 		@Override
 		public GameManager createManager(GameMap map) {
-			throw new UnsupportedOperationException();
+			return new PayloadsManager(map);
 		}
 	},
 	FFA("FFA", 1, false, true, false) {

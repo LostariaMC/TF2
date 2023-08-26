@@ -71,7 +71,7 @@ public final class TF extends JavaPlugin {
 		
 		Bukkit.getScheduler().runTaskTimer(this, () -> currentTick++, 1, 1);
 	
-		cosmoxGame = new Game("teamfortress2", "TeamFortress2", ChatColor.GOLD, Material.GUNPOWDER, List.of(Team.BLUE, Team.RED), 4, false, false,
+		cosmoxGame = new Game("teamfortress2", "TeamFortress2", ChatColor.GOLD, Material.TNT_MINECART, List.of(Team.BLUE, Team.RED), 4, false, false,
 				List.of(
 						new Statistic("Temps de jeu", GameVariables.TIME_PLAYED, true, "s"),
 						new Statistic("Parties jouées", GameVariables.GAMES_PLAYED),
@@ -85,16 +85,26 @@ public final class TF extends JavaPlugin {
 				List.of(new MapTemplate(MapType.TWO, List.of(
 						new MapLocation("name", MapLocationType.STRING),
 						new MapLocation("authors", MapLocationType.STRING),
+						new MapLocation("gamemode", MapLocationType.STRING),
 						new MapLocation("redSpawn", MapLocationType.LOCATION),
 						new MapLocation("blueSpawn", MapLocationType.LOCATION),
-					
+						
 						new MapLocation("redSafeZone", MapLocationType.CUBOID),
-						new MapLocation("blueSafeZone", MapLocationType.CUBOID)
+						new MapLocation("blueSafeZone", MapLocationType.CUBOID),
+						
+						new MapLocation("redRailsStart", MapLocationType.LOCATION),
+						new MapLocation("blueRailsStart", MapLocationType.LOCATION),
+						new MapLocation("redRailsEnd", MapLocationType.LOCATION),
+						new MapLocation("blueRailsEnd", MapLocationType.LOCATION),
+						new MapLocation("redFlag", MapLocationType.LOCATION),
+						new MapLocation("blueFlag", MapLocationType.LOCATION),
+						
+						new MapLocation("kothMiddle", MapLocationType.CUBOID)
 				))))
 				.setDefaultFriendlyFire(false)
 				.setPreparationTime(5)
 				.setShowScoreTablist(true)
-				.setGameAuthor("environ lumin0u")
+				.setGameAuthor("lumin0u")
 				.addExtraScoreboard(WR_SCOREBOARD_KIT.formatted("§7?"))
 				.addExtraScoreboard(" §9§9§8")
 				.activeJoinInGame();
