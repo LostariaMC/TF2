@@ -431,7 +431,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		}
 		
 		if(GameManager.getInstance().getGameType().isTDM()) {
-			TDMManager.getInstance().onSingleKill(this, pseudokiller == null ? null : pseudokiller.getTeam());
+			TDMManager.getInstance().onSingleKill(this, pseudokiller);
 		}
 		
 		if(!disconnect) {
@@ -491,6 +491,10 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		
 		new ArrayList<>(weapons).forEach(this::removeWeapon);
 		setKit(nextKit);
+		
+		if(GameManager.getInstance() != null)
+			GameManager.getInstance().getScoreboardUpdater().updateClass(this);
+		
 		leftSafeZone = false;
 		
 		PlayerInventory inv = toBukkit().getInventory();

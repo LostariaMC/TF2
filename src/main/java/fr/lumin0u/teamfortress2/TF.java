@@ -5,6 +5,7 @@ import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.GameType;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.Items;
+import fr.lumin0u.teamfortress2.util.Utils;
 import fr.worsewarn.cosmox.API;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer.PlayerWrapper;
@@ -17,15 +18,21 @@ import fr.worsewarn.cosmox.tools.map.*;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public final class TF extends JavaPlugin {
-
+	
+	private static final String WR_SCOREBOARD_KIT = "§7❘ §fClasse: %s";
+	
 	private static TF instance;
 	private GameManager gameManager;
 	
@@ -60,6 +67,8 @@ public final class TF extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		
+		getCommand("getulti").setExecutor(this);
+		
 		Bukkit.getScheduler().runTaskTimer(this, () -> currentTick++, 1, 1);
 	
 		cosmoxGame = new Game("teamfortress2", "TeamFortress2", ChatColor.GOLD, Material.GUNPOWDER, List.of(Team.BLUE, Team.RED), 4, false, false,
@@ -86,6 +95,8 @@ public final class TF extends JavaPlugin {
 				.setPreparationTime(5)
 				.setShowScoreTablist(true)
 				.setGameAuthor("environ lumin0u")
+				.addExtraScoreboard(WR_SCOREBOARD_KIT.formatted("§7?"))
+				.addExtraScoreboard(" §9§9§8")
 				.activeJoinInGame();
 	
 		registerListener(new CosmoxListener());
@@ -93,6 +104,10 @@ public final class TF extends JavaPlugin {
 		API.instance().registerNewGame(cosmoxGame);
 
 		cosmoxGame.addDefaultItemWaitingRoom(new DefaultItemSlot("kitMenu", Items.WR_KIT_ITEM.clone()), 7);
+	}
+	
+	public void updatePlayerKitWRScoreboard(WrappedPlayer player, Kit kit) {
+		player.toCosmox().getScoreboard().updateLine("Classe", WR_SCOREBOARD_KIT.formatted(Utils.bungeeColor(kit.getColor()) + kit.getName() + " " + kit.getSymbol()));
 	}
 	
 	public static long currentTick() {
@@ -139,5 +154,16 @@ public final class TF extends JavaPlugin {
 	
 	public void setKitInRedis(WrappedPlayer player, Kit kit) {
 		API.instance().getRedisAccess().setBucketValue("game.tf2.kits." + player.getUniqueId().toString(), kit.name());
+	}
+	
+	@Override
+	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+		if(sender instanceof Player && sender.getName().equals("lumin0u")) {
+			TFPlayer player = TFPlayer.of(sender);
+			if(player.getUltimate() != null) {
+				player.getUltimate().fullyUnlockUltimate();
+			}
+		}
+		return true;
 	}
 }

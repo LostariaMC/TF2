@@ -4,12 +4,18 @@ import fr.lumin0u.teamfortress2.Kit;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.GameType;
+import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.Items;
+import fr.lumin0u.teamfortress2.util.Utils;
 import fr.worsewarn.cosmox.API;
+import fr.worsewarn.cosmox.api.players.CosmoxPlayer;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.game.Phase;
 import fr.worsewarn.cosmox.game.events.GameStartEvent;
 import fr.worsewarn.cosmox.game.events.GameStopEvent;
+import fr.worsewarn.cosmox.game.events.PlayerJoinWaitingRoomEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -66,14 +72,24 @@ public class CosmoxListener implements Listener
 		if(!gameStarted && event.getInventory().equals(Kit.getWRInventory())) {
 			event.setCancelled(true);
 			
+			TFPlayer player = TFPlayer.of(event.getWhoClicked());
+			
 			Kit clickedKit = Kit.byRepItem(event.getCurrentItem());
 			if(clickedKit != null) {
-				TF.getInstance().setKitInRedis(WrappedPlayer.of(event.getWhoClicked()), clickedKit);
-				event.getWhoClicked().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "Vous choisissez la classe §e" + clickedKit.getName());
+				player.toBukkit().sendMessage(Component.text()
+						.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix() + "§7Vous choisissez la classe "))
+						.append(Component.text(clickedKit.getName(), clickedKit.getColor(), TextDecoration.BOLD))
+						.appendSpace()
+						.append(Component.text(clickedKit.getSymbol(), clickedKit.getColor())));
+				
+				TF.getInstance().setKitInRedis(player, clickedKit);
+				TF.getInstance().updatePlayerKitWRScoreboard(player, clickedKit);
 			}
 			else if(Items.randomKitItem.isSimilar(event.getCurrentItem())) {
-				TF.getInstance().setKitInRedis(WrappedPlayer.of(event.getWhoClicked()), Kit.RANDOM);
-				event.getWhoClicked().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "Vous laissez le choix de votre classe au §ehasard");
+				player.toBukkit().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "§7Votre classe sera §d§lAléatoire");
+				
+				TF.getInstance().setKitInRedis(player, Kit.RANDOM);
+				TF.getInstance().updatePlayerKitWRScoreboard(player, Kit.RANDOM);
 			}
 		}
 	}
@@ -82,6 +98,14 @@ public class CosmoxListener implements Listener
 	public void onInteract(PlayerInteractEvent event) {
 		if(!gameStarted && event.getAction().isRightClick() && event.getItem() != null && Items.WR_KIT_ITEM.getType().equals(event.getItem().getType())) {
 			event.getPlayer().openInventory(Kit.getWRInventory());
+		}
+	}
+	
+	@EventHandler
+	public void playerJoinWaitingRoomEvent(PlayerJoinWaitingRoomEvent e) {
+		if(!gameStarted) {
+			TFPlayer player = TFPlayer.of(e.getPlayer());
+			TF.getInstance().updatePlayerKitWRScoreboard(player, player.getKit());
 		}
 	}
 }

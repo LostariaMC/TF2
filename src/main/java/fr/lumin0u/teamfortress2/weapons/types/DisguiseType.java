@@ -7,6 +7,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.events.PacketListener;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.EnumWrappers.PlayerInfoAction;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.google.common.collect.ImmutableList.Builder;
@@ -15,13 +16,16 @@ import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.NMSUtils;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.worsewarn.cosmox.API;
+import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
 import net.minecraft.network.protocol.game.PacketPlayOutNamedEntitySpawn;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
 
@@ -44,14 +48,17 @@ public final class DisguiseType extends WeaponType
 	
 	@Override
 	protected Builder<String> loreBuilder() {
-		return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("se déguiser temporairement en")).add("§evotre dernière victime").add(DURATION_LORE.formatted((float) ((float) duration / 20f)));
+		return super.loreBuilder()
+				.add(RIGHT_CLICK_LORE.formatted("vous transforme temporairement"))
+				.add("§een votre dernière victime, et")
+				.add("§evos armes en main sont camouflées")
+				.add("§e(effet visible par vos ennemis)")
+				.add(DURATION_LORE.formatted((float) ((float) duration / 20f)));
 	}
 	
 	@Override
 	public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 		activateDisguise(player, weapon, info);
-		if(player.isSpyInvisible()) {
-		}
 	}
 	
 	public void activateDisguise(TFPlayer player, Weapon weapon, RayTraceResult info) {
@@ -61,10 +68,14 @@ public final class DisguiseType extends WeaponType
 		player.setDisguise(disguise);
 		weapon.useAmmo();
 		
+		player.toBukkit().sendMessage(Component.text()
+				.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix() + "§7Vous prenez l'apparence de "))
+				.append(disguise.getListName()));
+		
 		int id = new Random().nextInt(10000000) + 100000;
 		
 		Disguise disguiseWeapon = (Disguise) weapon;
-		disguiseWeapon.setDisguiseCancelled(false);
+		//disguiseWeapon.setDisguiseCancelled(false);
 		
 		EntityPlayer evilCloneHandle;
 		Player evilClone;
@@ -148,6 +159,20 @@ public final class DisguiseType extends WeaponType
 					if(event.getPacketType().equals(Server.NAMED_ENTITY_SPAWN)) {
 						newPacket.getUUIDs().write(0, evilClone.getUniqueId());
 					}
+					else if(event.getPacketType().equals(Server.ENTITY_EQUIPMENT)) {
+						newPacket.getSlotStackPairLists().write(0, newPacket.getSlotStackPairLists().read(0).stream()
+								.map(pair -> {
+									if(pair.getFirst().equals(ItemSlot.MAINHAND)) {
+										int slot = player.toBukkit().getInventory().getHeldItemSlot();
+										
+										pair.setSecond(!disguise.isDead() ? disguise.toBukkit().getInventory().getItem(slot)
+														: disguise.getKit().getWeapons()[slot].getDefaultRender());
+									}
+									
+									return pair;
+								})
+								.toList());
+					}
 					
 					event.setPacket(newPacket);
 				}
@@ -162,7 +187,7 @@ public final class DisguiseType extends WeaponType
 			int tick = 0;
 			@Override
 			public void run() {
-				if(tick == duration || disguiseWeapon.disguiseCancelled()) {
+				if(tick == duration/* || disguiseWeapon.disguiseCancelled()*/) {
 					API.instance().getProtocolManager().removePacketListener(disguiseWeapon.packetListener);
 					
 					player.setDisguise(null);
@@ -172,13 +197,13 @@ public final class DisguiseType extends WeaponType
 							.map(TFPlayer::of)
 							.forEach(p -> {
 								p.sendPacket(packetDestroyClone);
-								if(!disguiseWeapon.disguiseCancelled()) {
+								//if(!disguiseWeapon.disguiseCancelled()) {
 									p.toBukkit().hidePlayer(TF.getInstance(), player.toBukkit());
 									p.toBukkit().showPlayer(TF.getInstance(), player.toBukkit());
-								}
+								//}
 							});
 					
-					disguiseWeapon.setDisguiseCancelled(false);
+					//disguiseWeapon.setDisguiseCancelled(false);
 					
 					cancel();
 					return;
@@ -194,14 +219,14 @@ public final class DisguiseType extends WeaponType
 	
 	
 	public static final class Disguise extends Weapon {
-		private boolean disguiseCancelled;
+		//private boolean disguiseCancelled;
 		private PacketListener packetListener;
 		
 		public Disguise(TFPlayer owner, int slot) {
 			super(WeaponTypes.DISGUISE, owner, slot);
 		}
 		
-		public void setDisguiseCancelled(boolean disguiseCancelled) {
+		/*public void setDisguiseCancelled(boolean disguiseCancelled) {
 			this.disguiseCancelled = disguiseCancelled;
 			if(packetListener != null)
 				API.instance().getProtocolManager().removePacketListener(packetListener);
@@ -209,12 +234,14 @@ public final class DisguiseType extends WeaponType
 		
 		public boolean disguiseCancelled() {
 			return disguiseCancelled;
-		}
+		}*/
 		
 		@Override
 		public void remove() {
 			super.remove();
-			setDisguiseCancelled(true);
+			if(packetListener != null)
+				API.instance().getProtocolManager().removePacketListener(packetListener);
+			//setDisguiseCancelled(true);
 		}
 	}
 }

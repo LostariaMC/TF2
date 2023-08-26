@@ -30,7 +30,8 @@ public class InteractListener implements Listener
 	public void onArmSwing(PlayerArmSwingEvent event) {
 		TFPlayer player = TFPlayer.of(event.getPlayer());
 		
-		player.getWeaponInHand().ifPresent(weapon -> weapon.leftClick(null));
+		if(gm.getPhase().isInGame())
+			player.getWeaponInHand().ifPresent(weapon -> weapon.leftClick(null));
 	}
 	
 	@EventHandler
@@ -46,7 +47,7 @@ public class InteractListener implements Listener
 		if(event.getAction().isRightClick() && event.getItem() != null && Items.MENU_ITEM.getType().equals(event.getItem().getType())) {
 			player.toBukkit().openInventory(Kit.getKitMenuInventory());
 		}
-		else if(GameManager.getInstance().getPhase().isInGame() && event.getAction().isRightClick() && !player.isInSafeZone()) {
+		else if(gm.getPhase().isInGame() && event.getAction().isRightClick() && !player.isInSafeZone()) {
 			Vector interactPoint = event.getInteractionPoint() == null ? new Vector() : event.getInteractionPoint().toVector();
 			
 			RayTraceResult rayTraceResult = new RayTraceResult(interactPoint, event.getClickedBlock(), event.getBlockFace());

@@ -8,6 +8,7 @@ import fr.worsewarn.cosmox.api.scoreboard.CosmoxScoreboard;
 import fr.worsewarn.cosmox.game.GameVariables;
 import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.map.GameMap;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.potion.PotionEffect;
@@ -19,36 +20,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TDMManager extends GameManager
 {
+	public final int KILLS_TO_WIN = 20;
+	
 	public TDMManager(GameMap map) {
 		super(map, List.of(
 				new TFTeam(Team.RED, Material.REDSTONE_BLOCK, map.getLocation("redSpawn"), BoundingBox.of(map.getCuboid("redSafeZone").get(0), map.getCuboid("redSafeZone").get(1))),
 				new TFTeam(Team.BLUE, Material.DIAMOND_BLOCK, map.getLocation("blueSpawn"), BoundingBox.of(map.getCuboid("blueSafeZone").get(0), map.getCuboid("blueSafeZone").get(1)))
-		), GameType.TEAM_DEATHMATCH);
+		), GameType.TEAM_DEATHMATCH, new TDMScoreboardUpdater());
 	}
 	
 	public static TDMManager getInstance() {
 		return (TDMManager) TF.getInstance().getGameManager();
-	}
-	
-	@Override
-	public void updateScoreboard(TFPlayer player) {
-		CosmoxScoreboard scoreboard = player.toCosmox().getScoreboard();
-		AtomicInteger line = new AtomicInteger();
-		
-		scoreboard.updateLine(line.getAndIncrement(), "§6Timer§7: " + getFormattedTimer());
-		scoreboard.updateLine(line.getAndIncrement(), "§7Mode: §fTEAM DEATHMATCH");
-		
-		if(!player.isSpectator())
-			scoreboard.updateLine(line.getAndIncrement(), "§6Classe§7: §a" + Utils.bungeeColor(player.getKit().getColor()) + player.getKit().getName());
-		
-		scoreboard.updateLine(line.getAndIncrement(), "§2");
-		getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills())).forEach(team -> {
-			scoreboard.updateLine(line.getAndIncrement(),
-					"§7Equipe " + team.getChatColor() + (team.equals(player.getTeam()) ? "§l" : "") + team.getName(true)
-							+ "§7: §a" + team.getKills() + " §2/40");
-		});
-		scoreboard.updateLine(line.getAndIncrement(), "§e");
-		scoreboard.updateLine(line.getAndIncrement(), "§f");
 	}
 	
 	@Override
@@ -104,11 +86,54 @@ public class TDMManager extends GameManager
 		return player.getTeam().getSpawnpoint();
 	}
 	
-	public void onSingleKill(TFPlayer victim, TFTeam damagerTeam) {
-		updateScoreboard();
+	public void onSingleKill(TFPlayer victim, TFPlayer damager) {
+		if(damager != null) {
+			damager.toCosmox().addMolecules(ExpValues.KILL_TDM, "Kill");
+			damager.getTeam().incrementKills();
+			((TDMScoreboardUpdater) scoreboardUpdater).updateTeamKills(damager.getTeam());
+			
+			if(damager.getTeam().getKills() >= KILLS_TO_WIN) {
+				endGame(null, damager.getTeam());
+			}
+		}
+	}
+	
+	public static class TDMScoreboardUpdater extends ScoreboardUpdater
+	{
+		@Override
+		public CosmoxScoreboard createScoreboard(TFPlayer player) {
+			CosmoxScoreboard scoreboard = super.createScoreboard(player);
+			
+			scoreboard.updateLine(2, "§6| §eMode §f━ §e§lTeam Deathmatch");
+			
+			scoreboard.updateLine(4, "§2");
+			
+			AtomicInteger line = new AtomicInteger(5);
+			
+			TDMManager.getInstance().getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills())).forEach(team -> {
+				scoreboard.updateLine(line.getAndIncrement(),
+						"§7Equipe " + team.getChatColor() + (team.equals(player.getTeam()) ? "§l" : "") + team.getName(true)
+								+ "§7: §a" + team.getKills() + " §2/%d".formatted(getInstance().KILLS_TO_WIN));
+			});
+			scoreboard.updateLine(line.getAndIncrement(), "§e");
+			scoreboard.updateLine(line.getAndIncrement(), "§f");
+			
+			return scoreboard;
+		}
 		
-		if(damagerTeam != null) {
-			damagerTeam.incrementKills();
+		public void updateTeamKills(TFTeam team) {
+			Bukkit.getOnlinePlayers().stream().map(TFPlayer::of).forEach(watcher -> {
+				CosmoxScoreboard scoreboard = watcher.toCosmox().getScoreboard();
+				
+				AtomicInteger line = new AtomicInteger(5);
+				TDMManager.getInstance().getTeams().stream()
+						.sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills()))
+						.forEach(t -> {
+							scoreboard.updateLine(line.getAndIncrement(),
+									"§7Equipe " + t.getChatColor() + (t.equals(watcher.getTeam()) ? "§l" : "") + t.getName(true)
+											+ "§7: §a" + t.getKills() + " §2/%d".formatted(getInstance().KILLS_TO_WIN));
+						});
+			});
 		}
 	}
 }

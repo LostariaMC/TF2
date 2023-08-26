@@ -9,6 +9,7 @@ import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.player.PlayerEggThrowEvent;
 
 import java.util.ArrayList;
 
@@ -24,7 +25,6 @@ public class EntityMovementListener implements Listener
 	
 	@EventHandler
 	public void onProjectileCollide(ProjectileHitEvent event) {
-		
 		for(TFPlayer player : gm.getPlayers()) {
 			for(ThrownExplosive explosive : new ArrayList<>(ThrownExplosive.getLivingInstances())) {
 				if(explosive.isExplodeOnProjectileCollide() && event.getEntity().equals(explosive.getEntity())) {
@@ -34,5 +34,10 @@ public class EntityMovementListener implements Listener
 				}
 			}
 		}
+	}
+	
+	@EventHandler
+	public void onEggHit(PlayerEggThrowEvent event) {
+		event.setHatching(false);
 	}
 }

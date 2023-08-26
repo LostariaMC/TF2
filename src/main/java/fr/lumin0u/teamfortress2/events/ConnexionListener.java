@@ -35,6 +35,8 @@ public class ConnexionListener implements Listener
 		else {
 			player.respawn(gm.findSpawnLocation(player));
 		}
+		
+		gm.getScoreboardUpdater().createScoreboard(player);
 	}
 	
 	@EventHandler

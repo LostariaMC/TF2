@@ -7,6 +7,8 @@ import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.Items;
 import fr.lumin0u.teamfortress2.weapons.PlaceableWeapon;
 import fr.lumin0u.teamfortress2.weapons.Scopeable;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,11 +38,15 @@ public class InventoryListener implements Listener
 			
 			if(clickedKit != null) {
 				player.setNextKit(clickedKit, true);
-				player.toBukkit().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "Vous choisissez la classe §e" + clickedKit.getName());
+				player.toBukkit().sendMessage(Component.text()
+						.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix() + "§7Vous choisissez la classe "))
+						.append(Component.text(clickedKit.getName(), clickedKit.getColor(), TextDecoration.BOLD))
+						.appendSpace()
+						.append(Component.text(clickedKit.getSymbol(), clickedKit.getColor())));
 			}
 			else if(Items.randomKitItem.isSimilar(event.getCurrentItem())) {
 				player.setNextKit(Kit.RANDOM, true);
-				player.toBukkit().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "Votre classe sera choisie aléatoirement");
+				player.toBukkit().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "§7Votre classe sera §d§lAléatoire");
 				
 				clickedKit = Kit.RANDOM;
 			}

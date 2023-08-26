@@ -137,6 +137,7 @@ public abstract class GameManager {
 	
 	public void explosion(TFPlayer damager, Location loc, double centerDamage, double radius, Predicate<TFEntity> enemyPredicate, double centerKnockback) {
 		
+		TFSound.EXPLOSION.withVolume((int) (radius / 2.5)).play(loc);
 		loc.getWorld().spawnParticle(radius > 5 ? Particle.EXPLOSION_HUGE : Particle.EXPLOSION_LARGE, loc, 1, 0, 0, 0, 0, null, true);
 		
 		int nbParticles = (int) (centerDamage * radius / 2);

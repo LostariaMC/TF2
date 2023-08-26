@@ -2,6 +2,7 @@ package fr.lumin0u.teamfortress2.util;
 
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
+import org.checkerframework.checker.units.qual.C;
 
 public class Items
 {
@@ -17,9 +18,9 @@ public class Items
 			.setDisplayName("§aSUPPORT")
 			.addLore("§7Classes efficaces en support")
 			.buildImmutable();
-	public static final ImmutableItemStack randomKitItem = new ItemBuilder(Material.PUFFERFISH)
-			.setDisplayName("§c§kmm§r §fClasse Aléatoire §c§kmm")
-			.addLore("§bBien plus fun comme ca !", "§7C'est peut-être une mauvaise idée...")
+	public static final ImmutableItemStack randomKitItem = new ItemBuilder(Material.AMETHYST_CLUSTER)
+			.setDisplayName("§c§kmm§r §d§lClasse Aléatoire §c§kmm")
+			.addLore(" ", "§7§l> §5Vous donne une classe §laléatoire", "§5à chaque réapparition")
 			.buildImmutable();
 	public static final ImmutableItemStack LOCKED_ULT_ITEM = new ItemBuilder(Material.BLAZE_ROD)
 			.setDisplayName("§5VEROUILLE").setLore("§7Effectuez un kill pour récupérer", "§7Votre capacité spéciale")

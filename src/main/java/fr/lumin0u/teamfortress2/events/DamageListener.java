@@ -31,7 +31,7 @@ public class DamageListener implements Listener
 		
 		event.setCancelled(true);
 		
-		if(event.getDamager() instanceof Player) {
+		if(gm.getPhase().isInGame() && event.getDamager() instanceof Player) {
 			TFPlayer damager = TFPlayer.of(event.getDamager());
 			
 			if(!damager.isSpectator() && !damager.isDead() && damager.getWeaponInHand().map(w -> w.getType() instanceof MeleeWeaponType).orElse(false)) {
@@ -46,7 +46,7 @@ public class DamageListener implements Listener
 		event.setCancelled(true);
 		
 		TFPlayer player;
-		if(event.getEntity() instanceof Player && !(player = TFPlayer.of(event.getEntity())).isSpectator()) {
+		if(gm.getPhase().isInGame() && event.getEntity() instanceof Player && !(player = TFPlayer.of(event.getEntity())).isSpectator()) {
 			if(event.getCause() == DamageCause.VOID) {
 				player.die(null);
 			}
