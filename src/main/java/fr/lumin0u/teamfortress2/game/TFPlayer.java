@@ -7,7 +7,9 @@ import fr.lumin0u.teamfortress2.util.Items;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.util.Utils;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
+import fr.lumin0u.teamfortress2.weapons.types.DisguiseType.Disguise;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
+import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.game.teams.Team;
 import net.kyori.adventure.text.Component;
@@ -409,6 +411,8 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	public void die(TFPlayer killer, boolean disconnect) {
 		if(dead)
 			return;
+		
+		getOptWeapon(WeaponTypes.DISGUISE).ifPresent(disg -> ((Disguise) disg).cancelDisguise());
 		
 		new ArrayList<>(weapons).forEach(this::removeWeapon);
 		
