@@ -96,7 +96,7 @@ public final class RocketLauncherType extends WeaponType
 			Location nextLoc = location.clone().add(direction.clone().multiply(ROCKET_SPEED));
 			BoundingBox bb = getEntity().getBoundingBox().expand(0.4);
 			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED) != null
-				|| nextLoc.getWorld().getNearbyEntities(bb.expand(5)).stream().filter(owner::isNot).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
+				|| nextLoc.getWorld().getNearbyEntities(bb.clone().expand(5)).stream().filter(owner::isNot).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
 				explode();
 				return;
 			}
