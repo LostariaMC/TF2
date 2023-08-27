@@ -75,10 +75,6 @@ public class PayloadsManager extends GameManager
 		super(map, List.of(TFTeam.loadPayloads(Team.RED, map), TFTeam.loadPayloads(Team.BLUE, map)), GameType.PAYLOADS, new PayloadsScoreboardUpdater());
 		
 		Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
-		teams.forEach(team -> {
-			org.bukkit.scoreboard.Team bukkitTeam = board.registerNewTeam(team.getName(false));
-			bukkitTeam.color(team.cosmoxTeam() == Team.RED ? NamedTextColor.RED : NamedTextColor.BLUE);
-		});
 	}
 	
 	public static PayloadsManager getInstance() {
@@ -92,7 +88,7 @@ public class PayloadsManager extends GameManager
 		teams.forEach(team -> {
 			Minecart cart = (Minecart) map.getWorld().spawnEntity(team.getRailsStart().getLocation().add(0.5, 0, 0.5), EntityType.MINECART);
 			cart.setDisplayBlockData(team.getBlockInCart().createBlockData());
-			Bukkit.getScoreboardManager().getMainScoreboard().getTeam(team.getName(false)).addEntity(cart);
+			//Bukkit.getScoreboardManager().getMainScoreboard().getTeam(team.getName(false)).addEntity(cart);
 			cart.setGlowing(true);
 			
 			minecarts.put(team, cart);
@@ -104,6 +100,8 @@ public class PayloadsManager extends GameManager
 				player.respawn(team.getSpawnpoint());
 			});
 		});
+		
+		getPlayers().forEach(this::showCartsGlowing);
 	}
 	
 	@Override
@@ -120,11 +118,14 @@ public class PayloadsManager extends GameManager
 						List<Block> railway = team.getRailway();
 						final int railIndex = railway.indexOf(cart.getLocation().getBlock());
 						Block currentRail = cart.getLocation().getBlock();
+						World world = currentRail.getWorld();
 						
 						final double CART_SPEED = 0.04;
 						
 						if(railIndex == -1) {
 							System.out.println(team.getName(false) + "'s CART IS OUT OF RAILS !!");
+							if(cart.getVelocity().isZero())
+								cart.setVelocity(Vector.getRandom().multiply(new Vector(new Random().nextBoolean() ? 1 : -1, -1, new Random().nextBoolean() ? 1 : -1)));
 							return;
 						}
 						
@@ -140,24 +141,26 @@ public class PayloadsManager extends GameManager
 							push = -1;
 						}
 						else {
-							push = Math.sqrt(team.getOnlinePlayers().stream()
+							push = Math.sqrt(2 * team.getOnlinePlayers().stream()
 									.filter(p -> p.toBukkit().getLocation().distance(cart.getLocation()) < 3)
+									.filter(p -> world.rayTraceBlocks(p.getEyeLocation(), cart.getLocation().add(0, 0.5, 0).subtract(p.getEyeLocation()).toVector(), p.getEyeLocation().distance(cart.getLocation().add(0, 0.5, 0))) == null)
 									.mapToDouble(p -> p.getKit().getValeurCart())
 									.sum());
 						}
 						
 						if(push > 0) {
-							if(push >= 1.999 || forwards.getY() <= 0)
+							if(push >= 1.999 || forwards.getY() <= 0) {
 								cart.setVelocity(forwards.clone().multiply(push * CART_SPEED));
-							else
+							}
+							else {
 								cart.setVelocity(new Vector());
+							}
 						}
-						/*else if(push == 0 && railIndex > 0 && backwards.getY() < 0) {
-							cart.setVelocity(backwards.clone().multiply(2 * CART_SPEED));
-							currentRail.getRelative(BlockFace.DOWN).setType(notColoredBlocks.get(team), false);
-						}*/
+						else if(push < 0 && cart.getVelocity().dot(forwards) > 0) {
+							cart.setVelocity(new Vector());
+						}
 						else {
-							cart.setVelocity(cart.getVelocity().multiply(0.98));
+							cart.setVelocity(cart.getVelocity().multiply(0.99));
 						}
 						
 						if(!cart.getVelocity().isZero()) {
@@ -230,13 +233,21 @@ public class PayloadsManager extends GameManager
 		return player.getTeam().getSpawnpoint();
 	}
 	
+	public void showCartsGlowing(TFPlayer player) {
+		getInstance().teams.forEach(team -> {
+			if(minecarts.get(team) != null) {
+				player.setEntityGlowing(minecarts.get(team), team.getName(false), team.cosmoxTeam() == Team.RED ? NamedTextColor.RED : NamedTextColor.BLUE);
+			}
+		});
+	}
+	
 	public static class PayloadsScoreboardUpdater extends ScoreboardUpdater
 	{
 		@Override
 		public CosmoxScoreboard createScoreboard(TFPlayer player) {
-			player.toBukkit().setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-			
 			CosmoxScoreboard scoreboard = super.createScoreboard(player);
+			
+			getInstance().showCartsGlowing(player);
 			
 			scoreboard.updateLine(2, "§6| §eMode §f━ §e§lPayloads");
 			

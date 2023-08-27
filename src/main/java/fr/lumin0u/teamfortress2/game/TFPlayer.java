@@ -23,9 +23,11 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -532,5 +534,19 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		inv.setBoots(team.getBoots());
 		inv.setLeggings(team.getLeggings());
 		inv.setChestplate(team.getChestplate());
+	}
+	
+	public void setEntityGlowing(Entity entity, String bukkitTeamName, NamedTextColor color) {
+		if(isOnline()) {
+			Scoreboard board = toBukkit().getScoreboard();
+			
+			org.bukkit.scoreboard.Team bukkitTeam = board.getTeam(bukkitTeamName);
+			if(bukkitTeam == null) {
+				bukkitTeam = board.registerNewTeam(bukkitTeamName);
+				bukkitTeam.color(color);
+			}
+			
+			bukkitTeam.addEntity(entity);
+		}
 	}
 }

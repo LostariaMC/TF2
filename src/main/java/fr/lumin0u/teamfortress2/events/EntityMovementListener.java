@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
+import org.bukkit.event.vehicle.VehicleEntityCollisionEvent;
 
 import java.util.ArrayList;
 
@@ -39,5 +40,10 @@ public class EntityMovementListener implements Listener
 	@EventHandler
 	public void onEggHit(PlayerEggThrowEvent event) {
 		event.setHatching(false);
+	}
+	
+	@EventHandler
+	public void onVehicleCollide(VehicleEntityCollisionEvent event) {
+		event.setCancelled(true);
 	}
 }
