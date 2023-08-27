@@ -103,11 +103,6 @@ public class PayloadsManager extends GameManager
 		});
 		
 		getPlayers().forEach(this::showCartsGlowing);
-	}
-	
-	@Override
-	public void startGame() {
-		super.startGame();
 		
 		Bukkit.broadcast(Component.text()
 				.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
@@ -115,13 +110,18 @@ public class PayloadsManager extends GameManager
 				.build());
 		Bukkit.broadcast(Component.text()
 				.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
-				.append(Component.text("§eLe minecart est lourd ! Il faut une §avaleur minecart §esupérieure ou égale à §a2 §epour le pousser dans les montées." +
+				.append(Component.text("§eLe minecart est lourd ! Il faut une §avaleur minecart supérieure ou égale à 2 §epour le pousser dans les montées." +
 						" Certains kits (§aspy §eet §ascout§e) ont une valeur de 2 par défaut. Plusieurs joueurs autour du wagon ? Les valeurs s'ajoutent !"))
 				.build());
 		Bukkit.broadcast(Component.text()
 				.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
 				.append(Component.text("§eAttention, si un ennemi est lui aussi proche de votre wagon, celui-ci s'arrete !"))
 				.build());
+	}
+	
+	@Override
+	public void startGame() {
+		super.startGame();
 		
 		new BukkitRunnable() {
 			@Override
