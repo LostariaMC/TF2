@@ -2,7 +2,6 @@ package fr.lumin0u.teamfortress2.game;
 
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.util.ExpValues;
-import fr.lumin0u.teamfortress2.util.Utils;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.api.scoreboard.CosmoxScoreboard;
 import fr.worsewarn.cosmox.game.GameVariables;
@@ -10,10 +9,8 @@ import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.map.GameMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.BoundingBox;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;

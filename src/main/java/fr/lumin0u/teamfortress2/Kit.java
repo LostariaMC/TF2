@@ -64,7 +64,7 @@ public enum Kit {
 				.addItemFlag(ItemFlag.HIDE_ITEM_SPECIFICS)
 				.setDisplayName(Component.text(getName(), Style.style(color, TextDecoration.BOLD)))
 				.setLore(Arrays.stream(weapons).map(w -> "§2" + w.getName()).toList())
-				.addLore(special.equals(WeaponTypes.SCOUT_RACE) ? "§dDASH DISPONIBLE" : "", "§7Vie : §6" + maxHealth, "§7Vitesse : §6%.2f".formatted(speed))
+				.addLore(special.equals(WeaponTypes.SCOUT_RACE) ? "§dDASH DISPONIBLE" : "", "§7Vie : §6" + maxHealth, "§7Vitesse : §6%.2f".formatted(speed * 5))
 				.addLore("§7Valeur minecart : §6" + valeurCart, "§7Valeur de capture : §6" + valeurCap)
 				.buildImmutable();
 	}

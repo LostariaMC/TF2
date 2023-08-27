@@ -53,12 +53,7 @@ public abstract class GameManager
 		
 		this.scoreboardUpdater = scoreboardUpdater;
 		
-		final int TIME_BTWN_XP = 3 * 60 * 20;
 		Bukkit.getScheduler().runTaskTimer(tf, scoreboardUpdater::updateTimer, 20, 20);
-		Bukkit.getScheduler().runTaskTimer(tf, () -> {
-			if(phase.isInGame())
-				getPlayers().stream().filter(WrappedPlayer::isOnline).forEach(p -> p.toCosmox().addMolecules(ExpValues.ADDITIONAL_PER_MINUTE_PAYLOADS * (double) TIME_BTWN_XP / 20 / 60, "Temps de jeu"));
-		}, TIME_BTWN_XP, TIME_BTWN_XP);
 	}
 	
 	public static GameManager getInstance() {
