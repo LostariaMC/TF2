@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.function.Predicate.not;
+
 public final class RocketLauncherType extends WeaponType
 {
 	private final List<Rocket> rockets = new ArrayList<>();
@@ -96,7 +98,7 @@ public final class RocketLauncherType extends WeaponType
 			Location nextLoc = location.clone().add(direction.clone().multiply(ROCKET_SPEED));
 			BoundingBox bb = getEntity().getBoundingBox().expand(0.4);
 			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED) != null
-				|| nextLoc.getWorld().getNearbyEntities(bb.clone().expand(5)).stream().filter(owner::isNot).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
+				|| nextLoc.getWorld().getNearbyEntities(nextLoc, 5, 5, 5).stream().filter(owner::isNot).filter(not(fireball::equals)).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
 				explode();
 				return;
 			}
