@@ -311,11 +311,12 @@ public final class WeaponTypes
 				
 				@Override
 				public void explode() {
-					Location loc = item.getLocation();
+					Location loc = item.getLocation().add(0, 0.1, 0);
 					
 					GameManager.getInstance().getLivingEntities().forEach(entity -> {
-						if(entity.getLocation().distance(loc) < radius && loc.getWorld().rayTraceBlocks(entity.getEyeLocation(), loc.subtract(entity.getEyeLocation()).toVector(), entity.getEyeLocation().distance(loc)) == null) {
-							final int duration = 20 * 5;
+						final int duration = 20 * 5;
+						
+						if(entity.getLocation().distance(loc) < radius && loc.getWorld().rayTraceBlocks(entity.getEyeLocation(), loc.clone().subtract(entity.getEyeLocation()).toVector(), entity.getEyeLocation().distance(loc)) == null) {
 							
 							entity.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 0, false, false));
 							
