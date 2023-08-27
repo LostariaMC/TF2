@@ -314,7 +314,7 @@ public final class WeaponTypes
 					Location loc = item.getLocation();
 					
 					GameManager.getInstance().getLivingEntities().forEach(entity -> {
-						if(entity.getLocation().distance(loc) < radius) {
+						if(entity.getLocation().distance(loc) < radius && loc.getWorld().rayTraceBlocks(entity.getEyeLocation(), loc.subtract(entity.getEyeLocation()).toVector(), entity.getEyeLocation().distance(loc)) == null) {
 							final int duration = 20 * 5;
 							
 							entity.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, duration, 0, false, false));
