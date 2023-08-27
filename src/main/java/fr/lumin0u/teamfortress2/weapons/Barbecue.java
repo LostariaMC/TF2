@@ -84,7 +84,7 @@ public final class Barbecue extends Weapon
 			{
 				double distance = ent.getLocation().distance(player.getLocation());
 				
-				if(!player.isEnemy(ent) || distance > 5)
+				if(!player.isEnemy(ent) || distance > 5 || ent.getEntity().getFireTicks() >= fireDuration)
 					continue;
 				
 				double m = distance / 5;
@@ -97,6 +97,7 @@ public final class Barbecue extends Weapon
 				if(bodyCollision != null || headCollision != null) {
 					ent.setFireCause(new FireDamageCause(false, player, fireDmg));
 					ent.getEntity().setFireTicks(fireDuration);
+					ent.damage(player, 1, direction.clone().multiply(0.05));
 				}
 			}
 			

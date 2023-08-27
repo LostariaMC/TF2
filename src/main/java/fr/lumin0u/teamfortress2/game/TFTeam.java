@@ -4,7 +4,6 @@ import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.util.ImmutableItemStack;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.Utils;
-import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.map.GameMap;
 import net.kyori.adventure.text.format.TextColor;
@@ -38,7 +37,7 @@ public class TFTeam
 	private final ImmutableItemStack boots;
 	private final Block railsStart;
 	private final Block railsEnd;
-	private final List<Block> rails;
+	private final List<Block> railway;
 	
 	private double payloadProgression;
 	private int kills;
@@ -55,7 +54,7 @@ public class TFTeam
 		this.railsEnd = railsEnd;
 		List<Block> tempRails = new ArrayList<>();
 		PayloadsManager.getRailsIteratorBetween(railsStart, railsEnd).forEachRemaining(tempRails::add);
-		this.rails = Collections.unmodifiableList(tempRails);
+		this.railway = Collections.unmodifiableList(tempRails);
 		
 		this.chestplate = new ItemBuilder(Material.LEATHER_CHESTPLATE).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
 		this.leggings = new ItemBuilder(Material.LEATHER_LEGGINGS).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
@@ -174,7 +173,7 @@ public class TFTeam
 		this.payloadProgression = payloadProgression;
 	}
 	
-	public List<Block> getRails() {
-		return rails;
+	public List<Block> getRailway() {
+		return railway;
 	}
 }

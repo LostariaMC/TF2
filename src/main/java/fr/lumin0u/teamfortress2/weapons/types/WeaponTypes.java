@@ -463,6 +463,7 @@ public final class WeaponTypes
 							}
 						}
 					}
+					Random random = new Random();
 					//final int duration = 120;
 					new BukkitRunnable()
 					{
@@ -470,7 +471,10 @@ public final class WeaponTypes
 						@Override
 						public void run() {
 							i++;
-							smokeDisplayTimes.keySet().forEach(blockDisplay -> blockDisplay.setRotation(new Random().nextFloat() * 360, new Random().nextFloat() * 180 - 90));
+							smokeDisplayTimes.keySet().forEach(blockDisplay -> {
+								if(random.nextInt(5) == 0)
+									blockDisplay.setRotation(random.nextFloat() * 360, random.nextFloat() * 180 - 90);
+							});
 							for(BlockDisplay e : new HashSet<>(smokeDisplayTimes.keySet())) {
 								if(smokeDisplayTimes.get(e) < i) {
 									smokeDisplayTimes.remove(e);

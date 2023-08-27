@@ -18,7 +18,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -118,19 +117,19 @@ public class PayloadsManager extends GameManager
 					teams.forEach(team -> {
 						
 						Minecart cart = minecarts.get(team);
-						List<Block> rails = team.getRails();
-						final int railIndex = rails.indexOf(cart.getLocation().getBlock());
+						List<Block> railway = team.getRailway();
+						final int railIndex = railway.indexOf(cart.getLocation().getBlock());
 						Block currentRail = cart.getLocation().getBlock();
 						
-						final double CART_SPEED = (double) rails.size() / 4200.0;
+						final double CART_SPEED = 0.04;
 						
 						if(railIndex == -1) {
 							System.out.println(team.getName(false) + "'s CART IS OUT OF RAILS !!");
 							return;
 						}
 						
-						Vector forwards = railIndex == rails.size() - 1 ? new Vector() : rails.get(railIndex + 1).getLocation().subtract(currentRail.getLocation()).toVector();
-						Vector backwards = railIndex == 0 ? new Vector() : currentRail.getLocation().subtract(rails.get(railIndex - 1).getLocation()).toVector();
+						Vector forwards = railIndex == railway.size() - 1 ? new Vector() : railway.get(railIndex + 1).getLocation().subtract(currentRail.getLocation()).toVector();
+						Vector backwards = railIndex == 0 ? new Vector() : currentRail.getLocation().subtract(railway.get(railIndex - 1).getLocation()).toVector();
 						
 						double push;
 						
@@ -169,11 +168,10 @@ public class PayloadsManager extends GameManager
 						}
 						
 						if(railIndex > maxRailIndex.get(team)) {
-							double lastProgression = (double) maxRailIndex.get(team) / (double) (rails.size() - 1);
-							double newProgression = (double) railIndex / (double) (rails.size() - 1);
+							int lastMaxRail = maxRailIndex.get(team);
 							
 							maxRailIndex.put(team, railIndex);
-							onCartProgresses(team, lastProgression, newProgression);
+							onCartProgresses(team, lastMaxRail, railIndex, railway.size() - 1);
 						}
 					});
 				}
@@ -207,15 +205,22 @@ public class PayloadsManager extends GameManager
 		});
 	}
 	
-	public void onCartProgresses(TFTeam team, double lastProgression, double newProgression) {
+	public void onCartProgresses(TFTeam team, int lastRailMax, int newRailMax, int railwayLength) {
+		double lastProgression = (double) lastRailMax / (double) railwayLength;
+		double newProgression = (double) newRailMax / (double) railwayLength;
+		
+		// new 10% bar !
 		if((int) (lastProgression * 10) < (int) (newProgression * 10)) {
-			team.getPlayers().forEach(player -> player.toCosmox().addMolecules(ExpValues._10PERCENT_PAYLOADS, "" + ((int) (newProgression*10) * 10) + "%"));
+			double railCount = (double) railwayLength / 10;
+			team.getPlayers().forEach(player -> player.toCosmox().addMolecules(ExpValues._100RAILS_PAYLOADS * railCount / 100, "" + (int) (newProgression * 100) + "%"));
 		}
 		
 		team.setPayloadProgression(newProgression);
 		((PayloadsScoreboardUpdater) scoreboardUpdater).updateTeamPercentage(team);
 		
 		if(newProgression >= 1) {
+			/*double remainingRails = (double) (railwayLength % 100);
+			team.getPlayers().forEach(player -> player.toCosmox().addMolecules(ExpValues._100RAILS_PAYLOADS * remainingRails / 100, "100%"));*/
 			endGame(null, team);
 		}
 	}
@@ -239,10 +244,10 @@ public class PayloadsManager extends GameManager
 			
 			AtomicInteger line = new AtomicInteger(5);
 			
-			PayloadsManager.getInstance().getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills())).forEach(team -> {
+			PayloadsManager.getInstance().getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills())).forEach(t -> {
 				scoreboard.updateLine(line.getAndIncrement(),
-						"§7Equipe " + team.getChatColor() + (team.equals(player.getTeam()) ? "§l" : "") + team.getName(true)
-								+ "§7: §a%d%%".formatted((int) (team.getPayloadProgression() * 100)));
+						"§7Equipe " + t.getChatColor() + (t.equals(player.getTeam()) ? "§l" : "") + t.getName(true)
+								+ "§7: §a%d%%".formatted((int) (t.getPayloadProgression() * 100)));
 			});
 			scoreboard.updateLine(line.getAndIncrement(), "§e");
 			scoreboard.updateLine(line.getAndIncrement(), "§f");
@@ -260,7 +265,7 @@ public class PayloadsManager extends GameManager
 						.forEach(t -> {
 							scoreboard.updateLine(line.getAndIncrement(),
 									"§7Equipe " + t.getChatColor() + (t.equals(watcher.getTeam()) ? "§l" : "") + t.getName(true)
-											+ "§7: §a%d%%".formatted((int) (team.getPayloadProgression() * 100)));
+											+ "§7: §a%d%%".formatted((int) (t.getPayloadProgression() * 100)));
 						});
 			});
 		}
