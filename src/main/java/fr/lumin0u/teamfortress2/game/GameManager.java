@@ -2,6 +2,7 @@ package fr.lumin0u.teamfortress2.game;
 
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.TFEntity;
+import fr.lumin0u.teamfortress2.util.ExpValues;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.worsewarn.cosmox.API;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
@@ -20,7 +21,8 @@ import java.util.function.Predicate;
 
 import static java.util.function.Predicate.not;
 
-public abstract class GameManager {
+public abstract class GameManager
+{
 	protected final TF tf;
 	protected final GameMap map;
 	protected final List<TFTeam> teams;
@@ -51,7 +53,12 @@ public abstract class GameManager {
 		
 		this.scoreboardUpdater = scoreboardUpdater;
 		
+		final int TIME_BTWN_XP = 3 * 60 * 20;
 		Bukkit.getScheduler().runTaskTimer(tf, scoreboardUpdater::updateTimer, 20, 20);
+		Bukkit.getScheduler().runTaskTimer(tf, () -> {
+			if(phase.isInGame())
+				getPlayers().stream().filter(WrappedPlayer::isOnline).forEach(p -> p.toCosmox().addMolecules(ExpValues.ADDITIONAL_PER_MINUTE_PAYLOADS * (double) TIME_BTWN_XP / 20 / 60, "Temps de jeu"));
+		}, TIME_BTWN_XP, TIME_BTWN_XP);
 	}
 	
 	public static GameManager getInstance() {
@@ -141,8 +148,8 @@ public abstract class GameManager {
 		loc.getWorld().spawnParticle(radius > 5 ? Particle.EXPLOSION_HUGE : Particle.EXPLOSION_LARGE, loc, 1, 0, 0, 0, 0, null, true);
 		
 		int nbParticles = (int) (centerDamage * radius / 2);
-		loc.getWorld().spawnParticle(Particle.SMOKE_LARGE, loc, nbParticles, 0, 0, 0, radius/20, null, true);
-		loc.getWorld().spawnParticle(Particle.FLAME, loc, nbParticles, 0, 0, 0, radius/20, null, true);
+		loc.getWorld().spawnParticle(Particle.SMOKE_LARGE, loc, nbParticles, 0, 0, 0, radius / 20, null, true);
+		loc.getWorld().spawnParticle(Particle.FLAME, loc, nbParticles, 0, 0, 0, radius / 20, null, true);
 		
 		getLivingEntities().stream().filter(enemyPredicate).forEach(entity -> {
 			double distance = entity.getLocation().distance(loc);
@@ -153,7 +160,8 @@ public abstract class GameManager {
 				
 				AtomicInteger blockCount = new AtomicInteger();
 				blocksBtwn.forEachRemaining(block -> {
-					if(block.isBuildable()) blockCount.incrementAndGet();
+					if(block.isBuildable())
+						blockCount.incrementAndGet();
 				});
 				
 				damage *= Math.max(1, (double) blockCount.get() / 2 + 0.5);
@@ -167,7 +175,8 @@ public abstract class GameManager {
 	
 	public abstract Location findSpawnLocation(TFPlayer player);
 	
-	public static enum GamePhase {
+	public static enum GamePhase
+	{
 		PRE_START,
 		GAME,
 		END;
