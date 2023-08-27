@@ -489,6 +489,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		toBukkit().setFoodLevel(20);
 		toBukkit().removePotionEffect(PotionEffectType.REGENERATION);
 		toBukkit().removePotionEffect(PotionEffectType.HEALTH_BOOST);
+		toBukkit().removePotionEffect(PotionEffectType.SPEED);
 		
 		setSpyInvisible(false);
 		setDisguise(null);

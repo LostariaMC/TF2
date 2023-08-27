@@ -7,6 +7,7 @@ import fr.worsewarn.cosmox.api.scoreboard.CosmoxScoreboard;
 import fr.worsewarn.cosmox.game.GameVariables;
 import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.map.GameMap;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.Particle.DustOptions;
@@ -107,6 +108,20 @@ public class PayloadsManager extends GameManager
 	@Override
 	public void startGame() {
 		super.startGame();
+		
+		Bukkit.broadcast(Component.text()
+				.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
+				.append(Component.text("§eMode de jeu §aPayloads §e! Vous devez pousser le §aminecart de votre couleur §ele long des rails jusqu'au bout pour gagner."))
+				.build());
+		Bukkit.broadcast(Component.text()
+				.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
+				.append(Component.text("§eLe minecart est lourd ! Il faut une §avaleur minecart §esupérieure ou égale à §a2 §epour le pousser dans les montées." +
+						" Certains kits (§aspy §eet §ascout§e) ont une valeur de 2 par défaut. Plusieurs joueurs autour du wagon ? Les valeurs s'ajoutent !"))
+				.build());
+		Bukkit.broadcast(Component.text()
+				.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix()))
+				.append(Component.text("§eAttention, si un ennemi est lui aussi proche de votre wagon, celui-ci s'arrete !"))
+				.build());
 		
 		new BukkitRunnable() {
 			@Override
