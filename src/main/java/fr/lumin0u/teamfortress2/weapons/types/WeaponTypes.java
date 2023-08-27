@@ -59,7 +59,6 @@ public final class WeaponTypes
 		@Override
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	};
-	public static final MeleeWeaponType KUKRI = new MeleeWeaponType(true, Material.IRON_SWORD, "Kukri", 2, -1, 12, 0.3);
 	public static final EngiTurretType TURRET = new EngiTurretType();
 	public static final WeaponType RED_BUTTON = new WeaponType(true, Material.TOTEM_OF_UNDYING, "Invincibilité", 1, -1, -1)
 	{
@@ -246,10 +245,10 @@ public final class WeaponTypes
 			hit.hitEntity().damage(hit.player(), hit.gunType().getDamage() * (hit.headshot() ? 1.5 : scoping ? 2 : 1), kb);
 		}
 	};
-	public static final GunType MITRAILLETTE = new GunType(false, Material.IRON_HOE, "Carabine du Nettoyeur", 1, 9, -1, 2, 30, Math.PI / 90, 0.4);
-	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 7 * 20, -1)
+	public static final GunType MITRAILLETTE = new GunType(false, Material.IRON_HOE, "Carabine du Nettoyeur", 1, 14, -1, 2, 30, Math.PI / 90, 0.4);
+	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 164, -1)
 	{
-		private final int heal = 8;
+		private final int heal = 6;
 		@Override
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("§l+%d pv".formatted(heal)));
@@ -270,6 +269,7 @@ public final class WeaponTypes
 			return super.buildItem(weapon).setPotionColor(PotionEffectType.HEAL.getColor());
 		}
 	};
+	public static final MeleeWeaponType KUKRI = new MeleeWeaponType(true, Material.IRON_SWORD, "Kukri", 2, -1, 11, 0.3);
 	public static final WeaponType MANETTE = new WeaponType(false, Material.COMPARATOR, "Manette", 1, -1, 10)
 	{
 		@Override
