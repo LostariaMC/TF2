@@ -14,28 +14,28 @@ public enum GameType
 			return new PayloadsManager(map);
 		}
 	},
-	FFA("FFA", 1, false, true, false) {
+	/*FFA("FFA", 1, false, true, false) {
 		@Override
 		public GameManager createManager(GameMap map) {
 			throw new UnsupportedOperationException();
 		}
-	},
+	},*/
 	TEAM_DEATHMATCH("Team Deathmatch", 2, true, false, false) {
 		@Override
 		public GameManager createManager(GameMap map) {
 			return new TDMManager(map);
 		}
 	},
-	KOTH("KOTH", 2, true, false, false) {
+	/*KOTH("KOTH", 2, true, false, false) {
 		@Override
 		public GameManager createManager(GameMap map) {
 			throw new UnsupportedOperationException();
 		}
-	},
+	},*/
 	CTF("CTF", 2, true, false, false) {
 		@Override
 		public GameManager createManager(GameMap map) {
-			throw new UnsupportedOperationException();
+			return new CTFManager(map);
 		}
 	},
 	;
@@ -92,31 +92,6 @@ public enum GameType
 	public static List<GameType> notHiddenValues()
 	{
 		return Arrays.stream(values()).filter(gt -> !gt.isHidden()).toList();
-	}
-	
-	public boolean isTDM()
-	{
-		return equals(TEAM_DEATHMATCH);
-	}
-	
-	public boolean isKoth()
-	{
-		return equals(KOTH);
-	}
-	
-	public boolean isCTF()
-	{
-		return equals(CTF);
-	}
-	
-	public boolean isCarts()
-	{
-		return equals(PAYLOADS);
-	}
-	
-	public boolean isFFA()
-	{
-		return !teams;
 	}
 	
 	public abstract GameManager createManager(GameMap map);

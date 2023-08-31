@@ -5,7 +5,6 @@ import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.MeleeWeaponType;
-import org.bukkit.entity.Boat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

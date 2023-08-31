@@ -30,7 +30,7 @@ public class InteractListener implements Listener
 	public void onArmSwing(PlayerArmSwingEvent event) {
 		TFPlayer player = TFPlayer.of(event.getPlayer());
 		
-		if(gm.getPhase().isInGame())
+		if(gm.getPhase().isInGame() && !player.isDead())
 			player.getWeaponInHand().ifPresent(weapon -> weapon.leftClick(null));
 	}
 	

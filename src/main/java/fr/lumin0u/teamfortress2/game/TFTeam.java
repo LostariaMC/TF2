@@ -24,6 +24,9 @@ public class TFTeam
 	private static final Map<Team, String> TEAM_ID = Map.of(
 			Team.RED, "red",
 			Team.BLUE, "blue");
+	private static final Map<Team, Material> TEAM_BANNER = Map.of(
+			Team.RED, Material.RED_BANNER,
+			Team.BLUE, Material.BLUE_BANNER);
 	
 	private final Team cosmoxTeam;
 	private final String name;
@@ -38,11 +41,14 @@ public class TFTeam
 	private final Block railsStart;
 	private final Block railsEnd;
 	private final List<Block> railway;
+	private final Location flagLocation;
+	private final ImmutableItemStack flagItem;
 	
 	private double payloadProgression;
 	private int kills;
+	private int flagCaptureCount;
 	
-	public TFTeam(Team cosmoxTeam, String name, TextColor nkaColor, ChatColor chatColor, Location spawnpoint, BoundingBox safeZone, Material blockInCart, Block railsStart, Block railsEnd) {
+	public TFTeam(Team cosmoxTeam, String name, TextColor nkaColor, ChatColor chatColor, Location spawnpoint, BoundingBox safeZone, Material blockInCart, Block railsStart, Block railsEnd, Location flagLocation) {
 		this.cosmoxTeam = cosmoxTeam;
 		this.name = name;
 		this.nkaColor = nkaColor;
@@ -52,16 +58,23 @@ public class TFTeam
 		this.blockInCart = blockInCart;
 		this.railsStart = railsStart;
 		this.railsEnd = railsEnd;
+		this.flagLocation = flagLocation;
 		List<Block> tempRails = new ArrayList<>();
+		
+		TF.getInstance().getLogger().info("Génération du chemin de rails " + name + "...");
+		long time = System.currentTimeMillis();
 		PayloadsManager.getRailsIteratorBetween(railsStart, railsEnd).forEachRemaining(tempRails::add);
+		TF.getInstance().getLogger().info("Génération terminée en %d ms".formatted(System.currentTimeMillis() - time));
+		
 		this.railway = Collections.unmodifiableList(tempRails);
 		
 		this.chestplate = new ItemBuilder(Material.LEATHER_CHESTPLATE).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
 		this.leggings = new ItemBuilder(Material.LEATHER_LEGGINGS).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
 		this.boots = new ItemBuilder(Material.LEATHER_BOOTS).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
+		this.flagItem = new ItemBuilder(TEAM_BANNER.get(cosmoxTeam)).setDisplayName(chatColor + "BANNIERE " + name.toUpperCase()).buildImmutable();
 	}
 	
-	private static final String SPAWN_F = "%sSpawn", SAFEZONE_F = "%sSafeZone", RAILS_START_F = "%sRailsStart", RAILS_END_F = "%sRailsEnd";
+	private static final String SPAWN_F = "%sSpawn", SAFEZONE_F = "%sSafeZone", RAILS_START_F = "%sRailsStart", RAILS_END_F = "%sRailsEnd", FLAG_F = "%sFlag";
 	
 	public static TFTeam loadTDM(Team cosmoxTeam, GameMap map) {
 		ChatColor bungeeColor = cosmoxTeam.getColor().asBungee();
@@ -72,7 +85,7 @@ public class TFTeam
 				bungeeColor,
 				map.getLocation(SPAWN_F.formatted(TEAM_ID.get(cosmoxTeam))),
 				BoundingBox.of(safezone.get(0), safezone.get(1)),
-				null, null, null);
+				null, null, null, null);
 	}
 	
 	public static TFTeam loadPayloads(Team cosmoxTeam, GameMap map) {
@@ -86,7 +99,21 @@ public class TFTeam
 				BoundingBox.of(safezone.get(0), safezone.get(1)),
 				TEAM_BLOCKS.get(cosmoxTeam),
 				map.getLocation(RAILS_START_F.formatted(TEAM_ID.get(cosmoxTeam))).getBlock(),
-				map.getLocation(RAILS_END_F.formatted(TEAM_ID.get(cosmoxTeam))).getBlock());
+				map.getLocation(RAILS_END_F.formatted(TEAM_ID.get(cosmoxTeam))).getBlock(),
+				null);
+	}
+	
+	public static TFTeam loadCTF(Team cosmoxTeam, GameMap map) {
+		ChatColor bungeeColor = cosmoxTeam.getColor().asBungee();
+		List<Location> safezone = map.getCuboid(SAFEZONE_F.formatted(TEAM_ID.get(cosmoxTeam)));
+		return new TFTeam(cosmoxTeam,
+				cosmoxTeam.getName(),
+				Utils.nkaColor(bungeeColor),
+				bungeeColor,
+				map.getLocation(SPAWN_F.formatted(TEAM_ID.get(cosmoxTeam))),
+				BoundingBox.of(safezone.get(0), safezone.get(1)),
+				null, null, null,
+				map.getLocation(FLAG_F.formatted(TEAM_ID.get(cosmoxTeam))));
 	}
 	
 	public String getCharFR() {
@@ -149,14 +176,6 @@ public class TFTeam
 		return "Team [name=" + name + "]";
 	}
 	
-	public int getKills() {
-		return kills;
-	}
-	
-	public void incrementKills() {
-		this.kills++;
-	}
-	
 	public Block getRailsStart() {
 		return railsStart;
 	}
@@ -175,5 +194,29 @@ public class TFTeam
 	
 	public List<Block> getRailway() {
 		return railway;
+	}
+	
+	public Location getFlagLocation() {
+		return flagLocation.clone();
+	}
+	
+	public ImmutableItemStack getFlagItem() {
+		return flagItem;
+	}
+	
+	public int getKills() {
+		return kills;
+	}
+	
+	public void incrementKills() {
+		this.kills++;
+	}
+	
+	public int getFlagCaptureCount() {
+		return flagCaptureCount;
+	}
+	
+	public void incrementFlagCaptureCount() {
+		this.flagCaptureCount++;
 	}
 }

@@ -414,6 +414,10 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		if(dead)
 			return;
 		
+		if(GameManager.getInstance().getGameType() == GameType.CTF) {
+			CTFManager.getInstance().onPlayerDeath(this);
+		}
+		
 		getOptWeapon(WeaponTypes.DISGUISE).ifPresent(disg -> ((Disguise) disg).cancelDisguise());
 		
 		new ArrayList<>(weapons).forEach(this::removeWeapon);
@@ -436,7 +440,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 			lastDamager.toCosmox().setScoreboardScore(lastDamager.killCount);
 		}
 		
-		if(GameManager.getInstance().getGameType().isTDM()) {
+		if(GameManager.getInstance().getGameType() == GameType.TEAM_DEATHMATCH) {
 			TDMManager.getInstance().onSingleKill(this, pseudokiller);
 		}
 		
