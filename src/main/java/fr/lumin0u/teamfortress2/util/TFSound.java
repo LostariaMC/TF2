@@ -2,10 +2,9 @@ package fr.lumin0u.teamfortress2.util;
 
 import fr.lumin0u.teamfortress2.TF;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
+import org.bukkit.Note.Tone;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.function.Function;
@@ -62,6 +61,21 @@ public interface TFSound
 	
 	public static final TFSound SCOUT_DASH = new SimpleSound(Sound.ENTITY_BAT_TAKEOFF, 0.5f, 0.8f, SoundCategory.PLAYERS);
 	
+	public static final TFSound MY_FLAG_CAPTURED = new SoundCombination(Map.of(
+			new InstrumentNote(Instrument.PIANO, Note.natural(0, Tone.D)), 0,
+			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(0, Tone.D)), 0,
+			new InstrumentNote(Instrument.PIANO, Note.natural(0, Tone.D)), 4,
+			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(0, Tone.D)), 4,
+			new InstrumentNote(Instrument.PIANO, Note.natural(0, Tone.D)), 8,
+			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(0, Tone.D)), 8));
+	public static final TFSound OTHER_FLAG_CAPTURED = new SoundCombination(Map.of(
+			new InstrumentNote(Instrument.PIANO, Note.natural(2, Tone.D)), 0,
+			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(2, Tone.D)), 0,
+			new InstrumentNote(Instrument.PIANO, Note.natural(2, Tone.D)), 4,
+			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(2, Tone.D)), 4,
+			new InstrumentNote(Instrument.PIANO, Note.natural(2, Tone.D)), 8,
+			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(2, Tone.D)), 8));
+	
 	
 	public void playTo(WrappedPlayer player);
 	public void play(Location location);
@@ -96,8 +110,14 @@ public interface TFSound
 		
 		@Override
 		public void playTo(WrappedPlayer player) {
-			if(player.isOnline())
-				play(player.toBukkit().getLocation(), List.of(player));
+			if(isSilence())
+				return;
+			if(player.isOnline()) {
+				if(category == null)
+					player.toBukkit().playSound(player.toBukkit().getLocation(), sound, volume, getPitch());
+				else
+					player.toBukkit().playSound(player.toBukkit().getLocation(), sound, category, volume, getPitch());
+			}
 		}
 		
 		@Override
@@ -122,11 +142,6 @@ public interface TFSound
 				else
 					player.playSound(location, sound, category, volume, getPitch());
 			});
-			
-			if(category == null)
-				location.getWorld().playSound(location, sound, volume, getPitch());
-			else
-				location.getWorld().playSound(location, sound, category, volume, getPitch());
 		}
 		
 		@Override
@@ -150,19 +165,59 @@ public interface TFSound
 		}
 	}
 	
+	public static class InstrumentNote implements TFSound
+	{
+		private final Instrument instrument;
+		private final Note note;
+		
+		public InstrumentNote(Instrument instrument, Note note) {
+			this.instrument = instrument;
+			this.note = note;
+		}
+		
+		@Override
+		public void playTo(WrappedPlayer player) {
+			player.toBukkit().playNote(player.toBukkit().getLocation(), instrument, note);
+		}
+		
+		@Override
+		public void play(Location location) {
+			location.getNearbyEntitiesByType(Player.class, 32).forEach(p -> {
+				p.playNote(location, instrument, note);
+			});
+		}
+		
+		@Override
+		public void play(Location location, List<WrappedPlayer> listeners) {
+			location.getNearbyEntitiesByType(Player.class, 32).stream().map(WrappedPlayer::of).filter(listeners::contains).forEach(p -> {
+				p.toBukkit().playNote(location, instrument, note);
+			});
+		}
+		
+		@Override
+		public boolean isSilence() {
+			return false;
+		}
+		
+		@Override
+		public TFSound withVolume(float volume) {
+			return this;
+		}
+	}
+	
 	public static class SoundCombination implements TFSound
 	{
-		private final Map<SimpleSound, Integer> soundDelays;
+		private final Map<TFSound, Integer> soundDelays;
 		
-		public SoundCombination(SimpleSound... sounds) {
+		public SoundCombination(TFSound... sounds) {
 			this(Arrays.stream(sounds).collect(Collectors.toMap(Function.identity(), s -> 0)));
 		}
 		
-		public SoundCombination(List<SimpleSound> sounds) {
+		public SoundCombination(List<TFSound> sounds) {
 			this(sounds.stream().collect(Collectors.toMap(Function.identity(), s -> 0)));
 		}
 		
-		public SoundCombination(Map<SimpleSound, Integer> soundDelays) {
+		public SoundCombination(Map<TFSound, Integer> soundDelays) {
 			this.soundDelays = Collections.unmodifiableMap(soundDelays);
 		}
 		
@@ -206,7 +261,7 @@ public interface TFSound
 		
 		@Override
 		public boolean isSilence() {
-			return soundDelays.keySet().stream().allMatch(SimpleSound::isSilence);
+			return soundDelays.keySet().stream().allMatch(TFSound::isSilence);
 		}
 		
 		@Override
