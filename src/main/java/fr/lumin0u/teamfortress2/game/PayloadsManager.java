@@ -23,6 +23,7 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 public class PayloadsManager extends GameManager
 {
@@ -74,8 +75,6 @@ public class PayloadsManager extends GameManager
 	
 	public PayloadsManager(GameMap map) {
 		super(map, List.of(TFTeam.loadPayloads(Team.RED, map), TFTeam.loadPayloads(Team.BLUE, map)), GameType.PAYLOADS, new PayloadsScoreboardUpdater());
-		
-		Scoreboard board = Bukkit.getScoreboardManager().getMainScoreboard();
 	}
 	
 	public static PayloadsManager getInstance() {
@@ -95,7 +94,7 @@ public class PayloadsManager extends GameManager
 			minecarts.put(team, cart);
 			maxRailIndex.put(team, 0);
 			coloredBlocks.put(team, team.getRailsStart().getRelative(BlockFace.DOWN).getType());
-			notColoredBlocks.put(team, team.getRailsEnd().getRelative(BlockFace.DOWN).getType());
+			notColoredBlocks.put(team, team.getRailway().get(1).getRelative(BlockFace.DOWN).getType());
 			
 			team.getOnlinePlayers().forEach(player -> {
 				player.respawn(team.getSpawnpoint());
@@ -152,11 +151,13 @@ public class PayloadsManager extends GameManager
 						if(teams.stream()
 								.filter(t -> !t.equals(team))
 								.flatMap(t -> t.getOnlinePlayers().stream())
+								.filter(Predicate.not(TFPlayer::isDead))
 								.anyMatch(p -> p.toBukkit().getLocation().distance(cart.getLocation()) < 3)) {
 							push = -1;
 						}
 						else {
 							push = Math.sqrt(2 * team.getOnlinePlayers().stream()
+									.filter(Predicate.not(TFPlayer::isDead))
 									.filter(p -> p.toBukkit().getLocation().distance(cart.getLocation()) < 3)
 									.filter(p -> world.rayTraceBlocks(p.getEyeLocation(), cart.getLocation().add(0, 0.5, 0).subtract(p.getEyeLocation()).toVector(), p.getEyeLocation().distance(cart.getLocation().add(0, 0.5, 0))) == null)
 									.mapToDouble(p -> p.getKit().getValeurCart())
@@ -264,6 +265,8 @@ public class PayloadsManager extends GameManager
 	
 	public static class PayloadsScoreboardUpdater extends ScoreboardUpdater
 	{
+		private PayloadsScoreboardUpdater() {}
+		
 		@Override
 		public CosmoxScoreboard createScoreboard(TFPlayer player) {
 			CosmoxScoreboard scoreboard = super.createScoreboard(player);
@@ -276,10 +279,9 @@ public class PayloadsManager extends GameManager
 			
 			AtomicInteger line = new AtomicInteger(5);
 			
-			PayloadsManager.getInstance().getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills())).forEach(t -> {
+			PayloadsManager.getInstance().getTeams().forEach(t -> {
 				scoreboard.updateLine(line.getAndIncrement(),
-						"§7Equipe " + t.getChatColor() + (t.equals(player.getTeam()) ? "§l" : "") + t.getName(true)
-								+ "§7: §a%d%%".formatted((int) (t.getPayloadProgression() * 100)));
+						"§7Equipe " + t.getChatColor() + (t.equals(player.getTeam()) ? "§l" : "") + t.getName(true) + "§7: §a0%");
 			});
 			scoreboard.updateLine(line.getAndIncrement(), "§e");
 			scoreboard.updateLine(line.getAndIncrement(), "§f");
@@ -293,7 +295,7 @@ public class PayloadsManager extends GameManager
 				
 				AtomicInteger line = new AtomicInteger(5);
 				PayloadsManager.getInstance().getTeams().stream()
-						.sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills()))
+						.sorted((t1, t2) -> -Double.compare(t1.getPayloadProgression(), t2.getPayloadProgression()))
 						.forEach(t -> {
 							scoreboard.updateLine(line.getAndIncrement(),
 									"§7Equipe " + t.getChatColor() + (t.equals(watcher.getTeam()) ? "§l" : "") + t.getName(true)
