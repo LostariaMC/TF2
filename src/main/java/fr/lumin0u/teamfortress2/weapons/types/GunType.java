@@ -112,19 +112,6 @@ public class GunType extends WeaponType
 	}
 	
 	public static void shoot(TFPlayer player, Location source, Vector direction, Weapon weapon, double inaccuracy, BiConsumer<Location, Integer> particle, Collection<? extends TFEntity> entities) {
-		/*if(this instanceof LaTornade)
-		{
-			p.setVelocity(p.getVelocity().subtract(p.getEyeLocation().getDirection().multiply(0.05)));
-			
-			double j = tfp.getHeavyBulletNb();
-			double multi = 0.15;
-			
-			Vector x1 = new Vector(-p.getLocation().getDirection().normalize().getZ(), 0d, p.getLocation().getDirection().normalize().getX()).normalize();
-			Vector x2 = p.getLocation().getDirection().normalize().crossProduct(x1).normalize();
-			source.add(x1.clone().multiply(multi * Math.sin(j / 10 * Math.PI * 2d))).add(x2.clone().multiply(multi * Math.cos(j / 10 * Math.PI * 2d)));
-			
-			tfp.setHeavyBulletNb(tfp.getHeavyBulletNb() + 1);
-		}*/
 		
 		GunType type = (GunType) weapon.getType();
 		

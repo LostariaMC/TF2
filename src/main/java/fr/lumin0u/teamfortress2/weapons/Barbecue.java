@@ -7,10 +7,8 @@ import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.TFSound;
-import fr.lumin0u.teamfortress2.weapons.types.GunType.Hit;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -87,7 +85,7 @@ public final class Barbecue extends Weapon
 				if(!player.isEnemy(ent) || distance > 5 || ent.getEntity().getFireTicks() >= fireDuration)
 					continue;
 				
-				double m = distance / 5;
+				double m = distance / 4;
 				BoundingBox bodyBox = ent.getBodyBox().clone().expand(m);
 				BoundingBox headBox = ent.getHeadBox().clone().expand(m);
 				
@@ -95,9 +93,12 @@ public final class Barbecue extends Weapon
 				RayTraceResult headCollision = headBox.rayTrace(source.toVector(), direction, range);
 				
 				if(bodyCollision != null || headCollision != null) {
-					ent.setFireCause(new FireDamageCause(false, player, fireDmg));
-					ent.getEntity().setFireTicks(fireDuration);
-					ent.damage(player, 1, direction.clone().multiply(0.05));
+					double dist = bodyCollision == null ? headCollision.getHitPosition().distance(source.toVector()) : bodyCollision.getHitPosition().distance(source.toVector());
+					if(source.getWorld().rayTraceBlocks(source, direction, dist) == null) {
+						ent.setFireCause(new FireDamageCause(false, player, fireDmg));
+						ent.getEntity().setFireTicks(fireDuration);
+						ent.damage(player, 1, direction.clone().multiply(0.05));
+					}
 				}
 			}
 			

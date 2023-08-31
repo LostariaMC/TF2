@@ -12,69 +12,69 @@ import java.util.stream.Collectors;
 
 public interface TFSound
 {
-	public static final SoundCombination SILENCE = new SoundCombination();
+	SoundCombination SILENCE = new SoundCombination();
 	
-	public static final TFSound PLAYER_DEATH = new SimpleSound(Sound.ENTITY_EVOKER_DEATH, 0.7f, 0.9f, 1.3f, SoundCategory.PLAYERS);
-	public static final TFSound GUN_SHOT = new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1.2f, SoundCategory.PLAYERS);
-	public static final TFSound SHOTGUN_SHOT = new SimpleSound(Sound.ENTITY_GENERIC_EXPLODE, 1f, 2f, SoundCategory.PLAYERS);
-	public static final TFSound EXPLOSION = new SimpleSound(Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f, SoundCategory.PLAYERS);
+	TFSound PLAYER_DEATH = new SimpleSound(Sound.ENTITY_EVOKER_DEATH, 0.7f, 0.9f, 1.3f, SoundCategory.PLAYERS);
+	TFSound GUN_SHOT = new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1.2f, SoundCategory.PLAYERS);
+	TFSound SHOTGUN_SHOT = new SimpleSound(Sound.ENTITY_GENERIC_EXPLODE, 1f, 2f, SoundCategory.PLAYERS);
+	TFSound EXPLOSION = new SimpleSound(Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f, SoundCategory.PLAYERS);
 	
-	public static final TFSound SMOKE_EXPLODE = new SimpleSound(Sound.ENTITY_LLAMA_SPIT, 2f, 0.5f, SoundCategory.MASTER);
+	TFSound SMOKE_EXPLODE = new SimpleSound(Sound.ENTITY_LLAMA_SPIT, 2f, 0.5f, SoundCategory.MASTER);
 	
-	public static final TFSound MELEE_MISS = new SimpleSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.7f, SoundCategory.PLAYERS);
-	public static final TFSound MELEE_HIT = new SimpleSound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.3f, SoundCategory.PLAYERS);
+	TFSound MELEE_MISS = new SimpleSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.7f, SoundCategory.PLAYERS);
+	TFSound MELEE_HIT = new SimpleSound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.3f, SoundCategory.PLAYERS);
 	
-	public static final TFSound GET_HEALED = new SimpleSound(Sound.BLOCK_BEACON_ACTIVATE, 1f, 2f, SoundCategory.PLAYERS);
-	public static final TFSound HEAL_STOP = new SimpleSound(Sound.BLOCK_BEACON_DEACTIVATE, 1f, 2f, SoundCategory.PLAYERS);
-	public static final TFSound SNIPER_SCOPE = new SimpleSound(Sound.ITEM_SPYGLASS_USE, 1f, 1f, SoundCategory.PLAYERS);
-	public static final TFSound SNIPER_UNSCOPE = new SimpleSound(Sound.ITEM_SPYGLASS_STOP_USING, 1f, 1f, SoundCategory.PLAYERS);
-	public static final TFSound SPY_INVIS_END = new SimpleSound(Sound.BLOCK_ANVIL_LAND, 0.5f, 1f, SoundCategory.PLAYERS);
+	TFSound GET_HEALED = new SimpleSound(Sound.BLOCK_BEACON_ACTIVATE, 1f, 2f, SoundCategory.PLAYERS);
+	TFSound HEAL_STOP = new SimpleSound(Sound.BLOCK_BEACON_DEACTIVATE, 1f, 2f, SoundCategory.PLAYERS);
+	TFSound SNIPER_SCOPE = new SimpleSound(Sound.ITEM_SPYGLASS_USE, 1f, 1f, SoundCategory.PLAYERS);
+	TFSound SNIPER_UNSCOPE = new SimpleSound(Sound.ITEM_SPYGLASS_STOP_USING, 1f, 1f, SoundCategory.PLAYERS);
+	TFSound SPY_INVIS_END = new SimpleSound(Sound.BLOCK_ANVIL_LAND, 0.5f, 1f, SoundCategory.PLAYERS);
 	
-	public static final TFSound SYRINGE_GUN = new SimpleSound(Sound.ENTITY_GUARDIAN_DEATH_LAND, 1f, 2f, SoundCategory.PLAYERS);
-	public static final TFSound SCAVENGER = new SimpleSound(Sound.ENTITY_GUARDIAN_HURT, 1f, 2f, SoundCategory.PLAYERS);
-	public static final TFSound BARBECUE = new SimpleSound(Sound.ENTITY_GHAST_SHOOT, 1f, 0.8f, SoundCategory.PLAYERS);
-	public static final TFSound MOLOTOV_THROW = new SimpleSound(Sound.ENTITY_SPLASH_POTION_THROW, 1f, 1f, SoundCategory.PLAYERS);
-	public static final TFSound STRIKER = new SimpleSound(Sound.ENTITY_SPLASH_POTION_THROW, 1f, 1.5f, SoundCategory.PLAYERS);
-	public static final TFSound BURP = new SimpleSound(Sound.ENTITY_PLAYER_BURP, 0.5f, 1f, SoundCategory.PLAYERS);
-	public static final TFSound DRINK = new SimpleSound(Sound.ENTITY_GENERIC_DRINK, 0.5f, 1f, SoundCategory.PLAYERS);
-	public static final TFSound ACTIVATE_INVICIBILITY = new SoundCombination(
+	TFSound SYRINGE_GUN = new SimpleSound(Sound.ENTITY_GUARDIAN_DEATH_LAND, 1f, 2f, SoundCategory.PLAYERS);
+	TFSound SCAVENGER = new SimpleSound(Sound.ENTITY_GUARDIAN_HURT, 1f, 2f, SoundCategory.PLAYERS);
+	TFSound BARBECUE = new SimpleSound(Sound.ENTITY_GHAST_SHOOT, 1f, 0.8f, SoundCategory.PLAYERS);
+	TFSound MOLOTOV_THROW = new SimpleSound(Sound.ENTITY_SPLASH_POTION_THROW, 1f, 1f, SoundCategory.PLAYERS);
+	TFSound STRIKER = new SimpleSound(Sound.ENTITY_SPLASH_POTION_THROW, 1f, 1.5f, SoundCategory.PLAYERS);
+	TFSound BURP = new SimpleSound(Sound.ENTITY_PLAYER_BURP, 0.5f, 1f, SoundCategory.PLAYERS);
+	TFSound DRINK = new SimpleSound(Sound.ENTITY_GENERIC_DRINK, 0.5f, 1f, SoundCategory.PLAYERS);
+	TFSound ACTIVATE_INVICIBILITY = new SoundCombination(
 			new SimpleSound(Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 1f, SoundCategory.PLAYERS),
 			new SimpleSound(Sound.BLOCK_CONDUIT_AMBIENT, 1f, 1f, SoundCategory.PLAYERS));
-	public static final TFSound DEACTIVATE_INVICIBILITY = new SimpleSound(Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1f, SoundCategory.PLAYERS);
+	TFSound DEACTIVATE_INVICIBILITY = new SimpleSound(Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1f, SoundCategory.PLAYERS);
 	
-	public static final SoundCombination ROCKET_LAUNCHER = new SoundCombination(
+	SoundCombination ROCKET_LAUNCHER = new SoundCombination(
 			new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 2f, SoundCategory.PLAYERS),
 			new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 2f, SoundCategory.PLAYERS));
 	
-	public static final SoundCombination FLARE_GUN = new SoundCombination(Map.of(
+	SoundCombination FLARE_GUN = new SoundCombination(Map.of(
 			new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 0.6f, SoundCategory.PLAYERS), 0,
 			new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 0.6f, SoundCategory.PLAYERS), 3,
 			new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 0.6f, SoundCategory.PLAYERS), 6));
 	
-	public static final TFSound TURRET_CONSTRUCT = new SimpleSound(Sound.BLOCK_ANVIL_USE, 0.5f, 0.5f, SoundCategory.PLAYERS);
-	public static final TFSound TURRET_CONSTRUCT_READY = new SimpleSound(Sound.BLOCK_ANVIL_USE, 0.5f, 0.5f, SoundCategory.PLAYERS);
-	public static final TFSound TURRET_DIRECTION = new SimpleSound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.5f, 0.5f, SoundCategory.PLAYERS);
-	public static final TFSound TURRET_READY = new SimpleSound(Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 0.5f, 0.5f, SoundCategory.PLAYERS);
-	public static final TFSound TURRET_SHOOT = new SoundCombination(
+	TFSound TURRET_CONSTRUCT = new SimpleSound(Sound.BLOCK_ANVIL_USE, 0.5f, 0.5f, SoundCategory.PLAYERS);
+	TFSound TURRET_CONSTRUCT_READY = new SimpleSound(Sound.BLOCK_ANVIL_USE, 0.5f, 0.5f, SoundCategory.PLAYERS);
+	TFSound TURRET_DIRECTION = new SimpleSound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.5f, 0.5f, SoundCategory.PLAYERS);
+	TFSound TURRET_READY = new SimpleSound(Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 0.5f, 0.5f, SoundCategory.PLAYERS);
+	TFSound TURRET_SHOOT = new SoundCombination(
 			new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 2f, SoundCategory.PLAYERS),
 			new SimpleSound(Sound.ENTITY_GENERIC_EXPLODE, 1f, 2f, SoundCategory.PLAYERS));
 	
-	public static final TFSound SCOUT_DASH = new SimpleSound(Sound.ENTITY_BAT_TAKEOFF, 0.5f, 0.8f, SoundCategory.PLAYERS);
+	TFSound SCOUT_DASH = new SimpleSound(Sound.ENTITY_BAT_TAKEOFF, 0.5f, 0.8f, SoundCategory.PLAYERS);
 	
-	public static final TFSound MY_FLAG_CAPTURED = new SoundCombination(Map.of(
+	TFSound MY_FLAG_CAPTURED = new SoundCombination(Map.of(
 			new InstrumentNote(Instrument.PIANO, Note.natural(0, Tone.D)), 0,
 			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(0, Tone.D)), 0,
 			new InstrumentNote(Instrument.PIANO, Note.natural(0, Tone.D)), 4,
 			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(0, Tone.D)), 4,
 			new InstrumentNote(Instrument.PIANO, Note.natural(0, Tone.D)), 8,
 			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(0, Tone.D)), 8));
-	public static final TFSound OTHER_FLAG_CAPTURED = new SoundCombination(Map.of(
-			new InstrumentNote(Instrument.PIANO, Note.natural(2, Tone.D)), 0,
-			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(2, Tone.D)), 0,
-			new InstrumentNote(Instrument.PIANO, Note.natural(2, Tone.D)), 4,
-			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(2, Tone.D)), 4,
-			new InstrumentNote(Instrument.PIANO, Note.natural(2, Tone.D)), 8,
-			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(2, Tone.D)), 8));
+	TFSound OTHER_FLAG_CAPTURED = new SoundCombination(Map.of(
+			new InstrumentNote(Instrument.PIANO, Note.natural(1, Tone.D)), 0,
+			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(1, Tone.D)), 0,
+			new InstrumentNote(Instrument.PIANO, Note.natural(1, Tone.D)), 4,
+			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(1, Tone.D)), 4,
+			new InstrumentNote(Instrument.PIANO, Note.natural(1, Tone.D)), 8,
+			new InstrumentNote(Instrument.BASS_GUITAR, Note.natural(1, Tone.D)), 8));
 	
 	
 	public void playTo(WrappedPlayer player);

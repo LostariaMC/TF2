@@ -79,7 +79,7 @@ public final class WeaponTypes
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			TFSound.ACTIVATE_INVICIBILITY.play(player.getLocation());
 			
-			player.toBukkit().playEffect(EntityEffect.TOTEM_RESURRECT);
+			//player.toBukkit().playEffect(EntityEffect.TOTEM_RESURRECT);
 			player.setEngiInvicible(true);
 			weapon.useAmmo();
 			((PlaceableWeapon) player.getWeapon(MINE)).pickupAmmo();
@@ -246,7 +246,7 @@ public final class WeaponTypes
 		}
 	};
 	public static final GunType MITRAILLETTE = new GunType(false, Material.IRON_HOE, "Carabine du Nettoyeur", 1, 14, -1, 2, 30, Math.PI / 90, 0.4);
-	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 164, -1)
+	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 184, -1)
 	{
 		private final int heal = 6;
 		@Override
@@ -391,7 +391,7 @@ public final class WeaponTypes
 			Location loc = player.getEyeLocation().add(direction);
 			
 			Item item = (Item) player.toBukkit().getWorld().dropItem(loc, new ItemBuilder(Material.RED_CANDLE).setDisplayName(DROPPED_ITEM_COUNT.incrementAndGet() + "").build());
-			item.setVelocity(direction.clone().multiply(0.6));
+			item.setVelocity(direction.clone().multiply(0.7));
 			item.setPickupDelay(Integer.MAX_VALUE);
 			
 			weapon.useAmmo();
@@ -431,7 +431,7 @@ public final class WeaponTypes
 			Location loc = player.getEyeLocation().add(direction);
 			
 			Item item = (Item) player.toBukkit().getWorld().dropItem(loc, new ItemBuilder(Material.BRUSH).setDisplayName(DROPPED_ITEM_COUNT.incrementAndGet() + "").build());
-			item.setVelocity(direction.clone().multiply(0.6));
+			item.setVelocity(direction.clone().multiply(0.7));
 			item.setPickupDelay(Integer.MAX_VALUE);
 			
 			weapon.useAmmo();
