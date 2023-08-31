@@ -11,8 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class ScoreboardUpdater
 {
+	private static final long ONE_HOUR = 60 * 60 * 1000;
+	
 	public String getFormattedTimer() {
-		return new SimpleDateFormat("mm':'ss").format(new Date(System.currentTimeMillis() - GameManager.getInstance().getStartDate()));
+		long time = System.currentTimeMillis() - GameManager.getInstance().getStartDate();
+		return new SimpleDateFormat(time > ONE_HOUR ? "H':'mm':'ss" : "mm':'ss").format(new Date(time));
 	}
 	
 	public CosmoxScoreboard createScoreboard(TFPlayer player) {
