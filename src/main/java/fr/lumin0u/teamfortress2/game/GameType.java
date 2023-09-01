@@ -26,12 +26,12 @@ public enum GameType
 			return new TDMManager(map);
 		}
 	},
-	/*KOTH("KOTH", 2, true, false, false) {
+	KOTH("KOTH", 2, true, false, false) {
 		@Override
 		public GameManager createManager(GameMap map) {
-			throw new UnsupportedOperationException();
+			return new KothManager(map);
 		}
-	},*/
+	},
 	CTF("CTF", 2, true, false, false) {
 		@Override
 		public GameManager createManager(GameMap map) {

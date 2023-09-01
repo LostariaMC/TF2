@@ -54,7 +54,7 @@ public final class TF extends JavaPlugin {
 	
 			@Override
 			public java.util.UUID wrap(TFPlayer tfPlayer) {
-				return null;
+				return tfPlayer.getUniqueId();
 			}
 		});
 	}

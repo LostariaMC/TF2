@@ -18,7 +18,6 @@ import org.bukkit.entity.Minecart;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -237,7 +236,7 @@ public class PayloadsManager extends GameManager
 		// new 10% bar !
 		if((int) (lastProgression * 10) < (int) (newProgression * 10)) {
 			double railCount = (double) railwayLength / 10;
-			team.getPlayers().forEach(player -> player.toCosmox().addMolecules(ExpValues._100RAILS_PAYLOADS * railCount / 100, "" + (int) (newProgression * 100) + "%"));
+			team.getPlayers().forEach(player -> player.toCosmox().addMolecules(ExpValues._100_RAILS_PAYLOADS * railCount / 100, "" + (int) (newProgression * 100) + "%"));
 		}
 		
 		team.setPayloadProgression(newProgression);
@@ -286,12 +285,17 @@ public class PayloadsManager extends GameManager
 			scoreboard.updateLine(line.getAndIncrement(), "§e");
 			scoreboard.updateLine(line.getAndIncrement(), "§f");
 			
+			player.toBukkit().setLevel(0);
+			player.toBukkit().setExp(0);
+			
 			return scoreboard;
 		}
 		
 		public void updateTeamPercentage(TFTeam team) {
 			Bukkit.getOnlinePlayers().stream().map(TFPlayer::of).forEach(watcher -> {
 				CosmoxScoreboard scoreboard = watcher.toCosmox().getScoreboard();
+				
+				watcher.toBukkit().setExp((float) watcher.getTeam().getPayloadProgression());
 				
 				AtomicInteger line = new AtomicInteger(5);
 				PayloadsManager.getInstance().getTeams().stream()

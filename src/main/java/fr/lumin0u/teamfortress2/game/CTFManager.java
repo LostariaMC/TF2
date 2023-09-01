@@ -167,6 +167,9 @@ public class CTFManager extends GameManager
 			scoreboard.updateLine(line.getAndIncrement(), "§e");
 			scoreboard.updateLine(line.getAndIncrement(), "§f");
 			
+			player.toBukkit().setLevel(0);
+			player.toBukkit().setExp(0);
+			
 			return scoreboard;
 		}
 		

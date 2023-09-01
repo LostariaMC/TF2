@@ -47,6 +47,7 @@ public class TFTeam
 	private double payloadProgression;
 	private int kills;
 	private int flagCaptureCount;
+	private long kothCaptureTime;
 	
 	public TFTeam(Team cosmoxTeam, String name, TextColor nkaColor, ChatColor chatColor, Location spawnpoint, BoundingBox safeZone, Material blockInCart, Block railsStart, Block railsEnd, Location flagLocation) {
 		this.cosmoxTeam = cosmoxTeam;
@@ -59,14 +60,19 @@ public class TFTeam
 		this.railsStart = railsStart;
 		this.railsEnd = railsEnd;
 		this.flagLocation = flagLocation;
-		List<Block> tempRails = new ArrayList<>();
 		
-		TF.getInstance().getLogger().info("Génération du chemin de rails " + name + "...");
-		long time = System.currentTimeMillis();
-		PayloadsManager.getRailsIteratorBetween(railsStart, railsEnd).forEachRemaining(tempRails::add);
-		TF.getInstance().getLogger().info("Génération terminée en %d ms".formatted(System.currentTimeMillis() - time));
-		
-		this.railway = Collections.unmodifiableList(tempRails);
+		if(railsStart != null) {
+			List<Block> tempRails = new ArrayList<>();
+			
+			TF.getInstance().getLogger().info("Génération du chemin de rails " + name + "...");
+			long time = System.currentTimeMillis();
+			PayloadsManager.getRailsIteratorBetween(railsStart, railsEnd).forEachRemaining(tempRails::add);
+			TF.getInstance().getLogger().info("Génération terminée en %d ms".formatted(System.currentTimeMillis() - time));
+			
+			this.railway = Collections.unmodifiableList(tempRails);
+		}
+		else
+			this.railway = null;
 		
 		this.chestplate = new ItemBuilder(Material.LEATHER_CHESTPLATE).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
 		this.leggings = new ItemBuilder(Material.LEATHER_LEGGINGS).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
@@ -76,7 +82,7 @@ public class TFTeam
 	
 	private static final String SPAWN_F = "%sSpawn", SAFEZONE_F = "%sSafeZone", RAILS_START_F = "%sRailsStart", RAILS_END_F = "%sRailsEnd", FLAG_F = "%sFlag";
 	
-	public static TFTeam loadTDM(Team cosmoxTeam, GameMap map) {
+	public static TFTeam loadDefault(Team cosmoxTeam, GameMap map) {
 		ChatColor bungeeColor = cosmoxTeam.getColor().asBungee();
 		List<Location> safezone = map.getCuboid(SAFEZONE_F.formatted(TEAM_ID.get(cosmoxTeam)));
 		return new TFTeam(cosmoxTeam,
@@ -218,5 +224,13 @@ public class TFTeam
 	
 	public void incrementFlagCaptureCount() {
 		this.flagCaptureCount++;
+	}
+	
+	public long getKothCaptureTime() {
+		return kothCaptureTime;
+	}
+	
+	public void incrementKothCaptureTime() {
+		kothCaptureTime++;
 	}
 }

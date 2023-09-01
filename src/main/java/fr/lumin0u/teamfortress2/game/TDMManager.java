@@ -17,10 +17,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TDMManager extends GameManager
 {
-	public final int KILLS_TO_WIN = 20;
+	public static final int KILLS_TO_WIN = 20;
 	
 	public TDMManager(GameMap map) {
-		super(map, List.of(TFTeam.loadTDM(Team.RED, map), TFTeam.loadTDM(Team.BLUE, map)), GameType.TEAM_DEATHMATCH, new TDMScoreboardUpdater());
+		super(map, List.of(TFTeam.loadDefault(Team.RED, map), TFTeam.loadDefault(Team.BLUE, map)), GameType.TEAM_DEATHMATCH, new TDMScoreboardUpdater());
 	}
 	
 	public static TDMManager getInstance() {
@@ -107,10 +107,13 @@ public class TDMManager extends GameManager
 			TDMManager.getInstance().getTeams().stream().sorted((t1, t2) -> -Integer.compare(t1.getKills(), t2.getKills())).forEach(team -> {
 				scoreboard.updateLine(line.getAndIncrement(),
 						"§7Equipe " + team.getChatColor() + (team.equals(player.getTeam()) ? "§l" : "") + team.getName(true)
-								+ "§7: §a" + team.getKills() + " §2/%d".formatted(getInstance().KILLS_TO_WIN));
+								+ "§7: §a" + team.getKills() + " §2/%d".formatted(KILLS_TO_WIN));
 			});
 			scoreboard.updateLine(line.getAndIncrement(), "§e");
 			scoreboard.updateLine(line.getAndIncrement(), "§f");
+			
+			player.toBukkit().setLevel(0);
+			player.toBukkit().setExp(0);
 			
 			return scoreboard;
 		}
@@ -118,6 +121,7 @@ public class TDMManager extends GameManager
 		public void updateTeamKills(TFTeam team) {
 			Bukkit.getOnlinePlayers().stream().map(TFPlayer::of).forEach(watcher -> {
 				CosmoxScoreboard scoreboard = watcher.toCosmox().getScoreboard();
+				watcher.toBukkit().setExp((float) watcher.getTeam().getKills() / (float) KILLS_TO_WIN);
 				
 				AtomicInteger line = new AtomicInteger(5);
 				TDMManager.getInstance().getTeams().stream()
@@ -125,7 +129,7 @@ public class TDMManager extends GameManager
 						.forEach(t -> {
 							scoreboard.updateLine(line.getAndIncrement(),
 									"§7Equipe " + t.getChatColor() + (t.equals(watcher.getTeam()) ? "§l" : "") + t.getName(true)
-											+ "§7: §a" + t.getKills() + " §2/%d".formatted(getInstance().KILLS_TO_WIN));
+											+ "§7: §a" + t.getKills() + " §2/%d".formatted(KILLS_TO_WIN));
 						});
 			});
 		}
