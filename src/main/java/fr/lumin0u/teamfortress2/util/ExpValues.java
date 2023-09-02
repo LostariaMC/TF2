@@ -18,5 +18,5 @@ public class ExpValues
 	
 	public static final double WIN_KOTH = 10;
 	public static final double LOSE_KOTH = 4;
-	public static final double _1_MINUTE_CAPTURE_KOTH = 2;
+	public static final double _1_MINUTE_CAPTURE_KOTH = 5;
 }
