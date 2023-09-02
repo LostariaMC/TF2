@@ -1,6 +1,7 @@
 package fr.lumin0u.teamfortress2.game;
 
 import fr.lumin0u.teamfortress2.TF;
+import fr.lumin0u.teamfortress2.game.managers.PayloadsManager;
 import fr.lumin0u.teamfortress2.util.ImmutableItemStack;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.Utils;

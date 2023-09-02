@@ -1,8 +1,11 @@
-package fr.lumin0u.teamfortress2.game;
+package fr.lumin0u.teamfortress2.game.managers;
 
 import fr.lumin0u.teamfortress2.TF;
-import fr.lumin0u.teamfortress2.game.Flag.FlagState;
-import fr.lumin0u.teamfortress2.game.PayloadsManager.PayloadsScoreboardUpdater;
+import fr.lumin0u.teamfortress2.game.GameType;
+import fr.lumin0u.teamfortress2.game.ScoreboardUpdater;
+import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.game.TFTeam;
+import fr.lumin0u.teamfortress2.game.managers.Flag.FlagState;
 import fr.lumin0u.teamfortress2.util.ExpValues;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.api.scoreboard.CosmoxScoreboard;
@@ -13,19 +16,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Minecart;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

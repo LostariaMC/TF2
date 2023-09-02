@@ -1,6 +1,6 @@
 package fr.lumin0u.teamfortress2;
 
-import fr.lumin0u.teamfortress2.game.GameManager;
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;

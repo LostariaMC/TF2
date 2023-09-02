@@ -1,6 +1,8 @@
-package fr.lumin0u.teamfortress2.game;
+package fr.lumin0u.teamfortress2.game.managers;
 
 import fr.lumin0u.teamfortress2.TF;
+import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.game.TFTeam;
 import fr.lumin0u.teamfortress2.util.ExpValues;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;

@@ -1,11 +1,9 @@
 package fr.lumin0u.teamfortress2.events;
 
 import fr.lumin0u.teamfortress2.TF;
-import fr.lumin0u.teamfortress2.game.GameManager;
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.ThrownExplosive;
-import fr.lumin0u.teamfortress2.weapons.types.RocketLauncherType.Rocket;
-import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;

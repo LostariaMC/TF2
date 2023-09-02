@@ -1,22 +1,16 @@
 package fr.lumin0u.teamfortress2.weapons.types;
 
 import com.google.common.collect.ImmutableList.Builder;
-import fr.lumin0u.teamfortress2.game.GameManager;
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.ThrownExplosive;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
-import fr.lumin0u.teamfortress2.weapons.types.RocketLauncherType.Rocket;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
-import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public final class StrikerType extends WeaponType
 {

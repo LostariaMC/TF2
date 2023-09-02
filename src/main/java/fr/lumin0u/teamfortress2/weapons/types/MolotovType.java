@@ -3,7 +3,7 @@ package fr.lumin0u.teamfortress2.weapons.types;
 import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.FireDamageCause;
 import fr.lumin0u.teamfortress2.TFEntity;
-import fr.lumin0u.teamfortress2.game.GameManager;
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.TFSound;

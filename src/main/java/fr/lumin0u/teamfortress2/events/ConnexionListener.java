@@ -1,7 +1,7 @@
 package fr.lumin0u.teamfortress2.events;
 
 import fr.lumin0u.teamfortress2.TF;
-import fr.lumin0u.teamfortress2.game.GameManager;
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.worsewarn.cosmox.game.events.PlayerJoinGameEvent;
 import fr.worsewarn.cosmox.game.events.PlayerJoinTeamEvent;

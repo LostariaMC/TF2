@@ -1,7 +1,7 @@
 package fr.lumin0u.teamfortress2.events;
 
 import fr.lumin0u.teamfortress2.TF;
-import fr.lumin0u.teamfortress2.game.GameManager;
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.types.MeleeWeaponType;

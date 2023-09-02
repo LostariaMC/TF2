@@ -2,14 +2,11 @@ package fr.lumin0u.teamfortress2.events;
 
 import fr.lumin0u.teamfortress2.Kit;
 import fr.lumin0u.teamfortress2.TF;
-import fr.lumin0u.teamfortress2.game.GameManager;
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.GameType;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.Items;
-import fr.lumin0u.teamfortress2.util.Utils;
 import fr.worsewarn.cosmox.API;
-import fr.worsewarn.cosmox.api.players.CosmoxPlayer;
-import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.game.Phase;
 import fr.worsewarn.cosmox.game.events.GameStartEvent;
 import fr.worsewarn.cosmox.game.events.GameStopEvent;

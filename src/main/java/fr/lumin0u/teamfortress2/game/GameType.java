@@ -1,10 +1,10 @@
 package fr.lumin0u.teamfortress2.game;
 
+import fr.lumin0u.teamfortress2.game.managers.*;
 import fr.worsewarn.cosmox.tools.map.GameMap;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public enum GameType
 {

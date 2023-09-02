@@ -1,5 +1,6 @@
 package fr.lumin0u.teamfortress2.game;
 
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.util.Utils;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import fr.worsewarn.cosmox.api.scoreboard.CosmoxScoreboard;
@@ -7,7 +8,6 @@ import org.bukkit.Bukkit;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class ScoreboardUpdater
 {
