@@ -82,7 +82,11 @@ public abstract class GameManager
 	}
 	
 	public Collection<TFEntity> getLivingEntities() {
-		return getPlayers().stream().filter(WrappedPlayer::isOnline).filter(not(TFEntity::isDead)).map(TFEntity.class::cast).toList();
+		return getOnlinePlayers().stream().filter(not(TFEntity::isDead)).map(TFEntity.class::cast).toList();
+	}
+	
+	public Collection<TFPlayer> getOnlinePlayers() {
+		return tf.getPlayers().stream().filter(not(TFPlayer::isSpectator)).filter(WrappedPlayer::isOnline).toList();
 	}
 	
 	public Collection<TFPlayer> getPlayers() {
@@ -142,7 +146,7 @@ public abstract class GameManager
 	
 	public void onPlayerLeave(TFPlayer player) {
 		
-		if(getPlayers().stream().filter(WrappedPlayer::isOnline).filter(player::isNot).noneMatch(not(player::isEnemy))) {
+		if(getOnlinePlayers().stream().filter(player::isNot).noneMatch(not(player::isEnemy))) {
 			if(isFriendlyFire()) {
 				throw new IllegalStateException();
 			}

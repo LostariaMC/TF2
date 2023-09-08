@@ -24,13 +24,11 @@ public class EntityMovementListener implements Listener
 	
 	@EventHandler
 	public void onProjectileCollide(ProjectileHitEvent event) {
-		for(TFPlayer player : gm.getPlayers()) {
-			for(ThrownExplosive explosive : new ArrayList<>(ThrownExplosive.getLivingInstances())) {
-				if(explosive.isExplodeOnProjectileCollide() && event.getEntity().equals(explosive.getEntity())) {
-					event.setCancelled(true);
-					
-					explosive.explode();
-				}
+		for(ThrownExplosive explosive : new ArrayList<>(ThrownExplosive.getLivingInstances())) {
+			if(explosive.isExplodeOnProjectileCollide() && event.getEntity().equals(explosive.getEntity())) {
+				event.setCancelled(true);
+				
+				explosive.explode();
 			}
 		}
 	}

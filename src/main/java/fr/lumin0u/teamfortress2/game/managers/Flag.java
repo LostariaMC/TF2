@@ -114,8 +114,7 @@ public class Flag
 		CTFManager gm = CTFManager.getInstance();
 		
 		if(flagState != FlagState.CAPTURED) {
-			gm.getPlayers().stream()
-					.filter(WrappedPlayer::isOnline)
+			gm.getOnlinePlayers().stream()
 					.filter(Predicate.not(TFPlayer::isDead))
 					.filter(player -> !team.equals(player.getTeam()))
 					.filter(player -> player.getLocation().distance(flagStand.getLocation()) < 3)
@@ -123,8 +122,7 @@ public class Flag
 					.ifPresent(this::capture);
 		}
 		if(flagState == FlagState.LAYING) {
-			gm.getPlayers().stream()
-					.filter(WrappedPlayer::isOnline)
+			gm.getOnlinePlayers().stream()
 					.filter(Predicate.not(TFPlayer::isDead))
 					.filter(player -> team.equals(player.getTeam()))
 					.filter(player -> player.getLocation().distance(flagStand.getLocation()) < 3)
