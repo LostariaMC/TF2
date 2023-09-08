@@ -23,7 +23,7 @@ public class Items
 			.addLore(" ", "§7§l> §5Vous donne une classe §laléatoire", "§5à chaque réapparition")
 			.buildImmutable();
 	public static final ImmutableItemStack LOCKED_ULT_ITEM = new ItemBuilder(Material.BLAZE_ROD)
-			.setDisplayName("§5VEROUILLE").setLore("§7Effectuez un kill pour récupérer", "§7Votre capacité spéciale")
+			.setDisplayName("§5Verrouillé...").setLore("§7Effectuez un kill pour récupérer", "§7Votre capacité spéciale")
 			.buildImmutable();
 	public static final ImmutableItemStack MENU_ITEM = new ItemBuilder(Material.NAME_TAG)
 			.setDisplayName("§6Changer de classe").setLore("§7Changez de §lclasse §7à votre", "§7prochaine §lmort")
