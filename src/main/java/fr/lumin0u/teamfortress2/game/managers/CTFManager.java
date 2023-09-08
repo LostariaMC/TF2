@@ -102,6 +102,7 @@ public class CTFManager extends GameManager
 		{
 			if(!player.isSpectator()) {
 				player.toCosmox().addStatistic(GameVariables.GAMES_PLAYED, 1);
+				player.toCosmox().addStatistic(GameVariables.TIME_PLAYED, (int) ((System.currentTimeMillis() - startDate) / 1000));
 			}
 			
 			player.toBukkit().sendTitle("§eFin de la partie !", "", 5, 30, 30);

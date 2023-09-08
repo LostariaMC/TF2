@@ -5,7 +5,6 @@ import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.game.TFTeam;
 import fr.lumin0u.teamfortress2.util.ExpValues;
 import fr.lumin0u.teamfortress2.util.TFSound;
-import fr.worsewarn.cosmox.api.players.WrappedPlayer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import net.kyori.adventure.title.Title.Times;
@@ -136,6 +135,7 @@ public class Flag
 			
 			if(gm.getFlag(capturer.getTeam()).getState() == FlagState.SAFE && capturer.getLocation().distance(capturer.getTeam().getFlagLocation()) < 3) {
 				capturer.getTeam().incrementFlagCaptureCount();
+				capturer.toCosmox().addStatistic("flagCaptureCount", 1);
 				
 				team.getOnlinePlayers().forEach(p -> {
 					p.toBukkit().showTitle(Title.title(Component.text("§cOups..."), Component.text("§eBannière de retour"), Times.times(Ticks.duration(5), Ticks.duration(40), Ticks.duration(5))));

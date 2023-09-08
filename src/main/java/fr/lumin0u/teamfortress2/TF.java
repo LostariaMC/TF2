@@ -76,9 +76,12 @@ public final class TF extends JavaPlugin {
 						new Statistic("Temps de jeu", GameVariables.TIME_PLAYED, true, "s"),
 						new Statistic("Parties jouées", GameVariables.GAMES_PLAYED),
 						new Statistic("Victoires", GameVariables.WIN),
-						new Statistic("Kills", GameVariables.KILLS),
-						new Statistic("Dégats", GameVariables.DAMAGES),
-						new Statistic("Morts", GameVariables.DEATHS)
+						new Statistic("Kills", GameVariables.KILLS, "", true, true),
+						new Statistic("Dégats", GameVariables.DAMAGES, "", true, true),
+						new Statistic("Morts", GameVariables.DEATHS, "", true, true),
+						new Statistic("Captures de drapeau", "flagCaptureCount", "", true, true),
+						new Statistic("Temps de push", "pushTime", true, true, true),
+						new Statistic("Temps de capture", "captureTime", true, true, true)
 				),
 				List.of(),
 				List.of("§7Il y a un spy dans le tas ..."),

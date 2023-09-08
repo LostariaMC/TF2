@@ -72,10 +72,19 @@ public class KothManager extends GameManager
 		new BukkitRunnable() {
 			TFTeam capturer;
 			int captureTime;
+			int tick;
 			
 			@Override
 			public void run() {
 				if(phase.isInGame()) {
+					
+					if(tick++ % 20 == 0) {
+						getOnlinePlayers().stream()
+								.filter(not(TFEntity::isDead))
+								.filter(p -> captureZone.contains(p.getLocation().toVector()))
+								.forEach(p -> p.toCosmox().addStatistic("captureTime", 1));
+					}
+					
 					Map<TFTeam, Integer> playerCountIn = getTeams().stream()
 							.collect(Collectors.toMap(Function.identity(), t -> (int) t.getPlayers().stream()
 									.filter(not(TFEntity::isDead))

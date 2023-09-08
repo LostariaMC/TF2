@@ -14,6 +14,7 @@ import fr.lumin0u.teamfortress2.weapons.types.DisguiseType.Disguise;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
+import fr.worsewarn.cosmox.game.GameVariables;
 import fr.worsewarn.cosmox.game.teams.Team;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -442,6 +443,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 				lastDamager.getUltimate().onOwnerDoKill();
 			
 			lastDamager.killCount++;
+			lastDamager.toCosmox().addStatistic(GameVariables.KILLS, 1);
 			lastDamager.toCosmox().setScoreboardScore(lastDamager.killCount);
 		}
 		

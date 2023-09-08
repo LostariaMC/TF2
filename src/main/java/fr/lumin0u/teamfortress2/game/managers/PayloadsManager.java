@@ -1,6 +1,7 @@
 package fr.lumin0u.teamfortress2.game.managers;
 
 import fr.lumin0u.teamfortress2.TF;
+import fr.lumin0u.teamfortress2.TFEntity;
 import fr.lumin0u.teamfortress2.game.GameType;
 import fr.lumin0u.teamfortress2.game.ScoreboardUpdater;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
@@ -27,6 +28,8 @@ import org.bukkit.util.Vector;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+
+import static java.util.function.Predicate.not;
 
 public class PayloadsManager extends GameManager
 {
@@ -128,6 +131,7 @@ public class PayloadsManager extends GameManager
 		super.startGame();
 		
 		new BukkitRunnable() {
+			int tick;
 			@Override
 			public void run() {
 				if(phase.isInGame()) {
@@ -152,6 +156,13 @@ public class PayloadsManager extends GameManager
 						Vector backwards = railIndex == 0 ? new Vector() : currentRail.getLocation().subtract(railway.get(railIndex - 1).getLocation()).toVector();
 						
 						double push;
+						
+						if(tick++ % 20 == 0) {
+							getOnlinePlayers().stream()
+									.filter(not(TFEntity::isDead))
+									.filter(p -> p.toBukkit().getLocation().distance(cart.getLocation()) < 3)
+									.forEach(p -> p.toCosmox().addStatistic("pushTime", 1));
+						}
 						
 						if(teams.stream()
 								.filter(t -> !t.equals(team))
