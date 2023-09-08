@@ -45,6 +45,8 @@ public class ConnexionListener implements Listener
 		player.die(null, true);
 		if(!player.isSpectator())
 			player.setHasJoinedGameBefore(true);
+		
+		gm.onPlayerLeave(player);
 	}
 	
 	@EventHandler

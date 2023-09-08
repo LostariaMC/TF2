@@ -140,6 +140,26 @@ public abstract class GameManager
 		return new SimpleDateFormat("mm':'ss").format(new Date(System.currentTimeMillis() - startDate));
 	}
 	
+	public void onPlayerLeave(TFPlayer player) {
+		
+		if(getPlayers().stream().filter(WrappedPlayer::isOnline).filter(player::isNot).noneMatch(not(player::isEnemy))) {
+			if(isFriendlyFire()) {
+				throw new IllegalStateException();
+			}
+			else {
+				switch((int) getTeams().stream().filter(team -> team.getOnlinePlayers().stream().allMatch(player::isNot)).count()) {
+					case 0 -> {
+						phase = GamePhase.END;
+						API.instance().getManager().setPhase(Phase.END);
+					}
+					case 1 -> {
+						endGame(null, getTeams().stream().filter(team -> !team.getOnlinePlayers().stream().allMatch(player::isNot)).findAny().get());
+					}
+				}
+			}
+		}
+	}
+	
 	public void explosion(TFPlayer damager, Location loc, double centerDamage, double radius, Predicate<TFEntity> enemyPredicate, double centerKnockback) {
 		
 		TFSound.EXPLOSION.withVolume((int) (radius / 2.5)).play(loc);
