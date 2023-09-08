@@ -97,7 +97,9 @@ public class PayloadsManager extends GameManager
 			minecarts.put(team, cart);
 			maxRailIndex.put(team, 0);
 			coloredBlocks.put(team, team.getRailsStart().getRelative(BlockFace.DOWN).getType());
-			notColoredBlocks.put(team, team.getRailway().get(1).getRelative(BlockFace.DOWN).getType());
+			Material notColored = team.getRailway().get(1).getRelative(BlockFace.DOWN).getType();
+			notColoredBlocks.put(team, notColored);
+			team.getRailway().forEach(b -> b.getRelative(BlockFace.DOWN).setType(notColored, false));
 			
 			team.getOnlinePlayers().forEach(player -> {
 				player.respawn(team.getSpawnpoint());
