@@ -19,6 +19,8 @@ public abstract class ScoreboardUpdater
 	}
 	
 	public CosmoxScoreboard createScoreboard(TFPlayer player) {
+		if(!player.isOnline())
+			return null;
 		CosmoxScoreboard scoreboard = new CosmoxScoreboard(player.toBukkit());
 		scoreboard.updateTitle("§f§lTF2");
 		scoreboard.updateLine(0, "§0");
