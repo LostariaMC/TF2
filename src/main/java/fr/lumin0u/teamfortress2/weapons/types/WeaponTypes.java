@@ -217,7 +217,7 @@ public final class WeaponTypes
 			return mine;
 		}
 	};
-	public static final GunType SNIPER = new GunType(false, Material.DIAMOND_HOE, "Sniper", 1, 76, -1, 10, 100, 0, 0.4) {
+	public static final GunType SNIPER = new GunType(false, Material.DIAMOND_HOE, "Sniper", 1, 86, -1, 10, 100, 0, 0.4) {
 		@Override
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder().add(HEADSHOT_LORE.formatted(damage*1.5)).add(LEFT_CLICK_LORE.formatted("activer la lunette")).add("§7> §6Degats avec visée§7: §e§l%.1f".formatted(damage*2));
