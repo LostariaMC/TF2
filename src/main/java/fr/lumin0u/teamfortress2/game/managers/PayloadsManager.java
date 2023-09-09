@@ -303,7 +303,8 @@ public class PayloadsManager extends GameManager
 			Bukkit.getOnlinePlayers().stream().map(TFPlayer::of).forEach(watcher -> {
 				CosmoxScoreboard scoreboard = watcher.toCosmox().getScoreboard();
 				
-				watcher.toBukkit().setExp((float) watcher.getTeam().getPayloadProgression());
+				if(!watcher.isSpectator())
+					watcher.toBukkit().setExp((float) watcher.getTeam().getPayloadProgression());
 				
 				AtomicInteger line = new AtomicInteger(5);
 				PayloadsManager.getInstance().getTeams().stream()

@@ -116,7 +116,9 @@ public class TDMManager extends GameManager
 		public void updateTeamKills(TFTeam team) {
 			Bukkit.getOnlinePlayers().stream().map(TFPlayer::of).forEach(watcher -> {
 				CosmoxScoreboard scoreboard = watcher.toCosmox().getScoreboard();
-				watcher.toBukkit().setExp((float) watcher.getTeam().getKills() / (float) KILLS_TO_WIN);
+				
+				if(!watcher.isSpectator())
+					watcher.toBukkit().setExp((float) watcher.getTeam().getKills() / (float) KILLS_TO_WIN);
 				
 				AtomicInteger line = new AtomicInteger(5);
 				TDMManager.getInstance().getTeams().stream()

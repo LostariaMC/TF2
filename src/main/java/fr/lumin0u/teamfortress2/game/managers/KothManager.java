@@ -209,7 +209,8 @@ public class KothManager extends GameManager
 			Bukkit.getOnlinePlayers().stream().map(TFPlayer::of).forEach(watcher -> {
 				CosmoxScoreboard scoreboard = watcher.toCosmox().getScoreboard();
 				
-				watcher.toBukkit().setExp((float) watcher.getTeam().getKothCaptureTime() / (float) TIME_TO_WIN);
+				if(!watcher.isSpectator())
+					watcher.toBukkit().setExp((float) watcher.getTeam().getKothCaptureTime() / (float) TIME_TO_WIN);
 				
 				AtomicInteger line = new AtomicInteger(5);
 				KothManager.getInstance().getTeams().stream()
