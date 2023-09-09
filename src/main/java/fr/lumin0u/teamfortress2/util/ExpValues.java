@@ -13,7 +13,7 @@ public class ExpValues
 	
 	public static final double WIN_CTF = 10;
 	public static final double LOSE_CTF = 4;
-	public static final double FLAG_CAPTURE_CTF = 2;
+	public static final double FLAG_CAPTURE_CTF = 3;
 	public static final double ADDITIONAL_PER_MINUTE_CTF = 0.5;
 	
 	public static final double WIN_KOTH = 10;
