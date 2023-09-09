@@ -108,8 +108,8 @@ public class Flag
 		
 		if(capturer != null) {
 			capturer.getEntity().setGlowing(false);
-			capturer = null;
 			capturer.toBukkit().setWalkSpeed(capturer.getKit().getSpeed());
+			capturer = null;
 		}
 	}
 	
