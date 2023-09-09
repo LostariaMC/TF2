@@ -160,7 +160,7 @@ public class PayloadsManager extends GameManager
 						if(tick++ % 20 == 0) {
 							team.getOnlinePlayers().stream()
 									.filter(not(TFEntity::isDead))
-									.filter(p -> p.toBukkit().getLocation().distance(cart.getLocation()) < 3)
+									.filter(p -> p.toBukkit().getLocation().distanceSquared(cart.getLocation()) < 9)
 									.forEach(p -> p.toCosmox().addStatistic("pushTime", 1));
 						}
 						
@@ -168,13 +168,13 @@ public class PayloadsManager extends GameManager
 								.filter(t -> !t.equals(team))
 								.flatMap(t -> t.getOnlinePlayers().stream())
 								.filter(Predicate.not(TFPlayer::isDead))
-								.anyMatch(p -> p.toBukkit().getLocation().distance(cart.getLocation()) < 3)) {
+								.anyMatch(p -> p.toBukkit().getLocation().distanceSquared(cart.getLocation()) < 9)) {
 							push = -1;
 						}
 						else {
 							push = Math.sqrt(2 * team.getOnlinePlayers().stream()
 									.filter(Predicate.not(TFPlayer::isDead))
-									.filter(p -> p.toBukkit().getLocation().distance(cart.getLocation()) < 3)
+									.filter(p -> p.toBukkit().getLocation().distanceSquared(cart.getLocation()) < 9)
 									.filter(p -> world.rayTraceBlocks(p.getEyeLocation(), cart.getLocation().add(0, 0.5, 0).subtract(p.getEyeLocation()).toVector(), p.getEyeLocation().distance(cart.getLocation().add(0, 0.5, 0))) == null)
 									.mapToDouble(p -> p.getKit().getValeurCart())
 									.sum());

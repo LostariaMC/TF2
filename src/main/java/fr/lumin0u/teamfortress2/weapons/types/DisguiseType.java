@@ -222,7 +222,7 @@ public final class DisguiseType extends WeaponType
 											int slot = player.toBukkit().getInventory().getHeldItemSlot();
 											
 											pair.setSecond(!disguise.isDead() ? disguise.toBukkit().getInventory().getItem(slot)
-													: disguise.getKit().getWeapons()[slot].getDefaultRender());
+													: (disguise.getKit().getWeapons()[slot] == null ? new ItemStack(Material.AIR) : disguise.getKit().getWeapons()[slot].getDefaultRender()));
 										}
 										
 										return pair;
