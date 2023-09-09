@@ -346,7 +346,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 	
 	@NotNull
 	public WrappedPlayer getNextDisguise() {
-		return nextDisguise == null ? GameManager.getInstance().getOnlinePlayers().stream()
+		return nextDisguise == null || !nextDisguise.isOnline() ? GameManager.getInstance().getOnlinePlayers().stream()
 				.filter(this::isEnemy)
 				.findAny().orElseThrow() : nextDisguise;
 	}
