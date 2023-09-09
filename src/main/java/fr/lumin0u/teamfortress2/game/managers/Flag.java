@@ -53,6 +53,7 @@ public class Flag
 		flagState = FlagState.CAPTURED;
 		capturer = player;
 		capturer.getEntity().setGlowing(true);
+		capturer.toBukkit().setWalkSpeed(0.17f);
 		
 		flagStand.setGravity(false);
 		flagStand.setGlowing(false);
@@ -82,6 +83,7 @@ public class Flag
 			p.toBukkit().showTitle(Title.title(Component.empty(), Component.text("§eBannière au sol"), Times.times(Ticks.duration(5), Ticks.duration(40), Ticks.duration(5))));
 		});
 		capturer.getEntity().setGlowing(false);
+		capturer.toBukkit().setWalkSpeed(capturer.getKit().getSpeed());
 		capturer = null;
 	}
 	
@@ -106,6 +108,7 @@ public class Flag
 		if(capturer != null) {
 			capturer.getEntity().setGlowing(false);
 			capturer = null;
+			capturer.toBukkit().setWalkSpeed(capturer.getKit().getSpeed());
 		}
 	}
 	
