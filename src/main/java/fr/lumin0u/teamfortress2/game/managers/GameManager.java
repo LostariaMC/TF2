@@ -57,7 +57,10 @@ public abstract class GameManager
 		
 		this.scoreboardUpdater = scoreboardUpdater;
 		
-		Bukkit.getScheduler().runTaskTimer(tf, scoreboardUpdater::updateTimer, 20, 20);
+		Bukkit.getScheduler().runTaskTimer(tf, () -> {
+			scoreboardUpdater.updateTimer();
+			getOnlinePlayers().forEach(p -> p.toCosmox().addStatistic(GameVariables.TIME_PLAYED, 1));
+		}, 20, 20);
 	}
 	
 	public static GameManager getInstance() {
@@ -138,7 +141,6 @@ public abstract class GameManager
 		{
 			if(!player.isSpectator()) {
 				player.toCosmox().addStatistic(GameVariables.GAMES_PLAYED, 1);
-				player.toCosmox().addStatistic(GameVariables.TIME_PLAYED, (int) ((System.currentTimeMillis() - startDate) / 1000));
 			}
 			
 			player.toBukkit().sendTitle("§eFin de la partie !", "", 5, 30, 30);
