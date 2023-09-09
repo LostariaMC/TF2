@@ -68,15 +68,6 @@ public class TDMManager extends GameManager
 				player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 1000000, 2, false, false, true));
 			}
 		});
-		
-		TF.getInstance().getPlayers().stream().filter(WrappedPlayer::isOnline).forEach(player ->
-		{
-			if(!player.isSpectator()) {
-				player.toCosmox().addStatistic(GameVariables.GAMES_PLAYED, 1);
-			}
-			
-			player.toBukkit().sendTitle("§eFin de la partie !", "", 5, 30, 30);
-		});
 	}
 	
 	@Override

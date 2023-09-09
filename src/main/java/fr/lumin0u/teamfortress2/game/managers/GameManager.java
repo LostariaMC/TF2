@@ -9,6 +9,7 @@ import fr.lumin0u.teamfortress2.game.TFTeam;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.worsewarn.cosmox.API;
 import fr.worsewarn.cosmox.api.players.WrappedPlayer;
+import fr.worsewarn.cosmox.game.GameVariables;
 import fr.worsewarn.cosmox.game.Phase;
 import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.chat.Messages;
@@ -132,6 +133,16 @@ public abstract class GameManager
 		
 		API.instance().getManager().getGame().addToResume(Messages.SUMMARY_WIN.formatted(winnerTeam == null ? winner.getName() : winnerTeam.cosmoxTeam().getPrefix()));
 		API.instance().getManager().getGame().addToResume(Messages.SUMMARY_TIME.formatted(getFormattedTimer()));
+		
+		TF.getInstance().getPlayers().stream().filter(WrappedPlayer::isOnline).forEach(player ->
+		{
+			if(!player.isSpectator()) {
+				player.toCosmox().addStatistic(GameVariables.GAMES_PLAYED, 1);
+				player.toCosmox().addStatistic(GameVariables.TIME_PLAYED, (int) ((System.currentTimeMillis() - startDate) / 1000));
+			}
+			
+			player.toBukkit().sendTitle("§eFin de la partie !", "", 5, 30, 30);
+		});
 		
 		API.instance().getManager().setPhase(Phase.END);
 	}

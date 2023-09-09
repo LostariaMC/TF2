@@ -382,8 +382,10 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		
 		amount = Math.min(amount, toBukkit().getHealth());
 		
-		if(damager != null)
+		if(damager != null) {
 			addDamager(damager, amount);
+			damager.toCosmox().addStatistic(GameVariables.DAMAGES, (int) amount);
+		}
 		
 		if(toBukkit().getHealth() <= amount) {
 			die(damager);
@@ -452,6 +454,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		}
 		
 		if(!disconnect) {
+			toCosmox().addStatistic(GameVariables.DEATHS, 1);
 			dead = true;
 			
 			TFSound.PLAYER_DEATH.play(toBukkit().getLocation());
