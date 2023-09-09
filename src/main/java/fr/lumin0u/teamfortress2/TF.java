@@ -4,6 +4,7 @@ import fr.lumin0u.teamfortress2.events.CosmoxListener;
 import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.GameType;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.Items;
 import fr.lumin0u.teamfortress2.util.Utils;
 import fr.worsewarn.cosmox.API;
@@ -12,6 +13,7 @@ import fr.worsewarn.cosmox.api.players.WrappedPlayer.PlayerWrapper;
 import fr.worsewarn.cosmox.api.statistics.Statistic;
 import fr.worsewarn.cosmox.game.Game;
 import fr.worsewarn.cosmox.game.GameVariables;
+import fr.worsewarn.cosmox.game.configuration.Parameter;
 import fr.worsewarn.cosmox.game.teams.Team;
 import fr.worsewarn.cosmox.tools.items.DefaultItemSlot;
 import fr.worsewarn.cosmox.tools.map.*;
@@ -110,6 +112,7 @@ public final class TF extends JavaPlugin {
 				.setGameAuthor("lumin0u")
 				.addExtraScoreboard(WR_SCOREBOARD_KIT.formatted("§7?"))
 				.addExtraScoreboard(" §9§9§8")
+				.addParameter(new Parameter("Discord", "", 0, 0, 1, new ItemBuilder(fr.worsewarn.cosmox.tools.items.Items.DISCORD.item.clone()).setLore(Arrays.asList(" ", "§7Ceci est le déplacement automatique des", "§7équipes sur Discord. En gros c'est", "§7pour séparer les équipes par canaux vocaux", "§7Si vous êtes trop ou que c'est le bordel, tu", "§7sais quoi faire !", " ", " §fServeur par défaut actuel §a%ds", " ", " §7Actuellement %b")).build(), Arrays.asList(1F), true, false))
 				.activeJoinInGame();
 	
 		registerListener(new CosmoxListener());
