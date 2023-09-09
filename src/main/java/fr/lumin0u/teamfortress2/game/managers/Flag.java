@@ -54,6 +54,7 @@ public class Flag
 		capturer = player;
 		capturer.getEntity().setGlowing(true);
 		capturer.toBukkit().setWalkSpeed(0.17f);
+		capturer.toBukkit().showTitle(Title.title(Component.empty(), Component.text("§eVous avez la bannière"), Times.times(Ticks.duration(3), Ticks.duration(20), Ticks.duration(3))));
 		
 		flagStand.setGravity(false);
 		flagStand.setGlowing(false);
