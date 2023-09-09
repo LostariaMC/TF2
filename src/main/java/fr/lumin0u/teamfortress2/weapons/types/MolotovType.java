@@ -67,7 +67,8 @@ public final class MolotovType extends WeaponType
 			public void explode() {
 				Location loc = potion.getLocation();
 				for(TFEntity ent : GameManager.getInstance().getLivingEntities()) {
-					if(player.isEnemy(ent) && ent.getLocation().distanceSquared(loc) < radius*radius) {
+					if(player.isEnemy(ent) && ent.getLocation().distanceSquared(loc) < radius*radius
+							&& loc.getWorld().rayTraceBlocks(ent.getEyeLocation(), loc.clone().subtract(ent.getEyeLocation()).toVector(), ent.getEyeLocation().distance(loc)) == null) {
 						ent.setFireCause(new FireDamageCause(false, player, fireDmg));
 						ent.getEntity().setFireTicks(fireDuration);
 					}

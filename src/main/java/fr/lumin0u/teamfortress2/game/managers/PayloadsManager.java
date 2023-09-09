@@ -158,7 +158,7 @@ public class PayloadsManager extends GameManager
 						double push;
 						
 						if(tick++ % 20 == 0) {
-							getOnlinePlayers().stream()
+							team.getOnlinePlayers().stream()
 									.filter(not(TFEntity::isDead))
 									.filter(p -> p.toBukkit().getLocation().distance(cart.getLocation()) < 3)
 									.forEach(p -> p.toCosmox().addStatistic("pushTime", 1));
