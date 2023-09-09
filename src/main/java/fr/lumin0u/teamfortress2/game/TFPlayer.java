@@ -523,6 +523,10 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		for(int i = 0; i < weapons.length; i++) {
 			WeaponType type = weapons[i];
 			giveWeapon(type.createWeapon(this, i));
+			
+			if(toBukkit().getCooldown(type.getMaterial()) > 0) {
+				toBukkit().setCooldown(type.getMaterial(), 0);
+			}
 		}
 		
 		giveWeapon(getKit().getSpecial().createWeapon(this, Weapon.ULTIMATE_WEAPON_SLOT));

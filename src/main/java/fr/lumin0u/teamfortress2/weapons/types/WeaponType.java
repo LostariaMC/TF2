@@ -73,6 +73,10 @@ public abstract class WeaponType
 		return name;
 	}
 	
+	public Material getMaterial() {
+		return material;
+	}
+	
 	public int getMaxAmmo() {
 		return maxAmmo;
 	}
