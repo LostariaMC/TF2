@@ -8,6 +8,7 @@ import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.weapons.PlaceableWeapon;
 import fr.lumin0u.teamfortress2.weapons.PlacedBlockWeapon;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -44,7 +45,12 @@ public abstract class PlaceableWeaponType extends WeaponType
 		
 		Block minePosition = info.getHitBlock().getRelative(info.getHitBlockFace());
 		Block downBlock = minePosition.getRelative(BlockFace.DOWN);
-		
+		/*Bukkit.broadcastMessage("----------------------");
+		Bukkit.broadcastMessage("" + minePosition.getType());
+		Bukkit.broadcastMessage("" + minePosition.isEmpty());
+		Bukkit.broadcastMessage("" + downBlock.getType());
+		Bukkit.broadcastMessage("" + downBlock.isBuildable());
+		Bukkit.broadcastMessage("" + isCorrectLocation(minePosition, downBlock, info.getHitBlockFace()));*/
 		if(isCorrectLocation(minePosition, downBlock, info.getHitBlockFace())) {
 			((PlaceableWeapon)weapon).getBlocks().add(placeBlock(player, (PlaceableWeapon) weapon, minePosition, info.getHitBlockFace()));
 			weapon.useAmmo();
@@ -52,8 +58,8 @@ public abstract class PlaceableWeaponType extends WeaponType
 	}
 	
 	public boolean isCorrectLocation(Block minePosition, Block downBlock, BlockFace against) {
-		return minePosition.isEmpty() && minePosition.getRelative(BlockFace.UP).isEmpty()
-				&& downBlock.isBuildable() && BoundingBox.of(downBlock).equals(downBlock.getBoundingBox());
+		return (minePosition.isEmpty() || minePosition.getType() == Material.LIGHT) && minePosition.getRelative(BlockFace.UP).isEmpty()
+				&& (downBlock.getBoundingBox().getMaxX() - downBlock.getBoundingBox().getMinX() > 0.9) && (downBlock.getBoundingBox().getMaxZ() - downBlock.getBoundingBox().getMinZ() > 0.9);
 	}
 	
 	@Override

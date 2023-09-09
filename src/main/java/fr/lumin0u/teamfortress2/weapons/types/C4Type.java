@@ -39,7 +39,7 @@ public final class C4Type extends PlaceableWeaponType
 	
 	@Override
 	public boolean isCorrectLocation(Block minePosition, Block downBlock, BlockFace against) {
-		return minePosition.isEmpty();
+		return (minePosition.isEmpty() || minePosition.getType() == Material.LIGHT);
 	}
 	
 	@Override
