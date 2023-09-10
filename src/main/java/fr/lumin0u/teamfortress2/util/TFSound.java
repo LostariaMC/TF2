@@ -18,6 +18,7 @@ public interface TFSound
 	TFSound GUN_SHOT = new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1.2f, SoundCategory.PLAYERS);
 	TFSound SHOTGUN_SHOT = new SimpleSound(Sound.ENTITY_GENERIC_EXPLODE, 1f, 2f, SoundCategory.PLAYERS);
 	TFSound EXPLOSION = new SimpleSound(Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f, SoundCategory.PLAYERS);
+	TFSound ULTI_READY = new SimpleSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.7f, SoundCategory.PLAYERS);
 	
 	TFSound SMOKE_EXPLODE = new SimpleSound(Sound.ENTITY_LLAMA_SPIT, 2f, 0.5f, SoundCategory.MASTER);
 	

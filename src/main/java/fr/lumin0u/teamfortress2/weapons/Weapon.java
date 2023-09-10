@@ -2,6 +2,7 @@ package fr.lumin0u.teamfortress2.weapons;
 
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
@@ -15,7 +16,7 @@ import java.util.List;
 public class Weapon
 {
 	public static final int ULTIMATE_RELOAD_TICKS = 25 * 20;
-	public static final int ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS = 5 * 20;
+	public static final int ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS = 6 * 20;
 	public static final int ULTIMATE_WEAPON_SLOT = 7;
 	
 	protected List<BukkitTask> bukkitTasks = new ArrayList<>();
@@ -137,6 +138,7 @@ public class Weapon
 					ammo = type.getMaxAmmo();
 					reloading = false;
 					updateItem();
+					TFSound.ULTI_READY.playTo(owner);
 					
 					cancel();
 				}
@@ -153,6 +155,7 @@ public class Weapon
 				unlocked = true;
 				giveItem();
 				ultimateReload();
+				ultiReloadTicksRem -= ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS;
 			}
 			else if(reloading) {
 				ultiReloadTicksRem -= ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS;
