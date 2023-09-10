@@ -9,6 +9,7 @@ import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -94,7 +95,7 @@ public final class Barbecue extends Weapon
 				
 				if(bodyCollision != null || headCollision != null) {
 					double dist = bodyCollision == null ? headCollision.getHitPosition().distance(source.toVector()) : bodyCollision.getHitPosition().distance(source.toVector());
-					if(source.getWorld().rayTraceBlocks(source, direction, dist) == null) {
+					if(source.getWorld().rayTraceBlocks(source, direction, dist, FluidCollisionMode.NEVER, true) == null) {
 						ent.setFireCause(new FireDamageCause(false, player, fireDmg));
 						ent.getEntity().setFireTicks(fireDuration);
 						ent.damage(player, 1, direction.clone().multiply(0.05));

@@ -9,10 +9,7 @@ import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.ThrownExplosive;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -68,7 +65,7 @@ public final class MolotovType extends WeaponType
 				Location loc = potion.getLocation();
 				for(TFEntity ent : GameManager.getInstance().getLivingEntities()) {
 					if(player.isEnemy(ent) && ent.getLocation().distanceSquared(loc) < radius*radius
-							&& loc.getWorld().rayTraceBlocks(ent.getEyeLocation(), loc.clone().subtract(ent.getEyeLocation()).toVector(), ent.getEyeLocation().distance(loc)) == null) {
+							&& loc.getWorld().rayTraceBlocks(ent.getEyeLocation(), loc.clone().subtract(ent.getEyeLocation()).toVector(), ent.getEyeLocation().distance(loc), FluidCollisionMode.NEVER, true) == null) {
 						ent.setFireCause(new FireDamageCause(false, player, fireDmg));
 						ent.getEntity().setFireTicks(fireDuration);
 					}

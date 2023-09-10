@@ -175,7 +175,7 @@ public class PayloadsManager extends GameManager
 							push = Math.sqrt(2 * team.getOnlinePlayers().stream()
 									.filter(Predicate.not(TFPlayer::isDead))
 									.filter(p -> p.toBukkit().getLocation().distanceSquared(cart.getLocation()) < 9)
-									.filter(p -> world.rayTraceBlocks(p.getEyeLocation(), cart.getLocation().add(0, 0.5, 0).subtract(p.getEyeLocation()).toVector(), p.getEyeLocation().distance(cart.getLocation().add(0, 0.5, 0))) == null)
+									.filter(p -> world.rayTraceBlocks(p.getEyeLocation(), cart.getLocation().add(0, 0.5, 0).subtract(p.getEyeLocation()).toVector(), p.getEyeLocation().distance(cart.getLocation().add(0, 0.5, 0)), FluidCollisionMode.NEVER, true) == null)
 									.mapToDouble(p -> p.getKit().getValeurCart())
 									.sum());
 						}

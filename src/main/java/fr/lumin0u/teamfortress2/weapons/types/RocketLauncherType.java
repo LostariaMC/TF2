@@ -6,6 +6,7 @@ import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.lumin0u.teamfortress2.weapons.ThrownExplosive;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -96,7 +97,7 @@ public final class RocketLauncherType extends WeaponType
 			
 			Location nextLoc = location.clone().add(direction.clone().multiply(ROCKET_SPEED));
 			BoundingBox bb = getEntity().getBoundingBox().expand(0.4);
-			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED) != null
+			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED, FluidCollisionMode.NEVER, true) != null
 				|| nextLoc.getWorld().getNearbyEntities(nextLoc, 5, 5, 5).stream().filter(owner::isNot).filter(not(fireball::equals)).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
 				explode();
 				return;
