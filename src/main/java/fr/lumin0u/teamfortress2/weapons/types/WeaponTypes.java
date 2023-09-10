@@ -63,6 +63,7 @@ public final class WeaponTypes
 	public static final WeaponType RED_BUTTON = new WeaponType(true, Material.TOTEM_OF_UNDYING, "Invincibilité", 1, -1, -1)
 	{
 		private final int duration = 5 * 20;
+		
 		@Override
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder()
@@ -186,6 +187,7 @@ public final class WeaponTypes
 	{
 		private final double centerDamage = 10;
 		private final double radius = 4;
+		
 		@Override
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder().add(CUSTOM_LORE.formatted("Explose au contact d'ennemis")).add(DAMAGE_LORE.formatted(centerDamage)).add(RADIUS_LORE.formatted(radius));
@@ -217,20 +219,23 @@ public final class WeaponTypes
 			return mine;
 		}
 	};
-	public static final GunType SNIPER = new GunType(false, Material.DIAMOND_HOE, "Sniper", 1, 86, -1, 10, 100, 0, 0.4) {
+	public static final GunType SNIPER = new GunType(false, Material.DIAMOND_HOE, "Sniper", 1, 86, -1, 10, 100, 0, 0.4)
+	{
 		@Override
 		protected Builder<String> loreBuilder() {
-			return super.loreBuilder().add(HEADSHOT_LORE.formatted(damage*1.5)).add(LEFT_CLICK_LORE.formatted("activer la lunette")).add("§7> §6Degats avec visée§7: §e§l%.1f".formatted(damage*2));
+			return super.loreBuilder().add(HEADSHOT_LORE.formatted(damage * 1.5)).add(LEFT_CLICK_LORE.formatted("activer la lunette")).add("§7> §6Degats avec visée§7: §e§l%.1f".formatted(damage * 2));
 		}
 		
 		@Override
 		public Weapon createWeapon(TFPlayer owner, int slot) {
-			return new Scopeable(SNIPER, owner, slot) {
+			return new Scopeable(SNIPER, owner, slot)
+			{
 				@Override
 				public void scopeEffect() {
 					TFSound.SNIPER_SCOPE.playTo(owner);
 					owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 10, false, false, false));
 				}
+				
 				@Override
 				public void unscopeEffect() {
 					TFSound.SNIPER_UNSCOPE.playTo(owner);
@@ -238,9 +243,10 @@ public final class WeaponTypes
 				}
 			};
 		}
+		
 		@Override
 		public void onEntityHit(Hit hit) {
-			boolean scoping = ((Scopeable)hit.weapon()).isScoping();
+			boolean scoping = ((Scopeable) hit.weapon()).isScoping();
 			Vector kb = hit.direction().clone().setY(0).multiply(hit.gunType().getKnockback());
 			hit.hitEntity().damage(hit.player(), hit.gunType().getDamage() * (hit.headshot() ? 1.5 : scoping ? 2 : 1), kb);
 		}
@@ -249,6 +255,7 @@ public final class WeaponTypes
 	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 184, -1)
 	{
 		private final int heal = 6;
+		
 		@Override
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("§l+%d pv".formatted(heal)));
@@ -288,6 +295,7 @@ public final class WeaponTypes
 	public static final WeaponType FLASHBANG = new WeaponType(false, Material.FIREWORK_ROCKET, "Grenade flash", 1, 15 * 20 + 18, -1)
 	{
 		private final double radius = 6;
+		
 		@Override
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder().add(RADIUS_LORE.formatted(radius)).add(CUSTOM_LORE.formatted("Aveugle les joueurs"));
@@ -469,6 +477,7 @@ public final class WeaponTypes
 					new BukkitRunnable()
 					{
 						int i = 0;
+						
 						@Override
 						public void run() {
 							i++;
@@ -504,7 +513,8 @@ public final class WeaponTypes
 	};
 	public static final FlareGunType FLARE_GUN = new FlareGunType();
 	public static final StrikerType STRIKER = new StrikerType();
-	public static final GunType TORNADO = new GunType(false, Material.GOLDEN_HOE, "La Tornade", 1, -1, 3, 1.5, 25, Math.PI / 70, 0.1) {
+	public static final GunType TORNADO = new GunType(false, Material.GOLDEN_HOE, "La Tornade", 1, -1, 3, 1.5, 25, Math.PI / 70, 0.1)
+	{
 		
 		@Override
 		protected Builder<String> loreBuilder() {
@@ -513,12 +523,14 @@ public final class WeaponTypes
 		
 		@Override
 		public Weapon createWeapon(TFPlayer owner, int slot) {
-			return new Scopeable(TORNADO, owner, slot) {
+			return new Scopeable(TORNADO, owner, slot)
+			{
 				@Override
 				public void scopeEffect() {
 					updateItem();
 					owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 7, false, false, false));
 				}
+				
 				@Override
 				public void unscopeEffect() {
 					updateItem();
@@ -529,13 +541,13 @@ public final class WeaponTypes
 		
 		@Override
 		public ItemBuilder buildItem(Weapon weapon) {
-			return super.buildItem(weapon).setGlow(((Scopeable)weapon).isScoping());
+			return super.buildItem(weapon).setGlow(((Scopeable) weapon).isScoping());
 		}
 		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			shotSound.play(player.getLocation());
-			boolean scoping = ((Scopeable)weapon).isScoping();
+			boolean scoping = ((Scopeable) weapon).isScoping();
 			
 			Location source = player.getEyeLocation();
 			Vector direction = player.getEyeLocation().getDirection();
@@ -554,7 +566,8 @@ public final class WeaponTypes
 		}
 	};
 	public static final MeleeWeaponType MACHETE = new MeleeWeaponType(false, Material.STONE_SWORD, "Machette", 1, -1, 3, 0.15);
-	public static final WeaponType BEAST_FURY = new WeaponType(true, Material.MUTTON, "Beast Fury", 1, -1, -1) {
+	public static final WeaponType BEAST_FURY = new WeaponType(true, Material.MUTTON, "Beast Fury", 1, -1, -1)
+	{
 		@Override
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("donne régénratin é plus de vi"));
@@ -606,16 +619,19 @@ public final class WeaponTypes
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder().add(RIGHT_CLICK_LORE.formatted("déclencher la C4"));
 		}
+		
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
+		
 		@Override
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	};
 	public static final C4Type C4 = new C4Type();
-	public static final GunType REVOLVER = new GunType(false, Material.STONE_HOE, "Revolver", 1, 36, -1, 4, 30, Math.PI / 800, 0.2) {
+	public static final GunType REVOLVER = new GunType(false, Material.STONE_HOE, "Revolver", 1, 36, -1, 4, 30, Math.PI / 800, 0.2)
+	{
 		@Override
 		protected Builder<String> loreBuilder() {
-			return super.loreBuilder().add(HEADSHOT_LORE.formatted(damage*2));
+			return super.loreBuilder().add(HEADSHOT_LORE.formatted(damage * 2));
 		}
 		
 		@Override
