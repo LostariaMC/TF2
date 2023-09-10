@@ -257,7 +257,7 @@ public final class WeaponTypes
 		@Override
 		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
 			TFSound.DRINK.play(player.toBukkit().getLocation());
-			player.toBukkit().setHealth(Math.min(player.toBukkit().getHealth() + heal, player.getKit().getMaxHealth()));
+			player.toBukkit().setHealth(Math.min(player.toBukkit().getHealth() + heal, player.toBukkit().getMaxHealth()));
 			weapon.useAmmo();
 		}
 		
