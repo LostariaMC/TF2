@@ -29,7 +29,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class EngiTurret extends PlacedBlockWeapon {
-	public static final int RELOAD_TICKS = 7 * 20;
+	public static final int RELOAD_TICKS = 7 * 20 + 10;
 	
 	private float yaw, pitch;
 	
@@ -297,7 +297,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 		public void explode() {
 			remove();
 			
-			GameManager.getInstance().explosion(owner, loc, 27, 16, owner::isEnemy, 2.5);
+			GameManager.getInstance().explosion(owner, loc, 25, 16, owner::isEnemy, 2.5);
 		}
 		
 		@Override
