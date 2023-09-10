@@ -48,7 +48,7 @@ public final class InvisWatchType extends WeaponType
 		
 		//player.getOptWeapon(WeaponTypes.DISGUISE).ifPresent(w -> ((Disguise)w).setDisguiseCancelled(true));
 		
-		player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration - 10, 1, false, false, false));
+		player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, duration, 1, false, false, false));
 		player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, duration, 0, false, false, true));
 		
 		PacketContainer packetDisappear = new PacketContainer(Server.ENTITY_DESTROY, new PacketPlayOutEntityDestroy(player.toBukkit().getEntityId()));

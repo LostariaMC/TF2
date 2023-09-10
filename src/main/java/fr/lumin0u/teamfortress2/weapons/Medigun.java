@@ -56,7 +56,7 @@ public class Medigun extends Weapon
 							ally.toBukkit().setHealth(currentHealth);
 						}
 						
-						if(tick % 10 == 0 && ally.isNot(owner)) {
+						if(tick % 10 == 0 && ally.isNot(owner) && !ally.isSpyInvisible()) {
 							healParticleSphere(ally.getLocation().add(0, 1, 0));
 							
 							Vector direction = ally.getLocation().clone().subtract(owner.getLocation()).toVector().normalize();
