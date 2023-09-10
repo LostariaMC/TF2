@@ -9,6 +9,7 @@ import io.papermc.paper.event.player.PlayerArmSwingEvent;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -51,6 +52,19 @@ public class InteractListener implements Listener
 			Vector interactPoint = event.getInteractionPoint() == null ? new Vector() : event.getInteractionPoint().toVector();
 			
 			RayTraceResult rayTraceResult = new RayTraceResult(interactPoint, event.getClickedBlock(), event.getBlockFace());
+			
+			player.getWeaponInHand().ifPresent(weapon -> weapon.rightClick(rayTraceResult));
+		}
+	}
+	
+	@EventHandler
+	public void onPlaceBlock(BlockPlaceEvent event) {
+		TFPlayer player = TFPlayer.of(event.getPlayer());
+		
+		event.setCancelled(true);
+		
+		if(gm.getPhase().isInGame() && !player.isInSafeZone()) {
+			RayTraceResult rayTraceResult = new RayTraceResult(new Vector(), event.getBlockAgainst(), event.getBlockAgainst().getFace(event.getBlock()));
 			
 			player.getWeaponInHand().ifPresent(weapon -> weapon.rightClick(rayTraceResult));
 		}

@@ -1,14 +1,19 @@
 package fr.lumin0u.teamfortress2.weapons;
 
+import com.google.common.collect.ImmutableList.Builder;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.TFEntity;
-import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.util.ComplexEntity;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.util.Utils;
+import fr.lumin0u.teamfortress2.weapons.types.PlaceableWeaponType;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
@@ -310,5 +315,45 @@ public class EngiTurret extends PlacedBlockWeapon {
 	@Override
 	public boolean isClicked(RayTraceResult rayTrace) {
 		return super.isClicked(rayTrace) || (rayTrace.getHitBlock() != null && rayTrace.getHitBlock().equals(block.getRelative(BlockFace.UP)));
+	}
+	
+	public static final class EngiTurretType extends PlaceableWeaponType
+	{
+		public EngiTurretType() {
+			super(false, Material.CAULDRON, "Tourelle", 1);
+		}
+		
+		@Override
+		public Weapon createWeapon(TFPlayer owner, int slot) {
+			return new PlaceableWeapon(this, owner, slot) {
+				@Override
+				public void pickupAmmo() {
+					// should be useless
+					if(ammo == 0)
+						super.pickupAmmo();
+				}
+			};
+		}
+		
+		@Override
+		protected Builder<String> loreBuilder() {
+			return super.loreBuilder().add(CUSTOM_LORE.formatted("Placez une tourelle qui tire des obus"));
+		}
+		
+		@Override
+		public PlacedBlockWeapon placeBlock(TFPlayer player, PlaceableWeapon weapon, Block block, BlockFace against) {
+			EngiTurret turret = new EngiTurret(player, (PlaceableWeapon) weapon, block);
+			turret.place(against);
+			player.toBukkit().setGameMode(GameMode.ADVENTURE);
+			return turret;
+		}
+		
+		@Override
+		public void wrenchPickup(TFPlayer player, PlaceableWeapon weapon, PlacedBlockWeapon clicked) {
+			if(!((EngiTurret)clicked).isReloading())
+				super.wrenchPickup(player, weapon, clicked);
+			else
+				player.toBukkit().sendActionBar("§cLa tourelle recharge !");
+		}
 	}
 }

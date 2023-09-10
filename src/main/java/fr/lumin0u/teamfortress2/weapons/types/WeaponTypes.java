@@ -59,7 +59,7 @@ public final class WeaponTypes
 		@Override
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	};
-	public static final EngiTurretType TURRET = new EngiTurretType();
+	public static final EngiTurret.EngiTurretType TURRET = new EngiTurret.EngiTurretType();
 	public static final WeaponType RED_BUTTON = new WeaponType(true, Material.TOTEM_OF_UNDYING, "Invincibilité", 1, -1, -1)
 	{
 		private final int duration = 5 * 20;

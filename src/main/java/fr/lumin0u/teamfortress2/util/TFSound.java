@@ -53,7 +53,7 @@ public interface TFSound
 			new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 0.6f, SoundCategory.PLAYERS), 6));
 	
 	TFSound TURRET_CONSTRUCT = new SimpleSound(Sound.BLOCK_ANVIL_USE, 0.5f, 0.5f, SoundCategory.PLAYERS);
-	TFSound TURRET_CONSTRUCT_READY = new SimpleSound(Sound.BLOCK_ANVIL_USE, 0.5f, 0.5f, SoundCategory.PLAYERS);
+	TFSound TURRET_CONSTRUCT_READY = new SimpleSound(Sound.BLOCK_ANVIL_PLACE, 0.5f, 1f, SoundCategory.PLAYERS);
 	TFSound TURRET_DIRECTION = new SimpleSound(Sound.BLOCK_NOTE_BLOCK_HAT, 0.5f, 0.5f, SoundCategory.PLAYERS);
 	TFSound TURRET_READY = new SimpleSound(Sound.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE, 0.5f, 0.5f, SoundCategory.PLAYERS);
 	TFSound TURRET_SHOOT = new SoundCombination(
