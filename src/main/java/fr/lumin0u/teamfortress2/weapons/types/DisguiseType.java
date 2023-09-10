@@ -17,10 +17,7 @@ import fr.lumin0u.teamfortress2.util.NMSUtils;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.worsewarn.cosmox.API;
 import net.kyori.adventure.text.Component;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
-import net.minecraft.network.protocol.game.PacketPlayOutNamedEntitySpawn;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -75,6 +72,8 @@ public final class DisguiseType extends WeaponType
 		private int currentCloneId = -1;
 		private List<Integer> cancelledCloneId = new ArrayList<>();
 		
+		private final Predicate<TFPlayer> shouldBeTricked = p -> owner.isEnemy(p) && !p.isSpectator();
+		
 		public Disguise(TFPlayer owner, int slot) {
 			super(WeaponTypes.DISGUISE, owner, slot);
 		}
@@ -97,33 +96,31 @@ public final class DisguiseType extends WeaponType
 			if(cancelledCloneId.contains(currentCloneId))
 				return;
 			
-			TFPlayer player = owner;
-			
 			API.instance().getProtocolManager().removePacketListener(packetListener);
 			
-			player.setDisguise(null);
+			owner.setDisguise(null);
 			PacketContainer packetDestroyClone = new PacketContainer(Server.ENTITY_DESTROY, new PacketPlayOutEntityDestroy(currentCloneId));
+			PacketContainer packetTeleportOwner = new PacketContainer(Server.ENTITY_TELEPORT, new PacketPlayOutEntityTeleport(NMSUtils.getNMSEntity(owner.toBukkit())));
 			
 			Bukkit.getOnlinePlayers().stream()
 					.map(TFPlayer::of)
+					.filter(shouldBeTricked)
 					.forEach(p -> {
 						p.sendPacket(packetDestroyClone);
-						p.toBukkit().hidePlayer(TF.getInstance(), player.toBukkit());
-						p.toBukkit().showPlayer(TF.getInstance(), player.toBukkit());
+						p.toBukkit().hidePlayer(TF.getInstance(), owner.toBukkit());
+						if(!owner.isSpyInvisible())
+							p.toBukkit().showPlayer(TF.getInstance(), owner.toBukkit());
+						p.sendPacket(packetTeleportOwner);
 					});
 			
 			cancelledCloneId.add(currentCloneId);
 		}
 		
 		private void activateDisguise() {
-			TFPlayer player = owner;
+			TFPlayer disguise = TFPlayer.of(owner.getNextDisguise());
+			owner.setDisguise(disguise);
 			
-			final Predicate<TFPlayer> shouldBeTricked = p -> player.isEnemy(p) && !p.isSpectator();
-			
-			TFPlayer disguise = TFPlayer.of(player.getNextDisguise());
-			player.setDisguise(disguise);
-			
-			player.toBukkit().sendMessage(Component.text()
+			owner.toBukkit().sendMessage(Component.text()
 					.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix() + "§7Vous prenez l'apparence de "))
 					.append(disguise.getListName()));
 			
@@ -181,17 +178,17 @@ public final class DisguiseType extends WeaponType
 					.filter(shouldBeTricked)
 					.forEach(p -> {
 						
-						p.toBukkit().hidePlayer(TF.getInstance(), player.toBukkit());
+						p.toBukkit().hidePlayer(TF.getInstance(), owner.toBukkit());
 						p.sendPacket(packetPlayerInfoAddClone);
 						
 						Bukkit.getScheduler().runTaskLater(TF.getInstance(), () -> {
-							if(!player.isSpyInvisible()) {
-								p.toBukkit().showPlayer(TF.getInstance(), player.toBukkit());
+							if(!owner.isSpyInvisible()) {
+								p.toBukkit().showPlayer(TF.getInstance(), owner.toBukkit());
 							}
 						}, 2);
 					});
 			
-			player.giveArmor();
+			owner.giveArmor();
 			
 			if(packetListener != null && API.instance().getProtocolManager().getPacketListeners().contains(packetListener)) {
 				API.instance().getProtocolManager().removePacketListener(packetListener);
@@ -205,10 +202,10 @@ public final class DisguiseType extends WeaponType
 					
 					if(event.getPacket().getType().equals(Server.ENTITY_DESTROY)) {
 						PacketContainer newPacket = event.getPacket().deepClone();
-						newPacket.getIntLists().write(0, newPacket.getIntLists().read(0).stream().map(i -> i == player.toBukkit().getEntityId() ? id : i).toList());
+						newPacket.getIntLists().write(0, newPacket.getIntLists().read(0).stream().map(i -> i == owner.toBukkit().getEntityId() ? id : i).toList());
 						event.setPacket(newPacket);
 					}
-					else if(event.getPacket().getIntegers().read(0) == player.toBukkit().getEntityId()) {
+					else if(event.getPacket().getIntegers().read(0) == owner.toBukkit().getEntityId()) {
 						PacketContainer newPacket = event.getPacket().deepClone();
 						newPacket.getIntegers().write(0, id);
 						
@@ -218,11 +215,11 @@ public final class DisguiseType extends WeaponType
 						else if(event.getPacketType().equals(Server.ENTITY_EQUIPMENT)) {
 							newPacket.getSlotStackPairLists().write(0, newPacket.getSlotStackPairLists().read(0).stream()
 									.map(pair -> {
-										if(pair.getFirst().equals(ItemSlot.MAINHAND)) {
-											int slot = player.toBukkit().getInventory().getHeldItemSlot();
+										if(pair.getFirst() == ItemSlot.MAINHAND) {
+											int slot = owner.toBukkit().getInventory().getHeldItemSlot();
 											
 											pair.setSecond(!disguise.isDead() ? disguise.toBukkit().getInventory().getItem(slot)
-													: (disguise.getKit().getWeapons()[slot] == null ? new ItemStack(Material.AIR) : disguise.getKit().getWeapons()[slot].getDefaultRender()));
+													: (slot >= disguise.getKit().getWeapons().length ? new ItemStack(Material.AIR) : disguise.getKit().getWeapons()[slot].getDefaultRender()));
 										}
 										else if(pair.getFirst() == ItemSlot.HEAD) {
 											pair.setSecond(disguise.getKit().getHelmet().clone());
@@ -253,8 +250,9 @@ public final class DisguiseType extends WeaponType
 					
 					if(tick == duration/* || disguiseWeapon.disguiseCancelled()*/) {
 						
+						owner.toBukkit().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "§7Votre déguisement prend fin");
 						removeDisguiseImmediatly();
-						player.giveArmor();
+						owner.giveArmor();
 						
 						cancel();
 						return;
