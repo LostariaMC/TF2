@@ -75,10 +75,10 @@ public class TFTeam
 		else
 			this.railway = null;
 		
-		this.chestplate = new ItemBuilder(Material.LEATHER_CHESTPLATE).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
-		this.leggings = new ItemBuilder(Material.LEATHER_LEGGINGS).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
-		this.boots = new ItemBuilder(Material.LEATHER_BOOTS).setDisplayName(chatColor + "VOUS ETES " + name.toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
-		this.flagItem = new ItemBuilder(TEAM_BANNER.get(cosmoxTeam)).setDisplayName(chatColor + "BANNIERE " + name.toUpperCase()).buildImmutable();
+		this.chestplate = new ItemBuilder(Material.LEATHER_CHESTPLATE).setDisplayName(chatColor + "VOUS ETES " + getName(false).toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
+		this.leggings = new ItemBuilder(Material.LEATHER_LEGGINGS).setDisplayName(chatColor + "VOUS ETES " + getName(false).toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
+		this.boots = new ItemBuilder(Material.LEATHER_BOOTS).setDisplayName(chatColor + "VOUS ETES " + getName(false).toUpperCase()).setLeatherColor(cosmoxTeam.getMaterialColor()).buildImmutable();
+		this.flagItem = new ItemBuilder(TEAM_BANNER.get(cosmoxTeam)).setDisplayName(chatColor + "BANNIERE " + getName(true).toUpperCase()).buildImmutable();
 	}
 	
 	private static final String SPAWN_F = "%sSpawn", SAFEZONE_F = "%sSafeZone", RAILS_START_F = "%sRailsStart", RAILS_END_F = "%sRailsEnd", FLAG_F = "%sFlag";

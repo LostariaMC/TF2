@@ -100,18 +100,6 @@ public enum Kit {
 		return k;
 	}
 	
-	public static Inventory getWRInventory() {
-		if(wrInventory == null) {
-			wrInventory = Bukkit.createInventory(null, 4 * 9, "Choisissez une classe");
-			
-			Arrays.stream(values()).filter(Kit::isReal).forEach(kit -> wrInventory.setItem(kit.place - 1, kit.repItem));
-			
-			wrInventory.setItem(18 + 4, Items.randomKitItem);
-		}
-		
-		return wrInventory;
-	}
-	
 	public static Inventory getKitMenuInventory() {
 		if(menuInventory == null) {
 			menuInventory = Bukkit.createInventory(null, 4 * 9, "Choisissez une classe");

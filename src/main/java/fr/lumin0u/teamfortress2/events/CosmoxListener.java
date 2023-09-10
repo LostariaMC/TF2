@@ -67,26 +67,26 @@ public class CosmoxListener implements Listener
 	
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent event) {
-		if(!gameStarted && event.getInventory().equals(Kit.getWRInventory())) {
+		if(!gameStarted && event.getInventory().equals(Kit.getKitMenuInventory())) {
 			event.setCancelled(true);
 			
 			TFPlayer player = TFPlayer.of(event.getWhoClicked());
 			
 			Kit clickedKit = Kit.byRepItem(event.getCurrentItem());
 			if(clickedKit != null) {
+				player.setNextKit(clickedKit, true);
 				player.toBukkit().sendMessage(Component.text()
 						.append(Component.text(TF.getInstance().getCosmoxGame().getPrefix() + "§7Vous choisissez la classe "))
 						.append(Component.text(clickedKit.getName(), clickedKit.getColor(), TextDecoration.BOLD))
 						.appendSpace()
 						.append(Component.text(clickedKit.getSymbol(), clickedKit.getColor())));
 				
-				TF.getInstance().setKitInRedis(player, clickedKit);
 				TF.getInstance().updatePlayerKitWRScoreboard(player, clickedKit);
 			}
 			else if(Items.randomKitItem.isSimilar(event.getCurrentItem())) {
+				player.setNextKit(Kit.RANDOM, true);
 				player.toBukkit().sendMessage(TF.getInstance().getCosmoxGame().getPrefix() + "§7Votre classe sera §d§lAléatoire");
 				
-				TF.getInstance().setKitInRedis(player, Kit.RANDOM);
 				TF.getInstance().updatePlayerKitWRScoreboard(player, Kit.RANDOM);
 			}
 		}
@@ -95,7 +95,7 @@ public class CosmoxListener implements Listener
 	@EventHandler
 	public void onInteract(PlayerInteractEvent event) {
 		if(!gameStarted && event.getAction().isRightClick() && event.getItem() != null && Items.WR_KIT_ITEM.getType().equals(event.getItem().getType())) {
-			event.getPlayer().openInventory(Kit.getWRInventory());
+			event.getPlayer().openInventory(Kit.getKitMenuInventory());
 		}
 	}
 	
