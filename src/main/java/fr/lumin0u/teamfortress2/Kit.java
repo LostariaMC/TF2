@@ -11,12 +11,14 @@ import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public enum Kit {
@@ -46,6 +48,7 @@ public enum Kit {
 	private final int valeurCart, valeurCap;
 	private final ImmutableItemStack repItem;
 	private final TextColor color;
+	private final ImmutableItemStack helmet;
 	
 	private Kit(TextColor color, WeaponType[] weapons, WeaponType special, int maxHealth, float speed, int valeurCart, int valeurCap, Material blockOnHead, boolean realKit, int place, String symbol) {
 		this.color = color;
@@ -60,13 +63,21 @@ public enum Kit {
 		this.valeurCart = valeurCart;
 		this.valeurCap = valeurCap;
 		
-		this.repItem = new ItemBuilder(blockOnHead)
+		this.repItem = setLoreAndName(new ItemBuilder(blockOnHead))
 				.addItemFlag(ItemFlag.HIDE_ITEM_SPECIFICS)
-				.setDisplayName(Component.text(getName(), Style.style(color, TextDecoration.BOLD)))
-				.setLore(Arrays.stream(weapons).map(w -> "§2" + w.getName()).toList())
-				.addLore(special.equals(WeaponTypes.SCOUT_RACE) ? "§dDASH DISPONIBLE" : "", "§7Vie : §6" + maxHealth, "§7Vitesse : §6%.2f".formatted(speed * 5))
-				.addLore("§7Valeur minecart : §6" + valeurCart, "§7Valeur de capture : §6" + valeurCap)
 				.buildImmutable();
+		this.helmet = setLoreAndName(new ItemBuilder(Material.LEATHER_HELMET))
+				.setLeatherColor(Color.fromRGB(color.red(), color.green(), color.blue()))
+				.buildImmutable();
+	}
+	
+	private ItemBuilder setLoreAndName(ItemBuilder ib) {
+		return ib.setDisplayName(Component.text(getName(), Style.style(color, TextDecoration.BOLD)))
+				.setLore(Arrays.stream(weapons).map(w -> "§2" + w.getName()).toList())
+				.addLore("§d" + special.getName())
+				.addLore(special.equals(WeaponTypes.SCOUT_RACE) ? List.of("§dDASH DISPONIBLE") : List.of())
+				.addLore("", "§7Vie : §6" + maxHealth, "§7Vitesse : §6%.2f".formatted(speed * 5))
+				.addLore("§7Valeur minecart : §6" + valeurCart);
 	}
 	
 	public TextColor getColor() {
@@ -197,5 +208,9 @@ public enum Kit {
 	
 	public ImmutableItemStack getRepItem() {
 		return repItem;
+	}
+	
+	public ImmutableItemStack getHelmet() {
+		return helmet;
 	}
 }

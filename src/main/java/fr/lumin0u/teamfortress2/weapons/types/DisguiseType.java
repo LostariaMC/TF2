@@ -224,6 +224,9 @@ public final class DisguiseType extends WeaponType
 											pair.setSecond(!disguise.isDead() ? disguise.toBukkit().getInventory().getItem(slot)
 													: (disguise.getKit().getWeapons()[slot] == null ? new ItemStack(Material.AIR) : disguise.getKit().getWeapons()[slot].getDefaultRender()));
 										}
+										else if(pair.getFirst() == ItemSlot.HEAD) {
+											pair.setSecond(disguise.getKit().getHelmet().clone());
+										}
 										
 										return pair;
 									})

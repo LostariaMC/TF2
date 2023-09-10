@@ -553,6 +553,7 @@ public class TFPlayer extends WrappedPlayer implements TFEntity
 		inv.setBoots(team.getBoots());
 		inv.setLeggings(team.getLeggings());
 		inv.setChestplate(team.getChestplate());
+		inv.setHelmet(kit.getHelmet());
 	}
 	
 	public void setEntityGlowing(Entity entity, String bukkitTeamName, NamedTextColor color) {
