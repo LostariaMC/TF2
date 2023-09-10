@@ -159,8 +159,8 @@ public class Weapon
 			}
 			else if(reloading) {
 				ultiReloadTicksRem -= ULTIMATE_RELOAD_KILL_SPEEDUP_TICKS;
-				owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), Math.max(0, ultiReloadTicksRem));
 			}
+			owner.toBukkit().setCooldown(owner.toBukkit().getInventory().getItem(slot).getType(), Math.max(0, ultiReloadTicksRem));
 		}
 	}
 	
