@@ -451,7 +451,7 @@ public final class WeaponTypes
 						for(int y = 0; y < 11; y++) {
 							for(int z = 0; z < 11; z++) {
 								Location l = loc.clone().add(x - 5.5, y - 5.5, z - 5.5);
-								if(l.distanceSquared(loc) < 25.01/* =5*5 */ && new Random().nextInt(2) == 0) {
+								if(l.distanceSquared(loc) < 25.01/* =5*5 */ && new Random().nextInt(10) >= 3) {
 									/*if(l.getBlock().getType() == Material.AIR) {
 										smokeBlocks.add(l);
 										l.getBlock().setType(Material.TRIPWIRE);
