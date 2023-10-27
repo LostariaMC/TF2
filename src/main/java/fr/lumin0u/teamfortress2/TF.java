@@ -31,7 +31,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class TF extends JavaPlugin {
+public final class TF extends JavaPlugin
+{
 	
 	private static final String WR_SCOREBOARD_KIT = "§7❘ §fClasse: %s";
 	
@@ -46,14 +47,15 @@ public final class TF extends JavaPlugin {
 	public TF() {
 		super();
 		
-		WrappedPlayer.registerType(new PlayerWrapper<>(TFPlayer.class) {
+		WrappedPlayer.registerType(new PlayerWrapper<>(TFPlayer.class)
+		{
 			@Override
 			public TFPlayer unWrap(java.util.UUID uuid) {
 				if(!players.containsKey(uuid))
 					players.put(uuid, new TFPlayer(uuid));
 				return players.get(uuid);
 			}
-	
+			
 			@Override
 			public java.util.UUID wrap(TFPlayer tfPlayer) {
 				return tfPlayer.getUniqueId();
@@ -72,7 +74,7 @@ public final class TF extends JavaPlugin {
 		getCommand("getulti").setExecutor(this);
 		
 		Bukkit.getScheduler().runTaskTimer(this, () -> currentTick++, 1, 1);
-	
+		
 		cosmoxGame = new Game("teamfortress2", "TeamFortress2", ChatColor.GOLD, Material.TNT_MINECART, List.of(Team.BLUE, Team.RED), 4, false, false,
 				List.of(
 						new Statistic("Temps de jeu", GameVariables.TIME_PLAYED, true, "s"),
@@ -114,12 +116,12 @@ public final class TF extends JavaPlugin {
 				.addExtraScoreboard(" §9§9§8")
 				.addParameter(new Parameter("Discord", "", 0, 0, 1, new ItemBuilder(fr.worsewarn.cosmox.tools.items.Items.DISCORD.item.clone()).setLore(Arrays.asList(" ", "§7Ceci est le déplacement automatique des", "§7équipes sur Discord. En gros c'est", "§7pour séparer les équipes par canaux vocaux", "§7Si vous êtes trop ou que c'est le bordel, tu", "§7sais quoi faire !", " ", " §fServeur par défaut actuel §a%ds", " ", " §7Actuellement %b")).build(), Arrays.asList(1F), true, false))
 				.activeJoinInGame();
-	
+		
 		registerListener(new CosmoxListener());
-	
+		
 		API.instance().registerNewGame(cosmoxGame);
-
-		cosmoxGame.addDefaultItemWaitingRoom(new DefaultItemSlot("kitMenu", Items.WR_KIT_ITEM.clone()), 7);
+		
+		cosmoxGame.addDefaultItemWaitingRoom(new DefaultItemSlot("kitMenu", Items.WR_KIT_ITEM.getType(), "§6Choix de classe", 7), 7);
 	}
 	
 	public void updatePlayerKitWRScoreboard(WrappedPlayer player, Kit kit) {
