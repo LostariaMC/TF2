@@ -18,7 +18,7 @@ public interface TFSound
 	TFSound GUN_SHOT = new SimpleSound(Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1f, 1.2f, SoundCategory.PLAYERS);
 	TFSound SHOTGUN_SHOT = new SimpleSound(Sound.ENTITY_GENERIC_EXPLODE, 1f, 2f, SoundCategory.PLAYERS);
 	TFSound EXPLOSION = new SimpleSound(Sound.ENTITY_GENERIC_EXPLODE, 1f, 1f, SoundCategory.PLAYERS);
-	TFSound ULTI_READY = new SimpleSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.7f, SoundCategory.PLAYERS);
+	TFSound ULTI_READY = new SimpleSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.3f, SoundCategory.PLAYERS);
 	
 	TFSound SMOKE_EXPLODE = new SimpleSound(Sound.ENTITY_LLAMA_SPIT, 2f, 0.5f, SoundCategory.MASTER);
 	
@@ -29,6 +29,7 @@ public interface TFSound
 	TFSound HEAL_STOP = new SimpleSound(Sound.BLOCK_BEACON_DEACTIVATE, 1f, 2f, SoundCategory.PLAYERS);
 	TFSound SNIPER_SCOPE = new SimpleSound(Sound.ITEM_SPYGLASS_USE, 1f, 1f, SoundCategory.PLAYERS);
 	TFSound SNIPER_UNSCOPE = new SimpleSound(Sound.ITEM_SPYGLASS_STOP_USING, 1f, 1f, SoundCategory.PLAYERS);
+	TFSound SNIPER_CHARGE_FULL = SILENCE;//new SimpleSound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 2f, SoundCategory.PLAYERS);
 	TFSound SPY_INVIS_END = new SimpleSound(Sound.BLOCK_ANVIL_LAND, 0.5f, 1f, SoundCategory.PLAYERS);
 	
 	TFSound SYRINGE_GUN = new SimpleSound(Sound.ENTITY_GUARDIAN_DEATH_LAND, 1f, 2f, SoundCategory.PLAYERS);

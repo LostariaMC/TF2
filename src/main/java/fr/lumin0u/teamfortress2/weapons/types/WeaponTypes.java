@@ -33,7 +33,7 @@ public final class WeaponTypes
 {
 	private static final AtomicInteger DROPPED_ITEM_COUNT = new AtomicInteger(0);
 	
-	public static final WeaponType CANON_SCIE = new ShotgunType(false, Material.GOLDEN_SHOVEL, "Canon scié", 2, 48, 14, 4, 12, Math.PI / 40, 0.15, 4);
+	public static final WeaponType CANON_SCIE = new ShotgunType(false, Material.GOLDEN_SHOVEL, "Canon scié", 2, 48, 14, 3, 12, Math.PI / 40, 0.15, 4);
 	public static final MeleeWeaponType CLUB = new MeleeWeaponType(false, Material.GOLDEN_SWORD, "Batte", 1, -1, 3, 0.3);
 	public static final GunType DEFENSEUR = new GunType(false, Material.WOODEN_HOE, "Défenseur", 1, 16, -1, 2, 30, Math.PI / 200, 0.25);
 	public static final WeaponType SCOUT_RACE = new WeaponType(true, Material.DRAGON_BREATH, "Scout race", 1, -1, -1)
@@ -219,40 +219,37 @@ public final class WeaponTypes
 			return mine;
 		}
 	};
-	public static final GunType SNIPER = new GunType(false, Material.DIAMOND_HOE, "Sniper", 1, 86, -1, 10, 100, 0, 0.4)
+	public static final GunType SNIPER = new GunType(false, Material.DIAMOND_HOE, "Sniper", 1, 71, -1, 10, 100, 0, 0.4)
 	{
 		@Override
 		protected Builder<String> loreBuilder() {
-			return super.loreBuilder().add(HEADSHOT_LORE.formatted(damage * 1.5)).add(LEFT_CLICK_LORE.formatted("activer la lunette")).add("§7> §6Degats avec visée§7: §e§l%.1f".formatted(damage * 2));
+			return super.loreBuilder()
+					.add(HEADSHOT_LORE.formatted(20.0))
+					.add(LEFT_CLICK_LORE.formatted("activer la lunette"))
+					.add("§6Les degats augmentent avec la charge")
+					.add("§6et la distance (40 blocks -> 20 degats)")
+					.add("§7> §6Degats maximaux§7: §e§l20.0");
 		}
 		
 		@Override
 		public Weapon createWeapon(TFPlayer owner, int slot) {
-			return new Scopeable(SNIPER, owner, slot)
-			{
-				@Override
-				public void scopeEffect() {
-					TFSound.SNIPER_SCOPE.playTo(owner);
-					owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 10, false, false, false));
-				}
-				
-				@Override
-				public void unscopeEffect() {
-					TFSound.SNIPER_UNSCOPE.playTo(owner);
-					owner.toBukkit().removePotionEffect(PotionEffectType.SLOW);
-				}
-			};
+			return new Sniper(owner, slot);
 		}
 		
 		@Override
 		public void onEntityHit(Hit hit) {
-			boolean scoping = ((Scopeable) hit.weapon()).isScoping();
 			Vector kb = hit.direction().clone().setY(0).multiply(hit.gunType().getKnockback());
-			hit.hitEntity().damage(hit.player(), hit.gunType().getDamage() * (hit.headshot() ? 1.5 : scoping ? 2 : 1), kb);
+			hit.hitEntity().damage(hit.player(), ((Sniper) hit.weapon()).getDamage(hit.headshot(), hit.hitPoint().distance(hit.player().getEyeLocation())), kb);
+		}
+		
+		@Override
+		public void rightClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {
+			super.rightClickAction(player, weapon, info);
+			((Sniper) weapon).resetCharge();
 		}
 	};
 	public static final GunType MITRAILLETTE = new GunType(false, Material.IRON_HOE, "Carabine du Nettoyeur", 1, 14, -1, 2, 30, Math.PI / 90, 0.4);
-	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 184, -1)
+	public static final WeaponType HEALTH_POTION = new WeaponType(false, Material.POTION, "Potion de vie", 1, 214, -1)
 	{
 		private final int heal = 6;
 		
@@ -526,13 +523,13 @@ public final class WeaponTypes
 			return new Scopeable(TORNADO, owner, slot)
 			{
 				@Override
-				public void scopeEffect() {
+				public void onScope() {
 					updateItem();
 					owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 7, false, false, false));
 				}
 				
 				@Override
-				public void unscopeEffect() {
+				public void onUnscope() {
 					updateItem();
 					owner.toBukkit().removePotionEffect(PotionEffectType.SLOW);
 				}

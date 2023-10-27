@@ -2,8 +2,6 @@ package fr.lumin0u.teamfortress2.weapons;
 
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
 
 public abstract class Scopeable extends Weapon
@@ -21,10 +19,10 @@ public abstract class Scopeable extends Weapon
 		this.scoping = scoping;
 		
 		if(scoping) {
-			scopeEffect();
+			onScope();
 		}
 		else {
-			unscopeEffect();
+			onUnscope();
 		}
 	}
 	
@@ -48,7 +46,7 @@ public abstract class Scopeable extends Weapon
 		invertScope();
 	}
 	
-	public abstract void scopeEffect();
+	public abstract void onScope();
 	
-	public abstract void unscopeEffect();
+	public abstract void onUnscope();
 }
