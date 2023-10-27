@@ -80,7 +80,7 @@ public class PlayerMovementListener implements Listener
 			event.setCancelled(true);
 			
 			if(player.getKit().equals(Kit.SCOUT)) {
-				player.toBukkit().setVelocity(new Vector(0, 0.5, 0).add(player.getEyeLocation().getDirection().multiply(0.6)));
+				player.toBukkit().setVelocity(new Vector(0, 0.6, 0).add(player.getEyeLocation().getDirection().multiply(player.isEnergized() ? 1.3 : 0.8)));
 				player.toBukkit().setAllowFlight(false);
 				
 				TFSound.SCOUT_DASH.play(player.toBukkit().getLocation());
