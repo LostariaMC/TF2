@@ -5,6 +5,7 @@ import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.TFSound;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -23,6 +24,7 @@ public class Sniper extends Scopeable
 	private int scopeTime;
 	private BukkitTask scopeTask;
 	private final BossBar bossBar = Bukkit.createBossBar(CHARGE_S.formatted(50), BarColor.PURPLE, BarStyle.SEGMENTED_12);
+	private Location lastOwnerLocation;
 	
 	public Sniper(TFPlayer owner, int slot) {
 		super(WeaponTypes.SNIPER, owner, slot);
@@ -39,6 +41,11 @@ public class Sniper extends Scopeable
 			@Override
 			public void run() {
 				scopeTime++;
+				
+				if(lastOwnerLocation.distanceSquared(owner.getLocation()) > 0.1) {
+					resetCharge();
+					lastOwnerLocation = owner.getLocation();
+				}
 				
 				if(scopeTime < CHARGE_TIME) {
 					double charge = (double) scopeTime / (double) CHARGE_TIME * 0.5 + 0.5;
