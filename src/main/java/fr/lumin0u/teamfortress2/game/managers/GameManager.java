@@ -199,7 +199,7 @@ public abstract class GameManager
 						blockCount.incrementAndGet();
 				});
 				
-				damage *= Math.max(1, (double) blockCount.get() / 2 + 0.5);
+				damage /= Math.max(1, (double) blockCount.get() + 0.5);
 				
 				Vector direction = entity.getLocation().toVector().subtract(loc.toVector());
 				direction.normalize().multiply((radius - distance) / radius * centerKnockback);
