@@ -28,21 +28,14 @@ public class Sniper extends Scopeable
 	
 	public Sniper(TFPlayer owner, int slot) {
 		super(WeaponTypes.SNIPER, owner, slot);
-	}
-	
-	@Override
-	public void onScope() {
-		TFSound.SNIPER_SCOPE.playTo(owner);
-		owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 10, false, false, false));
-		
-		bossBar.addPlayer(owner.toBukkit());
 		
 		scopeTask = new BukkitRunnable() {
 			@Override
 			public void run() {
-				scopeTime++;
+				if(scoping)
+					scopeTime++;
 				
-				if(lastOwnerLocation.distanceSquared(owner.getLocation()) > 0.1) {
+				if(lastOwnerLocation == null || lastOwnerLocation.distanceSquared(owner.getLocation()) > 0.1) {
 					resetCharge();
 					lastOwnerLocation = owner.getLocation();
 				}
@@ -64,10 +57,17 @@ public class Sniper extends Scopeable
 	}
 	
 	@Override
+	public void onScope() {
+		TFSound.SNIPER_SCOPE.playTo(owner);
+		owner.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, PotionEffect.INFINITE_DURATION, 10, false, false, false));
+		
+		bossBar.addPlayer(owner.toBukkit());
+	}
+	
+	@Override
 	public void onUnscope() {
 		TFSound.SNIPER_UNSCOPE.playTo(owner);
 		owner.toBukkit().removePotionEffect(PotionEffectType.SLOW);
-		scopeTask.cancel();
 		bossBar.removePlayer(owner.toBukkit());
 		
 		resetCharge();
