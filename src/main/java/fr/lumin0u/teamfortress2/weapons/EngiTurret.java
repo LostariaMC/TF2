@@ -245,7 +245,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 			super(getHeadLocation(), createObus(getHeadLocation()));
 			
 			this.loc = getHeadLocation();
-			this.velocity = EngiTurret.this.getDirection().clone().multiply(2.5);
+			this.velocity = EngiTurret.this.getDirection().clone().multiply(2);
 			
 			new BukkitRunnable() {
 				@Override
@@ -279,7 +279,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 		}
 		
 		public void tick() {
-			final Vector gravity = new Vector(0, -1.8 / 20.0, 0);
+			final Vector gravity = new Vector(0, -1.8 / 22.0, 0);
 			
 			if(!loc.getBlock().equals(getHeadLocation().getBlock())) {
 				if(loc.getWorld().rayTraceBlocks(loc, velocity, velocity.length()) != null) {
@@ -289,7 +289,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 			}
 			
 			loc.add(velocity);
-			velocity.multiply(0.995);
+			velocity.multiply(0.996);
 			velocity.add(gravity);
 			
 			if(velocity.isZero())
@@ -302,7 +302,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 		public void explode() {
 			remove();
 			
-			GameManager.getInstance().explosion(owner, loc, 25, 16, owner::isEnemy, 2.5);
+			GameManager.getInstance().explosion(owner, loc, 22, 13, owner::isEnemy, 2.5);
 		}
 		
 		@Override
