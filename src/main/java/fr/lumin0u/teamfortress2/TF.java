@@ -75,7 +75,7 @@ public final class TF extends JavaPlugin
 		
 		Bukkit.getScheduler().runTaskTimer(this, () -> currentTick++, 1, 1);
 		
-		cosmoxGame = new Game("teamfortress2", "TeamFortress2", ChatColor.GOLD, Material.TNT_MINECART, List.of(Team.BLUE, Team.RED), 4, false, false,
+		cosmoxGame = new Game("teamfortress2", "TeamFortress2", ChatColor.GOLD, Material.TNT_MINECART, List.of(Team.BLUE, Team.RED), 2, false, false,
 				List.of(
 						new Statistic("Temps de jeu", GameVariables.TIME_PLAYED, true, "s"),
 						new Statistic("Parties jouées", GameVariables.GAMES_PLAYED),
