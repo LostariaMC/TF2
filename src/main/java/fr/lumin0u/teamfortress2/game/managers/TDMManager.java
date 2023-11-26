@@ -61,11 +61,13 @@ public class TDMManager extends GameManager
 			if(winnerTeam.equals(player.getTeam())) {
 				player.toCosmox().addMolecules(ExpValues.WIN_TDM, "Victoire");
 				player.toCosmox().addStatistic(GameVariables.WIN, 1);
-				player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1000000, 5, false, false, true));
+				if(player.isOnline())
+					player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 1000000, 5, false, false, true));
 			}
 			else {
 				player.toCosmox().addMolecules(ExpValues.LOSE_TDM, "Lot de consolation");
-				player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 1000000, 2, false, false, true));
+				if(player.isOnline())
+					player.toBukkit().addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 1000000, 2, false, false, true));
 			}
 		});
 	}
