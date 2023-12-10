@@ -302,7 +302,7 @@ public class EngiTurret extends PlacedBlockWeapon {
 		public void explode() {
 			remove();
 			
-			GameManager.getInstance().explosion(owner, loc, 22, 13, owner::isEnemy, 2.5);
+			GameManager.getInstance().explosion(owner, loc, 25, 14, owner::isEnemy, 3);
 		}
 		
 		@Override
