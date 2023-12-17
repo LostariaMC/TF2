@@ -159,6 +159,10 @@ public abstract class GameManager
 	
 	public void onPlayerLeave(TFPlayer player) {
 		
+		if(phase == GamePhase.END) {
+			return;
+		}
+		
 		if(getOnlinePlayers().stream().filter(player::isNot).noneMatch(not(player::isEnemy))) {
 			if(isFriendlyFire()) {
 				throw new IllegalStateException();
