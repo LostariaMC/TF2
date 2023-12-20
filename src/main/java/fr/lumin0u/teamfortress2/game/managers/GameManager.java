@@ -43,6 +43,11 @@ public abstract class GameManager
 		this.friendlyFire = gameType.isFriendlyFire();
 		this.gameType = gameType;
 		
+		try {
+			map.getWorld().setTime(Integer.parseInt(map.getStr("timeOfDay")));
+		} catch(NumberFormatException ignore) {
+		
+		}
 		map.getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
 		map.getWorld().setGameRule(GameRule.NATURAL_REGENERATION, true);
 		map.getWorld().setDifficulty(Difficulty.NORMAL);

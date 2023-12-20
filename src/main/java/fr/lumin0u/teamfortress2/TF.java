@@ -92,6 +92,7 @@ public final class TF extends JavaPlugin
 				List.of(new MapTemplate(MapType.TWO, List.of(
 						new MapLocation("name", MapLocationType.STRING),
 						new MapLocation("authors", MapLocationType.STRING),
+						new MapLocation("timeOfDay", MapLocationType.STRING, "default"),
 						new MapLocation("gamemode", MapLocationType.STRING),
 						new MapLocation("redSpawn", MapLocationType.LOCATION),
 						new MapLocation("blueSpawn", MapLocationType.LOCATION),
