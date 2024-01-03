@@ -1,10 +1,10 @@
 package fr.lumin0u.teamfortress2;
 
-import fr.lumin0u.teamfortress2.util.ImmutableItemStack;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.Items;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponType;
 import fr.lumin0u.teamfortress2.weapons.types.WeaponTypes;
+import fr.worsewarn.cosmox.tools.items.ImmutableItemStack;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
