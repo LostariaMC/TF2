@@ -33,7 +33,7 @@ public final class WeaponTypes
 {
 	private static final AtomicInteger DROPPED_ITEM_COUNT = new AtomicInteger(0);
 	
-	public static final WeaponType CANON_SCIE = new ShotgunType(false, Material.GOLDEN_SHOVEL, "Canon scié", 2, 48, 14, 4, 12, Math.PI / 40, 0.15, 4);
+	public static final WeaponType CANON_SCIE = new ShotgunType(false, Material.GOLDEN_SHOVEL, "Canon scié", 2, 48, 14, 3, 12, Math.PI / 40, 0.15, 3);
 	public static final MeleeWeaponType CLUB = new MeleeWeaponType(false, Material.GOLDEN_SWORD, "Batte", 1, -1, 3, 0.3);
 	public static final GunType DEFENSEUR = new GunType(false, Material.WOODEN_HOE, "Défenseur", 1, 16, -1, 2, 30, Math.PI / 200, 0.25);
 	public static final WeaponType SCOUT_RACE = new WeaponType(true, Material.DRAGON_BREATH, "Scout race", 1, -1, -1)
@@ -288,7 +288,7 @@ public final class WeaponTypes
 		public void leftClickAction(TFPlayer player, Weapon weapon, RayTraceResult info) {}
 	};
 	public static final RocketLauncherType ROCKET_LAUNCHER = new RocketLauncherType();
-	public static final ShotgunType STD_SHOTGUN = new ShotgunType(false, Material.IRON_SHOVEL, "Fusil à pompe", 1, 64, -1, 3.5, 15, Math.PI / 40, 0.1, 5);
+	public static final ShotgunType STD_SHOTGUN = new ShotgunType(false, Material.IRON_SHOVEL, "Fusil à pompe", 1, 64, -1, 4, 15, Math.PI / 40, 0.1, 4);
 	public static final WeaponType FLASHBANG = new WeaponType(false, Material.FIREWORK_ROCKET, "Grenade flash", 1, 15 * 20 + 18, -1)
 	{
 		private final double radius = 6;
