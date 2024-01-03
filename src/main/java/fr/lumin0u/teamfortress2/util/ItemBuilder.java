@@ -1,6 +1,7 @@
 package fr.lumin0u.teamfortress2.util;
 
 import com.destroystokyo.paper.Namespaced;
+import fr.worsewarn.cosmox.tools.items.ImmutableItemStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -10,7 +11,6 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;

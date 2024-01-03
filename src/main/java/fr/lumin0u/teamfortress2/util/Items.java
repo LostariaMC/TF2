@@ -1,8 +1,8 @@
 package fr.lumin0u.teamfortress2.util;
 
+import fr.worsewarn.cosmox.tools.items.ImmutableItemStack;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
-import org.checkerframework.checker.units.qual.C;
 
 public class Items
 {

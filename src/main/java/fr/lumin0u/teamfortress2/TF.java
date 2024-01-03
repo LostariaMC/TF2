@@ -1,9 +1,10 @@
 package fr.lumin0u.teamfortress2;
 
 import fr.lumin0u.teamfortress2.events.CosmoxListener;
-import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.GameType;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
+import fr.lumin0u.teamfortress2.game.managers.GameManager;
+import fr.lumin0u.teamfortress2.util.I18n;
 import fr.lumin0u.teamfortress2.util.ItemBuilder;
 import fr.lumin0u.teamfortress2.util.Items;
 import fr.lumin0u.teamfortress2.util.Utils;
@@ -35,6 +36,7 @@ public final class TF extends JavaPlugin
 {
 	
 	private static final String WR_SCOREBOARD_KIT = "§7❘ §fClasse: %s";
+	public static final String GAME_IDENTIFIER = "teamfortress2";
 	
 	private static TF instance;
 	private GameManager gameManager;
@@ -75,20 +77,20 @@ public final class TF extends JavaPlugin
 		
 		Bukkit.getScheduler().runTaskTimer(this, () -> currentTick++, 1, 1);
 		
-		cosmoxGame = new Game("teamfortress2", "TeamFortress2", ChatColor.GOLD, Material.TNT_MINECART, List.of(Team.BLUE, Team.RED), 2, false, false,
+		cosmoxGame = new Game(GAME_IDENTIFIER, "TeamFortress2", ChatColor.GOLD, Material.TNT_MINECART, List.of(Team.BLUE, Team.RED), 2, false, false,
 				List.of(
-						new Statistic("Temps de jeu", GameVariables.TIME_PLAYED, true, "s"),
-						new Statistic("Parties jouées", GameVariables.GAMES_PLAYED),
-						new Statistic("Victoires", GameVariables.WIN),
-						new Statistic("Kills", GameVariables.KILLS, "", true, true),
-						new Statistic("Dégats", GameVariables.DAMAGES, "", true, true),
-						new Statistic("Morts", GameVariables.DEATHS, "", true, true),
-						new Statistic("Captures de drapeau", "flagCaptureCount", "", true, true),
-						new Statistic("Temps de push", "pushTime", true, true, true),
-						new Statistic("Temps de capture", "captureTime", true, true, true)
+						new Statistic(I18n.interpretable("main", "statistics_time_played"), GameVariables.TIME_PLAYED, true, "s"),
+						new Statistic(I18n.interpretable("main", "statistics_games_played"), GameVariables.GAMES_PLAYED),
+						new Statistic(I18n.interpretable("main", "statistics_win"), GameVariables.WIN),
+						new Statistic(I18n.interpretable("statistics_kills"), GameVariables.KILLS, "", true, true),
+						new Statistic(I18n.interpretable("statistics_damage"), GameVariables.DAMAGES, "", true, true),
+						new Statistic(I18n.interpretable("statistics_deaths"), GameVariables.DEATHS, "", true, true),
+						new Statistic(I18n.interpretable("statistics_flag_captures"), "flagCaptureCount", "", true, true),
+						new Statistic(I18n.interpretable("statistics_push_time"), "pushTime", true, true, true),
+						new Statistic(I18n.interpretable("statistics_capture_time"), "captureTime", true, true, true)
 				),
 				List.of(),
-				List.of("§7Il y a un spy dans le tas ..."),
+				List.of(" ", I18n.interpretable("game_description")),
 				List.of(new MapTemplate(MapType.TWO, List.of(
 						new MapLocation("name", MapLocationType.STRING),
 						new MapLocation("authors", MapLocationType.STRING),
@@ -114,14 +116,18 @@ public final class TF extends JavaPlugin
 				.setGameAuthor("lumin0u")
 				.addExtraScoreboard(WR_SCOREBOARD_KIT.formatted("§7?"))
 				.addExtraScoreboard(" §9§9§8")
-				.addParameter(new Parameter("Discord", "", 0, 0, 1, new ItemBuilder(fr.worsewarn.cosmox.tools.items.Items.DISCORD.item.clone()).setLore(Arrays.asList(" ", "§7Ceci est le déplacement automatique des", "§7équipes sur Discord. En gros c'est", "§7pour séparer les équipes par canaux vocaux", "§7Si vous êtes trop ou que c'est le bordel, tu", "§7sais quoi faire !", " ", " §fServeur par défaut actuel §a%ds", " ", " §7Actuellement %b")).build(), Arrays.asList(1F), true, false))
+				.addParameter(new Parameter("Discord", "", 0, 0, 1,
+						new ItemBuilder(fr.worsewarn.cosmox.tools.items.Items.DISCORD.item.clone())
+							.setLore(Arrays.asList(" ", "§7Ceci est le déplacement automatique des", "§7équipes sur Discord. En gros c'est", "§7pour séparer les équipes par canaux vocaux", "§7Si vous êtes trop ou que c'est le bordel, tu", "§7sais quoi faire !", " ", " §fServeur par défaut actuel §a%ds", " ", " §7Actuellement %b"))
+							.build(),
+						List.of(1F), true, false))
 				.activeJoinInGame();
 		
 		registerListener(new CosmoxListener());
 		
 		API.instance().registerNewGame(cosmoxGame);
 		
-		cosmoxGame.addDefaultItemWaitingRoom(new DefaultItemSlot("kitMenu", Items.WR_KIT_ITEM.getType(), "§6Choix de classe", 7), 7);
+		cosmoxGame.addDefaultItemWaitingRoom(new DefaultItemSlot("kitMenu", Items.WR_KIT_ITEM.getType(), I18n.interpretable("item_choose_kit"), 7), 7);
 	}
 	
 	public void updatePlayerKitWRScoreboard(WrappedPlayer player, Kit kit) {
