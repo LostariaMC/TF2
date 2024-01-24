@@ -140,7 +140,7 @@ public class CTFManager extends GameManager
 			
 			getInstance().showFlagsGlowing(player);
 			
-			scoreboard.updateLine(2, "§6| §eMode §f━ §e§lPayloads");
+			scoreboard.updateLine(2, "§6| §eMode §f━ §e§lCTF");
 			
 			scoreboard.updateLine(4, "§2");
 			

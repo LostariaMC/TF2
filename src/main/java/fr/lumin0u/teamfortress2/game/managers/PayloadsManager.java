@@ -246,7 +246,7 @@ public class PayloadsManager extends GameManager
 		// new 10% bar !
 		if((int) (lastProgression * 10) < (int) (newProgression * 10)) {
 			double railCount = (double) railwayLength / 10;
-			team.getPlayers().forEach(player -> player.toCosmox().addMolecules(ExpValues._100_RAILS_PAYLOADS * railCount / 100, "" + (int) (newProgression * 100) + "%"));
+			team.getPlayers().forEach(player -> player.toCosmox().addMolecules(ExpValues._100_RAILS_PAYLOADS * railCount / 100, (int) (newProgression * 100) + "%%"));
 		}
 		
 		team.setPayloadProgression(newProgression);

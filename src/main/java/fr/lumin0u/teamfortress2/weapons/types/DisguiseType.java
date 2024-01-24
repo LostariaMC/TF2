@@ -11,6 +11,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
 import com.comphenix.protocol.wrappers.EnumWrappers.PlayerInfoAction;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.google.common.collect.ImmutableList.Builder;
+import com.mojang.authlib.GameProfile;
 import fr.lumin0u.teamfortress2.TF;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
 import fr.lumin0u.teamfortress2.util.NMSUtils;
@@ -18,6 +19,8 @@ import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.worsewarn.cosmox.API;
 import net.kyori.adventure.text.Component;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -137,21 +140,16 @@ public final class DisguiseType extends WeaponType
 			ClientboundPlayerInfoUpdatePacket packetPlayerInfoAddCloneHandle;
 			
 			try {
-				Constructor<?> humanConstructor = MinecraftReflection.getEntityPlayerClass().getDeclaredConstructor(
-						MinecraftReflection.getMinecraftServerClass(),
-						MinecraftReflection.getWorldServerClass(),
-						MinecraftReflection.getGameProfileClass());
-				
 				WrappedGameProfile gameProfile = WrappedGameProfile.fromPlayer(disguise.toBukkit());
 				WrappedGameProfile cloneGameProfile = new WrappedGameProfile(UUID.randomUUID(), gameProfile.getName());
 				cloneGameProfile.getProperties().putAll(gameProfile.getProperties());
 				
-				evilCloneHandle = ((EntityPlayer) humanConstructor.newInstance(
-						NMSUtils.getMinecraftServer(),
+				evilCloneHandle = new EntityPlayer(
+						(MinecraftServer) NMSUtils.getMinecraftServer(),
 						NMSUtils.getHandle(disguise.getLocation().getWorld()),
-						cloneGameProfile.getHandle()));
+						(GameProfile) cloneGameProfile.getHandle(),
+						ClientInformation.a());
 				evilClone = evilCloneHandle.getBukkitEntity();
-				
 				
 				playerInfoUpdatePacketConstructor = ClientboundPlayerInfoUpdatePacket.class.getDeclaredConstructor(
 						EnumSet.class,
