@@ -5,10 +5,14 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.events.PacketListener;
-import com.comphenix.protocol.utility.MinecraftReflection;
+import com.comphenix.protocol.reflect.EquivalentConverter;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.EnumWrappers.EnumConverter;
 import com.comphenix.protocol.wrappers.EnumWrappers.ItemSlot;
+import com.comphenix.protocol.wrappers.EnumWrappers.NativeGameMode;
 import com.comphenix.protocol.wrappers.EnumWrappers.PlayerInfoAction;
+import com.comphenix.protocol.wrappers.PlayerInfoData;
+import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import com.google.common.collect.ImmutableList.Builder;
 import com.mojang.authlib.GameProfile;
@@ -18,7 +22,11 @@ import fr.lumin0u.teamfortress2.util.NMSUtils;
 import fr.lumin0u.teamfortress2.weapons.Weapon;
 import fr.worsewarn.cosmox.API;
 import net.kyori.adventure.text.Component;
-import net.minecraft.network.protocol.game.*;
+import net.kyori.adventure.text.serializer.json.JSONComponentSerializer;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
+import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.EntityPlayer;
@@ -136,39 +144,21 @@ public final class DisguiseType extends WeaponType
 			
 			EntityPlayer evilCloneHandle;
 			Player evilClone;
-			Constructor<?> playerInfoUpdatePacketConstructor;
-			ClientboundPlayerInfoUpdatePacket packetPlayerInfoAddCloneHandle;
 			
-			try {
-				WrappedGameProfile gameProfile = WrappedGameProfile.fromPlayer(disguise.toBukkit());
-				WrappedGameProfile cloneGameProfile = new WrappedGameProfile(UUID.randomUUID(), gameProfile.getName());
-				cloneGameProfile.getProperties().putAll(gameProfile.getProperties());
-				
-				evilCloneHandle = new EntityPlayer(
-						(MinecraftServer) NMSUtils.getMinecraftServer(),
-						NMSUtils.getHandle(disguise.getLocation().getWorld()),
-						(GameProfile) cloneGameProfile.getHandle(),
-						ClientInformation.a());
-				evilClone = evilCloneHandle.getBukkitEntity();
-				
-				playerInfoUpdatePacketConstructor = ClientboundPlayerInfoUpdatePacket.class.getDeclaredConstructor(
-						EnumSet.class,
-						Collection.class);
-				evilClone.setDisplayName(disguise.toBukkit().getDisplayName());
-				
-				packetPlayerInfoAddCloneHandle = (ClientboundPlayerInfoUpdatePacket) playerInfoUpdatePacketConstructor.newInstance(
-						EnumSet.of((Enum) EnumWrappers.getPlayerInfoActionConverter().getGeneric(PlayerInfoAction.ADD_PLAYER)/*, (Enum) EnumWrappers.getPlayerInfoActionConverter().getGeneric(PlayerInfoAction.UPDATE_LISTED)*/, (Enum) EnumWrappers.getPlayerInfoActionConverter().getGeneric(PlayerInfoAction.UPDATE_DISPLAY_NAME)),
-						List.of(evilCloneHandle));
-				
-			}catch(ReflectiveOperationException e) {
-				throw new RuntimeException(e);
-			}
+			WrappedGameProfile gameProfile = WrappedGameProfile.fromPlayer(disguise.toBukkit());
+			WrappedGameProfile cloneGameProfile = new WrappedGameProfile(UUID.randomUUID(), gameProfile.getName());
+			cloneGameProfile.getProperties().putAll(gameProfile.getProperties());
 			
-			//PacketContainer packetDisappear = new PacketContainer(Server.ENTITY_DESTROY, new PacketPlayOutEntityDestroy(player.toBukkit().getEntityId()));
+			evilCloneHandle = new EntityPlayer(
+					(MinecraftServer) NMSUtils.getMinecraftServer(),
+					NMSUtils.getHandle(disguise.getLocation().getWorld()),
+					(GameProfile) cloneGameProfile.getHandle(),
+					ClientInformation.a()); // TODO utiliser un truc non obfusqué
+			evilClone = evilCloneHandle.getBukkitEntity();
 			
-			PacketContainer packetPlayerInfoAddClone = new PacketContainer(Server.PLAYER_INFO, packetPlayerInfoAddCloneHandle);
-			//PacketContainer packetSpawnClone = new PacketContainer(Server.NAMED_ENTITY_SPAWN, new PacketPlayOutNamedEntitySpawn(evilCloneHandle));
-			//packetSpawnClone.getIntegers().write(0, id);
+			PacketContainer packetPlayerInfoAddClone = new PacketContainer(Server.PLAYER_INFO);
+			packetPlayerInfoAddClone.getPlayerInfoActions().write(0, Set.of(PlayerInfoAction.ADD_PLAYER, PlayerInfoAction.UPDATE_DISPLAY_NAME));
+			packetPlayerInfoAddClone.getPlayerInfoDataLists().write(1, List.of(new PlayerInfoData(cloneGameProfile, 0, NativeGameMode.ADVENTURE, WrappedChatComponent.fromJson(JSONComponentSerializer.json().serialize(disguise.toBukkit().playerListName())))));
 			
 			
 			Bukkit.getOnlinePlayers().stream()
@@ -192,7 +182,7 @@ public final class DisguiseType extends WeaponType
 				API.instance().getProtocolManager().removePacketListener(packetListener);
 			}
 			
-			packetListener = new PacketAdapter(TF.getInstance(), Server.ENTITY_EQUIPMENT, Server.ENTITY_DESTROY, Server.ANIMATION, Server.NAMED_ENTITY_SPAWN, Server.ENTITY_HEAD_ROTATION, Server.REL_ENTITY_MOVE_LOOK, Server.REL_ENTITY_MOVE, Server.ENTITY_LOOK, Server.ENTITY_TELEPORT, Server.HURT_ANIMATION, Server.ENTITY_METADATA) {
+			packetListener = new PacketAdapter(TF.getInstance(), Server.ENTITY_EQUIPMENT, Server.ENTITY_DESTROY, Server.ANIMATION, Server.SPAWN_ENTITY, Server.ENTITY_HEAD_ROTATION, Server.REL_ENTITY_MOVE_LOOK, Server.REL_ENTITY_MOVE, Server.ENTITY_LOOK, Server.ENTITY_TELEPORT, Server.HURT_ANIMATION, Server.ENTITY_METADATA) {
 				@Override
 				public void onPacketSending(PacketEvent event) {
 					if(!shouldBeTricked.test(TFPlayer.of(event.getPlayer())))
@@ -207,7 +197,7 @@ public final class DisguiseType extends WeaponType
 						PacketContainer newPacket = event.getPacket().deepClone();
 						newPacket.getIntegers().write(0, id);
 						
-						if(event.getPacketType().equals(Server.NAMED_ENTITY_SPAWN)) {
+						if(event.getPacketType().equals(Server.SPAWN_ENTITY)) {
 							newPacket.getUUIDs().write(0, evilClone.getUniqueId());
 						}
 						else if(event.getPacketType().equals(Server.ENTITY_EQUIPMENT)) {
