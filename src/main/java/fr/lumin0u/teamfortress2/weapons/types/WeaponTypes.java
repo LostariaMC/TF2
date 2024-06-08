@@ -586,7 +586,7 @@ public final class WeaponTypes
 	public static final MeleeWeaponType FIRE_AXE = new MeleeWeaponType(false, Material.GOLDEN_AXE, "Hache", 1, -1, 3, 0.2);
 	public static final MolotovType MOLOTOV = new MolotovType();
 	public static final MedigunType MEDIGUN = new MedigunType();
-	public static final GunType SYRINGE_GUN = new GunType(false, Material.PRISMARINE_SHARD, "Tranquilisant", 1, 52, -1, 3, 20, 0, 0, TFSound.SYRINGE_GUN, false)
+	public static final GunType SYRINGE_GUN = new GunType(false, Material.PRISMARINE_SHARD, "Tranquilisant", 1, 52, -1, 2, 20, 0, 0, TFSound.SYRINGE_GUN, false)
 	{
 		@Override
 		protected Builder<String> loreBuilder() {
@@ -606,7 +606,7 @@ public final class WeaponTypes
 			l.getWorld().spawnParticle(Particle.GLOW_SQUID_INK, l, 1, 0, 0, 0, 0, null, true);
 		}
 	};
-	public static final MeleeWeaponType SAW = new MeleeWeaponType(false, Material.IRON_AXE, "Hache", 1, -1, 3, 0.25);
+	public static final MeleeWeaponType SAW = new MeleeWeaponType(false, Material.IRON_AXE, "Hache", 1, -1, 2, 0.25);
 	public static final UberChargeType UBER_CHARGE = new UberChargeType();
 	public static final KnifeType KNIFE = new KnifeType();
 	public static final InvisWatchType INVIS_WATCH = new InvisWatchType();
