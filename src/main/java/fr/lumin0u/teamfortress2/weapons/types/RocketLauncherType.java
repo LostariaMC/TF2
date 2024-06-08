@@ -9,10 +9,7 @@ import fr.lumin0u.teamfortress2.weapons.ThrownExplosive;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.SmallFireball;
+import org.bukkit.entity.*;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
@@ -20,6 +17,8 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.util.function.Predicate.not;
 
@@ -97,8 +96,22 @@ public final class RocketLauncherType extends WeaponType
 			
 			Location nextLoc = location.clone().add(direction.clone().multiply(ROCKET_SPEED));
 			BoundingBox bb = getEntity().getBoundingBox().expand(0.4);
+			
+			Optional<Entity> optHit = Stream.concat(
+							nextLoc.getWorld().getNearbyEntitiesByType(Fireball.class, nextLoc, 5, 5, 5).stream(),
+							nextLoc.getWorld().getNearbyEntitiesByType(Player.class, nextLoc, 5, 5, 5).stream())
+					.filter(owner::isNot)
+					.filter(not(fireball::equals))
+					.filter(ent -> bb.overlaps(ent.getBoundingBox()))
+					.findAny();
+			
 			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED, FluidCollisionMode.NEVER, true) != null
-				|| nextLoc.getWorld().getNearbyEntities(nextLoc, 5, 5, 5).stream().filter(owner::isNot).filter(not(fireball::equals)).map(Entity::getBoundingBox).anyMatch(bb::overlaps)) {
+				|| optHit.isPresent()) {
+				if(optHit.get() instanceof Fireball fireball) {
+					rockets.stream()
+							.filter(rocket -> rocket.getEntity().equals(fireball))
+							.forEach(Rocket::explode);
+				}
 				explode();
 				return;
 			}
