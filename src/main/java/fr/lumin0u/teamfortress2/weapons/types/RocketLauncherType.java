@@ -107,9 +107,9 @@ public final class RocketLauncherType extends WeaponType
 			
 			if(location.getWorld().rayTraceBlocks(location, nextLoc.toVector().subtract(location.toVector()), ROCKET_SPEED, FluidCollisionMode.NEVER, true) != null
 				|| optHit.isPresent()) {
-				if(optHit.get() instanceof Fireball fireball) {
+				if(optHit.isPresent() && optHit.get() instanceof Fireball other) {
 					rockets.stream()
-							.filter(rocket -> rocket.getEntity().equals(fireball))
+							.filter(rocket -> rocket.getEntity().equals(other))
 							.forEach(Rocket::explode);
 				}
 				explode();
