@@ -29,8 +29,7 @@ public class ConnexionListener implements Listener
 		
 		if(!player.hasJoinedBefore()) {
 			player.toBukkit().setGameMode(GameMode.SPECTATOR);
-			if(Bukkit.getOnlinePlayers().size() > 1)
-				player.toBukkit().teleport(Bukkit.getOnlinePlayers().stream().filter(player::is).toList().get(0));
+			Bukkit.getOnlinePlayers().stream().filter(player::isNot).findAny().ifPresent(player.toBukkit()::teleport);
 		}
 		else {
 			player.respawn(gm.findSpawnLocation(player));
