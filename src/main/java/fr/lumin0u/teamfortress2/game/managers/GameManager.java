@@ -200,7 +200,7 @@ public abstract class GameManager
 			if(distance < radius) {
 				double damage = centerDamage * ((radius - distance) / radius);
 				
-				BlockIterator blocksBtwn = new BlockIterator(loc.getWorld(), loc.toVector(), loc.toVector().subtract(entity.getLocation().toVector()), 0, (int) distance + 1);
+				BlockIterator blocksBtwn = new BlockIterator(loc.getWorld(), loc.toVector(), loc.toVector().subtract(entity.getLocation().add(0, 1, 0).toVector()), 0, (int) distance + 1);
 				
 				AtomicInteger blockCount = new AtomicInteger();
 				blocksBtwn.forEachRemaining(block -> {
