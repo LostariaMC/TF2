@@ -82,7 +82,7 @@ public class GunType extends WeaponType
 		return super.loreBuilder().add(DAMAGE_LORE.formatted(damage)).add(RANGE_LORE.formatted(range));
 	}
 	
-	private static Vector addSpread(Vector directionNormalized, double accuracy) {
+	private static Vector addSpread(Vector directionNormalized, double inaccuracy) {
 		double a = directionNormalized.getX(), b = directionNormalized.getY(), c = directionNormalized.getZ();
 		Vector perpendicular;
 		if(c == 1)
@@ -91,7 +91,7 @@ public class GunType extends WeaponType
 			perpendicular = new Vector(-b, a, 0).normalize();
 		
 		double alpha = Math.random() * 2 * Math.PI;
-		double beta = new Random().nextGaussian(0, accuracy);
+		double beta = new Random().nextGaussian(0, inaccuracy);
 		
 		Vector spreaded = directionNormalized.clone().rotateAroundAxis(perpendicular, beta);
 		
