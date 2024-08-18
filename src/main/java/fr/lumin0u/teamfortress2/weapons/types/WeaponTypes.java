@@ -67,7 +67,7 @@ public final class WeaponTypes
 		@Override
 		protected Builder<String> loreBuilder() {
 			return super.loreBuilder()
-					.add(CUSTOM_LORE.formatted("Rend invincible"))
+					.add(CUSTOM_LORE.formatted("Rend invincible pendant §e%d §6secondes".formatted(duration / 20)))
 					.add(DURATION_LORE.formatted((float) ((float) duration / 20f)));
 		}
 		

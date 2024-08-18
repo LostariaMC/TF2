@@ -32,7 +32,7 @@ public enum Kit {
 	SPY(TextColor.color(0xC5BF2F), new WeaponType[] {WeaponTypes.KNIFE, WeaponTypes.C4, WeaponTypes.REVOLVER, WeaponTypes.INVIS_WATCH}, WeaponTypes.DISGUISE, 16, 0.3f, 2, 1, Material.PUFFERFISH, true, 9, "╕"),
 	ENGINEER(TextColor.color(0x55668F), new WeaponType[] {WeaponTypes.TURRET, WeaponTypes.DEFENSEUR, WeaponTypes.TRAMPOLINE, WeaponTypes.MINE, WeaponTypes.CLE_A_MOLETTE}, WeaponTypes.RED_BUTTON, 20, 0.26f, 1, 1, Material.COAST_ARMOR_TRIM_SMITHING_TEMPLATE, true, 6, "╡"),
 	MEDIC(TextColor.color(0xFF62B8), new WeaponType[] {WeaponTypes.MEDIGUN, WeaponTypes.SYRINGE_GUN, WeaponTypes.SAW}, WeaponTypes.UBER_CHARGE, 20, 0.26f, 1, 1, Material.APPLE, true, 7, "╢"),
-	PYRO(TextColor.color(0xD56F29), new WeaponType[] {WeaponTypes.BARBECUE, WeaponTypes.STD_SHOTGUN, WeaponTypes.FIRE_AXE}, WeaponTypes.MOLOTOV, 24, 0.28f, 1, 1, Material.BLAZE_POWDER, true, 3, "▓"),
+	PYRO(TextColor.color(0xD56F29), new WeaponType[] {WeaponTypes.BARBECUE, WeaponTypes.STD_SHOTGUN, WeaponTypes.FIRE_AXE}, WeaponTypes.MOLOTOV, 24, 0.26f, 1, 1, Material.BLAZE_POWDER, true, 3, "▓"),
 	;
 	
 	private static Inventory wrInventory;
