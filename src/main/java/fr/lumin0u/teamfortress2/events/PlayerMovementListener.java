@@ -2,6 +2,8 @@ package fr.lumin0u.teamfortress2.events;
 
 import fr.lumin0u.teamfortress2.Kit;
 import fr.lumin0u.teamfortress2.TF;
+import fr.lumin0u.teamfortress2.game.GameType;
+import fr.lumin0u.teamfortress2.game.managers.CTFManager;
 import fr.lumin0u.teamfortress2.game.managers.GameManager;
 import fr.lumin0u.teamfortress2.game.managers.GameManager.GamePhase;
 import fr.lumin0u.teamfortress2.game.TFPlayer;
@@ -80,7 +82,8 @@ public class PlayerMovementListener implements Listener
 			event.setCancelled(true);
 			
 			if(player.getKit().equals(Kit.SCOUT)) {
-				player.toBukkit().setVelocity(new Vector(0, 0.5, 0).add(player.getEyeLocation().getDirection().multiply(0.6)));
+				boolean isFlagOwner = GameManager.getInstance().getGameType() == GameType.CTF && CTFManager.getInstance().getFlags().stream().anyMatch(flag -> flag.getCapturer().is(player));
+				player.toBukkit().setVelocity(new Vector(0, 0.5, 0).add(player.getEyeLocation().getDirection().multiply(0.6)).multiply(isFlagOwner ? 0.7 : 1));
 				player.toBukkit().setAllowFlight(false);
 				
 				TFSound.SCOUT_DASH.play(player.toBukkit().getLocation());

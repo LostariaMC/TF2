@@ -196,11 +196,12 @@ public abstract class GameManager
 		loc.getWorld().spawnParticle(Particle.FLAME, loc, nbParticles, 0, 0, 0, radius / 20, null, true);
 		
 		getLivingEntities().stream().filter(enemyPredicate).forEach(entity -> {
-			double distance = entity.getLocation().distance(loc);
-			if(distance < radius) {
+			double distanceSquared = entity.getLocation().distanceSquared(loc);
+			if(distanceSquared < radius * radius) {
+				double distance = Math.sqrt(distanceSquared);
 				double damage = centerDamage * ((radius - distance) / radius);
 				
-				BlockIterator blocksBtwn = new BlockIterator(loc.getWorld(), loc.toVector(), loc.toVector().subtract(entity.getLocation().add(0, 1, 0).toVector()), 0, (int) distance + 1);
+				BlockIterator blocksBtwn = new BlockIterator(loc.getWorld(), loc.toVector().add(new Vector(0, 1, 0)), loc.toVector().subtract(entity.getLocation().toVector()), 0, (int) distance + 1);
 				
 				AtomicInteger blockCount = new AtomicInteger();
 				blocksBtwn.forEachRemaining(block -> {

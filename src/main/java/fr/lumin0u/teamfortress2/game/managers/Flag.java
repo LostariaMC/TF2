@@ -43,6 +43,10 @@ public class Flag
 		return team;
 	}
 	
+	public TFPlayer getCapturer() {
+		return capturer;
+	}
+	
 	public void onPlayerDeath(TFPlayer player) {
 		if(player.is(capturer)) {
 			fall();
