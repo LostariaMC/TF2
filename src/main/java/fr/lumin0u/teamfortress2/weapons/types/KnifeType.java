@@ -14,13 +14,15 @@ import org.bukkit.util.Vector;
 
 public final class KnifeType extends MeleeWeaponType
 {
+	public static final double STAB_MULT = 2.5;
+	
 	public KnifeType() {
 		super(false, Material.NETHERITE_SWORD, "Poignard", 1, 76, 7, 0.2);
 	}
 	
 	@Override
 	protected Builder<String> loreBuilder() {
-		return super.loreBuilder().add(CUSTOM_LORE.formatted("§6Dégats dans le dos§7: §e§l" + (damage * 2)));
+		return super.loreBuilder().add(CUSTOM_LORE.formatted("§6Dégats dans le dos§7: §e§l" + (damage * STAB_MULT)));
 	}
 	
 	@Override
@@ -38,7 +40,7 @@ public final class KnifeType extends MeleeWeaponType
 			
 			boolean stab = player.toBukkit().getEyeLocation().getDirection().dot(victim.toBukkit().getEyeLocation().getDirection()) > 0;
 			
-			if(victim.damage(player, stab ? damage * 2 : damage, kb)) {
+			if(victim.damage(player, stab ? damage * STAB_MULT : damage, kb)) {
 				victim.setLastMeleeHitDate(TF.currentTick());
 				weapon.useAmmo();
 				
@@ -50,6 +52,7 @@ public final class KnifeType extends MeleeWeaponType
 				
 				if(stab) {
 					particleLoc.getWorld().spawnParticle(Particle.CRIT_MAGIC, particleLoc, 40, 0, 0, 0, 0.7);
+					TFSound.SPY_STAB.play(particleLoc);
 				}
 			}
 		}

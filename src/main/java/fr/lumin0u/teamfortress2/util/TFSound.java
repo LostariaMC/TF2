@@ -24,6 +24,7 @@ public interface TFSound
 	
 	TFSound MELEE_MISS = new SimpleSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 0.7f, SoundCategory.PLAYERS);
 	TFSound MELEE_HIT = new SimpleSound(Sound.ENTITY_PLAYER_ATTACK_STRONG, 1f, 1.3f, SoundCategory.PLAYERS);
+	TFSound SPY_STAB = new SimpleSound(Sound.BLOCK_ANVIL_LAND, 0.5f, 2f, SoundCategory.PLAYERS);
 	
 	TFSound GET_HEALED = new SimpleSound(Sound.BLOCK_BEACON_ACTIVATE, 1f, 2f, SoundCategory.PLAYERS);
 	TFSound HEAL_STOP = new SimpleSound(Sound.BLOCK_BEACON_DEACTIVATE, 1f, 2f, SoundCategory.PLAYERS);
