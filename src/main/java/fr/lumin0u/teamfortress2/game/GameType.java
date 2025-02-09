@@ -38,6 +38,12 @@ public enum GameType
 			return new CTFManager(map);
 		}
 	},
+	FFA("FFA", 1, false, true, false) {
+		@Override
+		public GameManager createManager(GameMap map) {
+			return new FFAManager(map);
+		}
+	}
 	;
 	
 	private final String name;

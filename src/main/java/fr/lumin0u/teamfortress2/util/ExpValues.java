@@ -5,7 +5,11 @@ public class ExpValues
 	public static final double WIN_TDM = 10;
 	public static final double LOSE_TDM = 4;
 	public static final double KILL_TDM = 0.5;
-	
+
+	public static final double WIN_FFA = 5;
+	public static final double LOSE_FFA = 2;
+	public static final double KILL_FFA = 0.5;
+
 	public static final double WIN_PAYLOADS = 10;
 	public static final double LOSE_PAYLOADS = 4;
 	public static final double _100_RAILS_PAYLOADS = 7;
